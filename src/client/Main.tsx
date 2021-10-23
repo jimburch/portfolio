@@ -13,7 +13,12 @@ const Main: React.FC = () => {
   }, []);
   return (
     <div>
-      <h1>Hello, my name is Jim.</h1>
+      <h1>
+        Hello, my name is Jim{" "}
+        <span role="img" aria-label="waving hand">
+          👋
+        </span>
+      </h1>
     </div>
   );
 };
