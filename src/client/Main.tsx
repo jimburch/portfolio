@@ -1,9 +1,18 @@
 import React, { useEffect } from "react";
 import axios from "axios";
+import { createUseStyles } from "react-jss";
 
 import "./styles.css";
 
+const useStyles = createUseStyles({
+  text: {
+    color: "#FFC017",
+  },
+});
+
 const Main: React.FC = () => {
+  const classes = useStyles();
+
   useEffect(() => {
     const callBackend = async (): Promise<void> => {
       const response = await axios.get("/api/hello");
@@ -19,6 +28,9 @@ const Main: React.FC = () => {
           👋
         </span>
       </h1>
+      <p className={classes.text}>
+        This paragraph content is styled with React-JSS
+      </p>
     </div>
   );
 };
