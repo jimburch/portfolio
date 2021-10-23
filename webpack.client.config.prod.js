@@ -16,7 +16,7 @@ module.exports = {
   devtool: "inline-source-map",
   plugins: [
     new HtmlWebpackPlugin({
-      title: "⚡ Kickoff",
+      title: "Jim Burch",
       template: "./src/client/public/index.html",
       showErrors: true,
       favicon: "./src/client/public/favicon.ico",
