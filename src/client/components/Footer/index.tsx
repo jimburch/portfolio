@@ -25,9 +25,9 @@ const Footer: React.FC = () => {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
+    <footer className={classes.root}>
       <div className={classes.footerContainer}>Footer</div>
-    </div>
+    </footer>
   );
 };
 
