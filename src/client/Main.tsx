@@ -2,6 +2,9 @@ import React, { useEffect } from "react";
 import axios from "axios";
 import { createUseStyles } from "react-jss";
 
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+
 import "./styles.css";
 
 const useStyles = createUseStyles({
@@ -22,6 +25,7 @@ const Main: React.FC = () => {
   }, []);
   return (
     <div>
+      <Navbar />
       <h1>
         Hello, my name is Jim{" "}
         <span role="img" aria-label="waving hand">
@@ -31,6 +35,7 @@ const Main: React.FC = () => {
       <p className={classes.text}>
         This paragraph content is styled with React-JSS
       </p>
+      <Footer />
     </div>
   );
 };
