@@ -1,16 +1,18 @@
 import React, { useEffect } from "react";
-import axios from "axios";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { createUseStyles } from "react-jss";
+import axios from "axios";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Home from "./views/Home";
+import Development from "./views/Development";
+import Writing from "./views/Writing";
 
 import "./styles.css";
 
 const useStyles = createUseStyles({
-  text: {
-    color: "#FFC017",
-  },
+  root: {},
 });
 
 const Main: React.FC = () => {
@@ -23,20 +25,19 @@ const Main: React.FC = () => {
     };
     callBackend();
   }, []);
+
   return (
-    <div>
-      <Navbar />
-      <h1>
-        Hello, my name is Jim{" "}
-        <span role="img" aria-label="waving hand">
-          👋
-        </span>
-      </h1>
-      <p className={classes.text}>
-        This paragraph content is styled with React-JSS
-      </p>
-      <Footer />
-    </div>
+    <Router>
+      <div className={classes.root}>
+        <Navbar />
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route exact path="/development" component={Development} />
+          <Route exact path="/writing" component={Writing} />
+        </Switch>
+        <Footer />
+      </div>
+    </Router>
   );
 };
 
