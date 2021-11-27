@@ -1,9 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createUseStyles } from "react-jss";
+import Hero from "../../components/Hero";
 
 const useStyles = createUseStyles({
-  root: {},
+  root: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
   cardContainer: {
     display: "flex",
     flexDirection: "row",
@@ -31,6 +36,7 @@ const Home: React.FC = () => {
 
   return (
     <div className={classes.root}>
+      <Hero />
       <h1>
         Choose Your Own Adventure{" "}
         <span role="img" aria-label="camping">
