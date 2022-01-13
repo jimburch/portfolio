@@ -1,0 +1,35 @@
+:root {
+  --black: #333;
+  --gray: #555;
+  --white: #fff;
+}
+
+/* consider a variables.css */
+
+* {
+  box-sizing: border-box;
+}
+
+/* remember the question about the css reset */
+
+html,
+body {
+  color: var(--gray);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Oxygen, Ubuntu,
+    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--black);
+}
