@@ -9,22 +9,10 @@ import { root } from "../styles/index.module.css";
 
 const IndexPage = () => (
   <Layout>
-    <Seo title="Home" />
+    <Seo />
     <div className={root}>
-      <h1>Hi people</h1>
-      <p>Welcome to your new Gatsby site.</p>
-      <p>Now go build something great.</p>
-      <StaticImage
-        src="../images/gatsby-astronaut.png"
-        width={300}
-        quality={95}
-        formats={["auto", "webp", "avif"]}
-        alt="A Gatsby astronaut"
-        style={{ marginBottom: `1.45rem` }}
-      />
-      <p>
-        <Link to="/page-2/">Go to page 2</Link> <br />
-      </p>
+      <h1>My Name Is</h1>
+      <h1>Jim</h1>
     </div>
   </Layout>
 );
