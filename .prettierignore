@@ -1,2 +1,4 @@
-node_modules
-CHANGELOG.md
+.cache
+package.json
+package-lock.json
+public

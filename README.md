@@ -1,3 +1,3 @@
-# Hello, World
+# Jim Burch | Portfolio
 
-Future home of JimBurch.com. No idea what this will become, just iterating along the way.
+This is v1 of my portfolio, built with Gatsby
