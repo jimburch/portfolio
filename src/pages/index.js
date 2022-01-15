@@ -1,18 +1,28 @@
 import * as React from "react";
-import { Link } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
 
 import Layout from "../components/layout";
 import Seo from "../components/seo";
 
-import { root } from "../styles/index.module.css";
+import { root, name } from "../styles/index.module.css";
 
 const IndexPage = () => (
   <Layout>
     <Seo />
     <div className={root}>
-      <h1>My Name Is</h1>
-      <h1>Jim</h1>
+      <h3>MY NAME IS</h3>
+      <StaticImage
+        src="../images/memoji.png"
+        alt="Jim Burch memoji sitting behind a MacBook Pro"
+        placeholder="dominantColor"
+        height={250}
+      />
+      <h1 className={name}>
+        JIM BURCH{" "}
+        <span role="img" aria-label="waving hand">
+          👋
+        </span>
+      </h1>
     </div>
   </Layout>
 );
