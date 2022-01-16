@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { StaticImage } from "gatsby-plugin-image";
 
 import Layout from "../components/layout";
@@ -14,7 +14,6 @@ const IndexPage = () => (
       <StaticImage
         src="../images/memoji.png"
         alt="Jim Burch memoji sitting behind a MacBook Pro"
-        placeholder="dominantColor"
         height={250}
       />
       <h1 className={name}>
