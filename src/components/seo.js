@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Helmet } from "react-helmet";
 import { useStaticQuery, graphql } from "gatsby";
 
@@ -24,7 +24,11 @@ const Seo = (props) => {
   const url = new URL(props.path || "/", defaults.siteUrl);
 
   return (
-    <Helmet>
+    <Helmet
+      htmlAttributes={{
+        lang: "en",
+      }}
+    >
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
