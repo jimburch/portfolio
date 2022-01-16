@@ -14,7 +14,6 @@ const IndexPage = () => (
       <StaticImage
         src="../images/memoji.png"
         alt="Jim Burch memoji sitting behind a MacBook Pro"
-        placeholder="dominantColor"
         height={250}
       />
       <h1 className={name}>

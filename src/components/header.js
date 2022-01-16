@@ -1,15 +1,12 @@
 import React from "react";
-import { Link } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
 
-import { root, nav, short } from "../styles/header.module.css";
+import { root, logo, nav, short } from "../styles/header.module.css";
 
 const Header = ({ siteTitle }) => (
   <header className={root}>
     <div>
-      <h3>
-        <Link to="/">JB</Link>
-      </h3>
+      <h3 className={logo}>JB</h3>
     </div>
     <div className={nav}>
       <h3>
