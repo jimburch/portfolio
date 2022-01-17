@@ -38,7 +38,7 @@ const Header = ({ siteTitle }) => (
         />
       </a>
       <h3>
-        <Link to="/changeblog">Changeblog</Link>
+        <Link to="/changeblog">CB</Link>
       </h3>
     </div>
   </header>
