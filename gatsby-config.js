@@ -43,13 +43,13 @@ module.exports = {
       resolve: "gatsby-source-filesystem",
       options: {
         name: "posts",
-        path: `${__dirname}/src/posts/`,
+        path: `${__dirname}/src/posts/changeblog/`,
       },
     },
     {
       resolve: "gatsby-plugin-page-creator",
       options: {
-        path: `${__dirname}/src/posts`,
+        path: `${__dirname}/src/posts/`,
       },
     },
     "gatsby-remark-images",
