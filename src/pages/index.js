@@ -2,13 +2,11 @@ import React from "react";
 import { StaticImage } from "gatsby-plugin-image";
 
 import Layout from "../components/layout";
-import Seo from "../components/seo";
 
 import { root, name } from "../styles/index.module.css";
 
 const IndexPage = () => (
   <Layout>
-    <Seo />
     <div className={root}>
       <h3>MY NAME IS</h3>
       <StaticImage

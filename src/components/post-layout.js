@@ -6,9 +6,9 @@ const PostLayout = ({ children, pageContext }) => {
   const { title, description } = pageContext.frontmatter;
 
   return (
-    <Layout title={title} description={description}>
+    <Layout title={`Changeblog | ${title}`} description={description}>
       {children}
-      <Link to="/">&larr; back</Link>
+      <Link to="/changeblog">&larr; back</Link>
     </Layout>
   );
 };

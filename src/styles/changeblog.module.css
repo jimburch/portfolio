@@ -1,0 +1,15 @@
+.article {
+  display: flex;
+  flex-direction: column;
+  margin-top: 25px;
+}
+
+.article a {
+  text-decoration: none;
+  color: var(--navy);
+}
+
+.article a:hover,
+.article a:focus {
+  text-decoration: underline;
+}
