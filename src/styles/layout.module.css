@@ -1,12 +1,12 @@
 .main {
-  max-width: 60ch;
+  max-width: 65ch;
   margin: auto;
   width: 50%;
 }
 
 @media only screen and (max-width: 768px) {
   .main {
-    width: 75%;
+    width: 80%;
     margin: auto;
   }
 }
