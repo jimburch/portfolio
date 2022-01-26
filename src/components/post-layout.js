@@ -6,7 +6,11 @@ const PostLayout = ({ children, pageContext }) => {
   const { title, description } = pageContext.frontmatter;
 
   return (
-    <Layout title={`Changeblog | ${title}`} description={description}>
+    <Layout
+      title={`Changeblog | ${title}`}
+      description={description}
+      style={{ paddingBottom: 50 }}
+    >
       {children}
       <Link to="/changeblog">&larr; back</Link>
     </Layout>
