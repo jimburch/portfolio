@@ -20,7 +20,11 @@ const Seo = (props) => {
 
   const title = props.title || defaults.title;
   const description = props.description || defaults.description;
-  const image = new URL(props.image || defaults.image, defaults.siteUrl);
+  // const image = new URL(props.image || defaults.image, defaults.siteUrl);
+  const image = props.image
+    ? `../images/${props.image}`
+    : new URL(defaults.image, defaults.siteUrl);
+  console.log(image);
   const url = new URL(props.path || "/", defaults.siteUrl);
 
   return (
