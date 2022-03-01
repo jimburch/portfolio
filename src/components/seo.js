@@ -18,18 +18,10 @@ const Seo = (props) => {
 
   const defaults = data.site.siteMetadata;
 
-  // console.log(defaults);
-
   const title = props.title || defaults.title;
   const description = props.description || defaults.description;
   const image = new URL(props.image || defaults.image, defaults.siteUrl);
-  // const image = props.image
-  //   ? `${props.image}`
-  //   : new URL(defaults.image, defaults.siteUrl);
-  // console.log(image);
   const url = new URL(props.path || "/", defaults.siteUrl);
-
-  const memoji = "../../memoji.png";
 
   return (
     <Helmet
@@ -46,7 +38,7 @@ const Seo = (props) => {
       <meta property="og:type" content="website" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      {image && <meta property="og:image" content={memoji} />}
+      {image && <meta property="og:image" content={image} />}
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
