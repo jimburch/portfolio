@@ -13,6 +13,7 @@ const Layout = ({
   description = false,
   image = false,
   path = false,
+  date = null,
   style = null,
 }) => {
   const data = useStaticQuery(graphql`
@@ -27,7 +28,13 @@ const Layout = ({
 
   return (
     <div style={style}>
-      <Seo title={title} description={description} image={image} path={path} />
+      <Seo
+        title={title}
+        description={description}
+        image={image}
+        path={path}
+        date={date}
+      />
       <Header siteTitle={data.site.siteMetadata?.title || "Jim Burch"} />
       <div>
         <main className={main}>{children}</main>
