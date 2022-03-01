@@ -33,6 +33,7 @@ const Seo = (props) => {
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
       <meta name="image" content={image} />
+      <meta name="author" content="Jim Burch"></meta>
 
       <meta property="og:url" content={url} />
       <meta property="og:type" content="website" />
