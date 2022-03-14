@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "gatsby";
-import Layout from "./layout.js";
+import Layout from "./Layout";
 
 const PostLayout = ({ children, pageContext }) => {
   const { title, description, date, metaImageUrl } = pageContext.frontmatter;
