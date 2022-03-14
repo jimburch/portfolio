@@ -12,12 +12,14 @@ const PostLayout = ({ children, pageContext }) => {
     timeZone: "UTC",
   });
 
+  const url = typeof window !== "undefined" ? window.location.path : "";
+
   return (
     <Layout
       title={`${title} | Changeblog`}
       description={description}
       image={metaImageUrl}
-      path={window.location.pathname}
+      path={url}
       style={{ paddingBottom: 50 }}
     >
       <h1>{title}</h1>
