@@ -12,7 +12,7 @@ const PostLayout = ({ children, pageContext }) => {
     timeZone: "UTC",
   });
 
-  const url = typeof window !== "undefined" ? window.location.path : "";
+  const url = typeof window !== "undefined" ? window.location.href : "";
 
   return (
     <Layout
