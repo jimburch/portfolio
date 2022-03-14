@@ -17,7 +17,7 @@ const PostLayout = ({ children, pageContext }) => {
       title={`${title} | Changeblog`}
       description={description}
       image={metaImageUrl}
-      date={date}
+      path={window.location.pathname}
       style={{ paddingBottom: 50 }}
     >
       <h1>{title}</h1>
