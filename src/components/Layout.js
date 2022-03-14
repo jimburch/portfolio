@@ -1,8 +1,8 @@
 import React from "react";
 import { useStaticQuery, graphql } from "gatsby";
 
-import Header from "./header.js";
-import Seo from "./seo.js";
+import Header from "./Header";
+import Seo from "./Seo";
 
 import "../styles/global.css";
 import { main } from "../styles/layout.module.css";
