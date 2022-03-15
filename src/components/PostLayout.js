@@ -12,6 +12,7 @@ const PostLayout = ({ children, pageContext }) => {
     timeZone: "UTC",
   });
 
+  // ternary prevents error during build time
   const url = typeof window !== "undefined" ? window.location.href : "";
 
   return (
