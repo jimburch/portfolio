@@ -46,6 +46,11 @@ const Seo = (props) => {
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
+
+      <meta
+        name="google-site-verification"
+        content="n8XURp9OImFEMNKu21g9iyKy-_4x0_9M7dcvlfvBBIM"
+      />
     </Helmet>
   );
 };
