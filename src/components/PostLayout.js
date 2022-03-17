@@ -3,7 +3,7 @@ import { Link } from "gatsby";
 import Layout from "./Layout";
 
 const PostLayout = ({ children, pageContext }) => {
-  const { title, description, date, metaImageUrl } = pageContext.frontmatter;
+  const { title, description, date, image } = pageContext.frontmatter;
 
   const dateString = new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
@@ -19,7 +19,7 @@ const PostLayout = ({ children, pageContext }) => {
     <Layout
       title={`${title} | Changeblog`}
       description={description}
-      image={metaImageUrl}
+      image={image}
       path={url}
       style={{ paddingBottom: 50 }}
     >

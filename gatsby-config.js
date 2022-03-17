@@ -1,10 +1,11 @@
 module.exports = {
   siteMetadata: {
-    title: "Jim Burch | Portfolio",
+    title: "Jim Burch | Software Engineer & Creative Pro",
     description: "A collection of my work and a sandbox to try new things.",
     author: "Jim Burch",
-    siteUrl: "https://jimburch.com",
-    image: "https://miro.medium.com/max/2000/1*1b3yt0vPJ0uELSn7_iUDuw.jpeg",
+    siteUrl: "https://www.jimburch.com",
+    image:
+      "https://jimburch-portfolio.s3.us-west-1.amazonaws.com/site-images/jimburch-portfolio-grand-canyon.jpg",
   },
   plugins: [
     // seo
