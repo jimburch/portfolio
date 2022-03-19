@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
+import { ButtonGroup, Button } from "@chakra-ui/react";
 
 import { root, logo, nav, short } from "../styles/header.module.css";
 
@@ -12,15 +13,15 @@ const Header = ({ siteTitle }) => (
       </h3>
     </div>
     <div className={nav}>
-      <h3>
+      <Button>
         <a href="https://www.github.com/JimBurch">GitHub</a>
-      </h3>
-      <h3>
+      </Button>
+      <Button>
         <a href="https://www.linkedin.com/in/jimburch1">LinkedIn</a>
-      </h3>
-      <h3>
+      </Button>
+      <Button>
         <Link to="/changeblog">Changeblog</Link>
-      </h3>
+      </Button>
     </div>
     <div className={short}>
       <a href="https://www.github.com/JimBurch">
