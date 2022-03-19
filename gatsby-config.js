@@ -11,6 +11,9 @@ module.exports = {
     // seo
     "gatsby-plugin-react-helmet",
 
+    // chakra ui
+    "@chakra-ui/gatsby-plugin",
+
     // images
     {
       resolve: "gatsby-plugin-sharp",
