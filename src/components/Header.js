@@ -1,28 +1,30 @@
 import React from "react";
-import { Link } from "gatsby";
+import { Link as GatsbyLink } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
 import { ButtonGroup, Button } from "@chakra-ui/react";
 
 import { root, logo, nav, short } from "../styles/header.module.css";
 
-const Header = ({ siteTitle }) => (
+const Header = () => (
   <header className={root}>
     <div>
       <h3 className={logo}>
-        <Link to="/">JB</Link>
+        <GatsbyLink to="/">JB</GatsbyLink>
       </h3>
     </div>
-    <div className={nav}>
-      <Button>
-        <a href="https://www.github.com/JimBurch">GitHub</a>
-      </Button>
-      <Button>
-        <a href="https://www.linkedin.com/in/jimburch1">LinkedIn</a>
-      </Button>
-      <Button>
-        <Link to="/changeblog">Changeblog</Link>
-      </Button>
-    </div>
+    <nav className={nav}>
+      <ButtonGroup variant="outline">
+        <Button as="a" href="https://github.com/JimBurch">
+          GitHub
+        </Button>
+        <Button as="a" href="https://www.linkedin.com/in/jimburch1">
+          LinkedIn
+        </Button>
+        <Button as={GatsbyLink} to="/changeblog">
+          Changeblog
+        </Button>
+      </ButtonGroup>
+    </nav>
     <div className={short}>
       <a href="https://www.github.com/JimBurch">
         <StaticImage
@@ -39,7 +41,7 @@ const Header = ({ siteTitle }) => (
         />
       </a>
       <h3>
-        <Link to="/changeblog">CB</Link>
+        <GatsbyLink to="/changeblog">CB</GatsbyLink>
       </h3>
     </div>
   </header>

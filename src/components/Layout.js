@@ -1,5 +1,4 @@
 import React from "react";
-import { useStaticQuery, graphql } from "gatsby";
 
 import Header from "./Header";
 import Seo from "./Seo";
@@ -16,16 +15,6 @@ const Layout = ({
   date = null,
   style = null,
 }) => {
-  const data = useStaticQuery(graphql`
-    query SiteTitleQuery {
-      site {
-        siteMetadata {
-          title
-        }
-      }
-    }
-  `);
-
   return (
     <div style={style}>
       <Seo
@@ -35,11 +24,8 @@ const Layout = ({
         path={path}
         date={date}
       />
-      <Header siteTitle={data.site.siteMetadata?.title || "Jim Burch"} />
-      <div>
-        <main className={main}>{children}</main>
-        <footer></footer>
-      </div>
+      <Header />
+      <main className={main}>{children}</main>
     </div>
   );
 };
