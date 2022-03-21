@@ -14,6 +14,15 @@ module.exports = {
     // chakra ui
     "@chakra-ui/gatsby-plugin",
 
+    // fonts
+    {
+      resolve: "gatsby-plugin-google-fonts",
+      options: {
+        fonts: ["Fira Mono"],
+        display: "swap",
+      },
+    },
+
     // images
     {
       resolve: "gatsby-plugin-sharp",

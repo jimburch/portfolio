@@ -1,6 +1,7 @@
 import React from "react";
-import { Link } from "gatsby";
-import Layout from "./Layout";
+import { Link as GatsbyLink } from "gatsby";
+import { Heading, Text } from "@chakra-ui/react";
+import Seo from "./Seo";
 
 const PostLayout = ({ children, pageContext }) => {
   const { title, description, date, image } = pageContext.frontmatter;
@@ -16,18 +17,18 @@ const PostLayout = ({ children, pageContext }) => {
   const url = typeof window !== "undefined" ? window.location.href : "";
 
   return (
-    <Layout
-      title={`${title} | Changeblog`}
-      description={description}
-      image={image}
-      path={url}
-      style={{ paddingBottom: 50 }}
-    >
-      <h1>{title}</h1>
-      <p>{dateString}</p>
+    <>
+      <Seo
+        title={`${title} | Changeblog`}
+        description={description}
+        image={image}
+        path={url}
+      />
+      <Heading size="2xl">{title}</Heading>
+      <Text>{dateString}</Text>
       {children}
-      <Link to="/changeblog">&larr; back to Changeblog</Link>
-    </Layout>
+      <GatsbyLink to="/changeblog">&larr; back to Changeblog</GatsbyLink>
+    </>
   );
 };
 

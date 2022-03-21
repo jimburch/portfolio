@@ -11,12 +11,17 @@ export const theme = extendTheme({
         background: "atom.midnight",
         color: "atom.mono1",
         fontSize: "18px",
+        fontFamily: "Fira Mono",
         lineHeight: "1.4",
       },
       body: {
         margin: 0,
       },
     },
+  },
+  fonts: {
+    heading: "Fira Mono",
+    text: "Fira Mono",
   },
   colors: {
     brand: {
