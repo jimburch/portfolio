@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useStaticQuery, graphql } from "gatsby";
 
-import Layout from "../components/Layout";
+import Seo from "../components/Seo";
 
 import { article } from "../styles/changeblog.module.css";
 
@@ -28,12 +28,13 @@ const Changeblog = () => {
   const url = typeof window !== "undefined" ? window.location.href : "";
 
   return (
-    <Layout
-      title="Jim Burch | Changeblog"
-      description="An in-depth journal on how this site changes and grows."
-      image="https://jimburch-portfolio.s3.us-west-1.amazonaws.com/site-images/jimburch-changeblog-coffee-coding.jpg"
-      path={url}
-    >
+    <>
+      <Seo
+        title="Jim Burch | Changeblog"
+        description="An in-depth journal on how this site changes and grows."
+        image="https://jimburch-portfolio.s3.us-west-1.amazonaws.com/site-images/jimburch-changeblog-coffee-coding.jpg"
+        path={url}
+      />
       <h1>Changeblog</h1>
       <p>An in-depth journal on how this site changes and grows.</p>
       {posts.map((post) => (
@@ -42,7 +43,7 @@ const Changeblog = () => {
           <small>posted {post.frontmatter.date}</small>
         </div>
       ))}
-    </Layout>
+    </>
   );
 };
 
