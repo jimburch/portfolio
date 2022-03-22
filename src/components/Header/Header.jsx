@@ -1,16 +1,20 @@
 import React from "react";
 import { Link as GatsbyLink } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
-import { ButtonGroup, Button } from "@chakra-ui/react";
+import { ButtonGroup, Button, Link } from "@chakra-ui/react";
 
-import { root, logo, nav, short } from "../styles/header.module.css";
+import { root, nav, short } from "./Header.module.css";
 
-const Header = () => (
+export const Header = () => (
   <header className={root}>
     <div>
-      <h3 className={logo}>
-        <GatsbyLink to="/">JB</GatsbyLink>
-      </h3>
+      <Link as={GatsbyLink} to="/">
+        <StaticImage
+          src="../../images/memoji.png"
+          alt="memoji of Jim Burch"
+          height={30}
+        />
+      </Link>
     </div>
     <nav className={nav}>
       <ButtonGroup variant="outline">
@@ -28,14 +32,14 @@ const Header = () => (
     <div className={short}>
       <a href="https://www.github.com/JimBurch">
         <StaticImage
-          src="../images/github-icon.png"
+          src="../../images/github-icon.png"
           alt="github icon about me"
           height={30}
         />
       </a>
       <a href="https://www.linkedin.com/in/jimburch1">
         <StaticImage
-          src="../images/linkedin-icon.png"
+          src="../../images/linkedin-icon.png"
           alt="linkedin icon contact"
           height={30}
         />
@@ -46,5 +50,3 @@ const Header = () => (
     </div>
   </header>
 );
-
-export default Header;

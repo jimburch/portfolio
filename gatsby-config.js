@@ -73,12 +73,13 @@ module.exports = {
           {
             resolve: "gatsby-remark-images",
             options: {
+              extensions: [".mdx", ".md"],
               maxWidth: 1200,
             },
           },
         ],
         defaultLayouts: {
-          posts: require.resolve("./src/components/PostLayout.js"),
+          posts: require.resolve("./src/components/PostLayout.jsx"),
         },
       },
     },

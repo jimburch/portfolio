@@ -10,7 +10,6 @@ export const theme = extendTheme({
         height: "100%",
         background: "atom.midnight",
         color: "atom.mono1",
-        fontSize: "18px",
         fontFamily: "Fira Mono",
         lineHeight: "1.4",
       },

@@ -1,8 +1,8 @@
 import React from "react";
-import { Link, useStaticQuery, graphql } from "gatsby";
+import { Link as GatsbyLink, useStaticQuery, graphql } from "gatsby";
+import { Heading, Text, Link } from "@chakra-ui/react";
 
-import Seo from "../components/Seo";
-
+import { Seo } from "../components/Seo";
 import { article } from "../styles/changeblog.module.css";
 
 const Changeblog = () => {
@@ -35,12 +35,14 @@ const Changeblog = () => {
         image="https://jimburch-portfolio.s3.us-west-1.amazonaws.com/site-images/jimburch-changeblog-coffee-coding.jpg"
         path={url}
       />
-      <h1>Changeblog</h1>
-      <p>An in-depth journal on how this site changes and grows.</p>
+      <Heading>Changeblog</Heading>
+      <Text>An in-depth journal on how this site changes and grows.</Text>
       {posts.map((post) => (
         <div className={article} key={post.id}>
-          <Link to={post.slug}>{post.frontmatter.title}</Link>
-          <small>posted {post.frontmatter.date}</small>
+          <Link as={GatsbyLink} to={post.slug}>
+            {post.frontmatter.title}
+          </Link>
+          <Text size="xs">posted {post.frontmatter.date}</Text>
         </div>
       ))}
     </>

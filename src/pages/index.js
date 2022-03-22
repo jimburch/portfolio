@@ -2,7 +2,7 @@ import React from "react";
 import { StaticImage } from "gatsby-plugin-image";
 import { Heading } from "@chakra-ui/react";
 
-import Seo from "../components/Seo";
+import { Seo } from "../components/Seo";
 import { root, name } from "../styles/index.module.css";
 
 const IndexPage = () => (
