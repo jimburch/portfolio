@@ -1,18 +1,30 @@
 import React from "react";
 import { Link as GatsbyLink } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
-import { ButtonGroup, Button, Link } from "@chakra-ui/react";
+import {
+  ButtonGroup,
+  Button,
+  Link,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
+} from "@chakra-ui/react";
+import { HamburgerIcon } from "@chakra-ui/icons";
+import { AiFillHome, AiFillGithub, AiFillLinkedin } from "react-icons/ai";
+import { BsCode } from "react-icons/bs";
 
-import { root, nav, short } from "./Header.module.css";
+import { root, logo, nav, short } from "./Header.module.css";
 
 export const Header = () => (
   <header className={root}>
-    <div>
+    <div className={logo}>
       <Link as={GatsbyLink} to="/">
         <StaticImage
           src="../../images/memoji.png"
           alt="memoji of Jim Burch"
-          height={30}
+          height={40}
         />
       </Link>
     </div>
@@ -29,24 +41,29 @@ export const Header = () => (
         </Button>
       </ButtonGroup>
     </nav>
-    <div className={short}>
-      <a href="https://www.github.com/JimBurch">
-        <StaticImage
-          src="../../images/github-icon.png"
-          alt="github icon about me"
-          height={30}
+    <nav className={short}>
+      <Menu>
+        <MenuButton
+          as={IconButton}
+          aria-label="menu"
+          icon={<HamburgerIcon />}
+          variant="outline"
         />
-      </a>
-      <a href="https://www.linkedin.com/in/jimburch1">
-        <StaticImage
-          src="../../images/linkedin-icon.png"
-          alt="linkedin icon contact"
-          height={30}
-        />
-      </a>
-      <h3>
-        <GatsbyLink to="/changeblog">CB</GatsbyLink>
-      </h3>
-    </div>
+        <MenuList color="atom.midnight">
+          <GatsbyLink to="/">
+            <MenuItem icon={<AiFillHome />}>Home</MenuItem>
+          </GatsbyLink>
+          <Link href="https://github.com/JimBurch">
+            <MenuItem icon={<AiFillGithub />}>GitHub</MenuItem>
+          </Link>
+          <Link href="https://www.linkedin.com/in/jimburch1/">
+            <MenuItem icon={<AiFillLinkedin />}>LinkedIn</MenuItem>
+          </Link>
+          <GatsbyLink to="/changeblog">
+            <MenuItem icon={<BsCode />}>Changeblog</MenuItem>
+          </GatsbyLink>
+        </MenuList>
+      </Menu>
+    </nav>
   </header>
 );

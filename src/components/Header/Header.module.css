@@ -22,14 +22,14 @@
   }
 
   .short {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    display: block;
   }
 
-  .root a:hover,
-  .root a:focus {
-    color: none;
-    background-color: transparent;
+  .root {
+    justify-content: flex-end;
+  }
+
+  .logo {
+    display: none;
   }
 }
