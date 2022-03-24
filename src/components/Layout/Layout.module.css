@@ -1,8 +1,7 @@
 .main {
-  max-width: 65ch;
+  max-width: 100ch;
   margin: auto;
   padding-top: 60px;
-  width: 50%;
   height: calc(100% - 60px);
 }
 
