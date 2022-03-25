@@ -2,7 +2,7 @@
   max-width: 100ch;
   margin: auto;
   padding-top: 60px;
-  height: calc(100% - 60px);
+  height: calc(100vh - 60px);
 }
 
 @media only screen and (max-width: 768px) {

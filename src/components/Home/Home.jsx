@@ -2,6 +2,7 @@ import React from "react";
 import { StaticImage } from "gatsby-plugin-image";
 import { Box, Heading, Text, Icon } from "@chakra-ui/react";
 import { MdWavingHand } from "react-icons/md";
+import moment from "moment";
 
 import { root, hero, heroHeadings, truncated } from "./Home.module.css";
 
@@ -54,8 +55,11 @@ export const Home = () => (
         </Text>
       </Box>
       <Text isTruncated>
-        Jim Burch, 3 days ago • set up chakra and refactored nav menu for mobile
-        view
+        {`Jim Burch, ${moment(
+          "20220323",
+          "YYYYMMDD",
+        ).fromNow()} • set up chakra and refactored nav menu for mobile
+        view`}
       </Text>
     </Box>
   </div>
