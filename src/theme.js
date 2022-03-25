@@ -16,6 +16,9 @@ export const theme = extendTheme({
       body: {
         margin: 0,
       },
+      a: {
+        color: "atom.cyan",
+      },
     },
   },
   fonts: {
