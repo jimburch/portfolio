@@ -4,7 +4,12 @@ import { Container, Link, Heading, Text, Image } from "@chakra-ui/react";
 import { MDXProvider } from "@mdx-js/react";
 import { Seo } from "../Seo";
 
-import { title } from "./PostLayout.module.css";
+import {
+  heading,
+  dateContainer,
+  dateText,
+  back,
+} from "./PostLayout.module.css";
 
 const chakraUiComponents = {
   h1: (props) => <Heading as="h1" paddingY="5" size="2xl" {...props} />,
@@ -33,24 +38,36 @@ const PostLayout = ({ children, pageContext }) => {
   const url = typeof window !== "undefined" ? window.location.href : "";
 
   return (
-    <Container maxW={1200} style={{ margin: "25px 0px" }}>
+    <Container maxW={800}>
       <Seo
         title={`${title} | Changeblog`}
         description={description}
         image={image}
         path={url}
       />
-      <div className={title}>
+      <div className={heading}>
         <Heading>{title}</Heading>
-        <Text>{dateString}</Text>
+        <div className={dateContainer}>
+          <div>
+            <Text as="span">{`<`}</Text>
+            <Text as="span" color="atom.red1">{`input `}</Text>
+            <Text as="span" color="atom.orange1">{`type`}</Text>
+            <Text as="span">{`=`}</Text>
+            <Text as="span" color="atom.green">{`"date"`}</Text>
+            <Text as="span">{`>`}</Text>
+          </div>
+          <Text as="span" className={dateText}>
+            {dateString}
+          </Text>
+          <div>
+            <Text as="span">{`</`}</Text>
+            <Text as="span" color="atom.red1">{`input`}</Text>
+            <Text as="span">{`>`}</Text>
+          </div>
+        </div>
       </div>
       <MDXProvider components={chakraUiComponents}>{children}</MDXProvider>
-      <Link
-        as={GatsbyLink}
-        to="/changeblog"
-        color="atom.cyan"
-        style={{ margin: "25px 0px" }}
-      >
+      <Link as={GatsbyLink} to="/changeblog" color="atom.cyan" className={back}>
         &larr; back to Changeblog
       </Link>
     </Container>
