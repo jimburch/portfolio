@@ -1,8 +1,10 @@
 import React from "react";
 import { Link as GatsbyLink } from "gatsby";
-import { Heading, Text, Image } from "@chakra-ui/react";
+import { Container, Link, Heading, Text, Image } from "@chakra-ui/react";
 import { MDXProvider } from "@mdx-js/react";
-import { Seo } from "./Seo";
+import { Seo } from "../Seo";
+
+import { title } from "./PostLayout.module.css";
 
 const chakraUiComponents = {
   h1: (props) => <Heading as="h1" paddingY="5" size="2xl" {...props} />,
@@ -31,18 +33,27 @@ const PostLayout = ({ children, pageContext }) => {
   const url = typeof window !== "undefined" ? window.location.href : "";
 
   return (
-    <>
+    <Container maxW={1200} style={{ margin: "25px 0px" }}>
       <Seo
         title={`${title} | Changeblog`}
         description={description}
         image={image}
         path={url}
       />
-      <Heading>{title}</Heading>
-      <Text>{dateString}</Text>
+      <div className={title}>
+        <Heading>{title}</Heading>
+        <Text>{dateString}</Text>
+      </div>
       <MDXProvider components={chakraUiComponents}>{children}</MDXProvider>
-      <GatsbyLink to="/changeblog">&larr; back to Changeblog</GatsbyLink>
-    </>
+      <Link
+        as={GatsbyLink}
+        to="/changeblog"
+        color="atom.cyan"
+        style={{ margin: "25px 0px" }}
+      >
+        &larr; back to Changeblog
+      </Link>
+    </Container>
   );
 };
 

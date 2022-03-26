@@ -79,7 +79,7 @@ module.exports = {
           },
         ],
         defaultLayouts: {
-          posts: require.resolve("./src/components/PostLayout.jsx"),
+          posts: require.resolve("./src/components/PostLayout/PostLayout.jsx"),
         },
       },
     },
