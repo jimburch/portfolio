@@ -1,0 +1,39 @@
+.root {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  position: fixed;
+  width: 100%;
+  max-width: 1200px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 10px 20px;
+  z-index: 1;
+}
+
+.nav {
+  display: flex;
+  flex-direction: row;
+}
+
+.short {
+  display: none;
+}
+
+@media only screen and (max-width: 768px) {
+  .nav {
+    display: none;
+  }
+
+  .short {
+    display: block;
+  }
+
+  .root {
+    justify-content: flex-end;
+  }
+
+  .logo {
+    display: none;
+  }
+}

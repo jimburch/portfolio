@@ -1,7 +1,8 @@
 .main {
-  max-width: 65ch;
+  max-width: 100ch;
   margin: auto;
-  width: 50%;
+  padding-top: 60px;
+  height: calc(100vh - 60px);
 }
 
 @media only screen and (max-width: 768px) {
