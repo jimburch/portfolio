@@ -56,10 +56,9 @@ export const Home = () => (
       </Box>
       <Text isTruncated>
         {`Jim Burch, ${moment(
-          "20220323",
+          "20220325",
           "YYYYMMDD",
-        ).fromNow()} • set up chakra and refactored nav menu for mobile
-        view`}
+        ).fromNow()} • set up chakra, refactored site nav, and restyled global theme`}
       </Text>
     </Box>
   </div>

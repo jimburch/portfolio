@@ -1,6 +1,6 @@
 import React from "react";
 import { Link as GatsbyLink } from "gatsby";
-import { Container, Link, Heading, Text, Image } from "@chakra-ui/react";
+import { Container, Box, Link, Heading, Text, Image } from "@chakra-ui/react";
 import { MDXProvider } from "@mdx-js/react";
 import { Seo } from "../Seo";
 
@@ -22,6 +22,7 @@ const chakraUiComponents = {
     <Text lineHeight={1.5} paddingBottom="4" fontSize="lg" {...props} />
   ),
   img: (props) => <Image marginBottom="4" {...props} />,
+  div: (props) => <Box marginBottom="4" {...props} />,
 };
 
 const PostLayout = ({ children, pageContext }) => {

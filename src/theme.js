@@ -13,11 +13,21 @@ export const theme = extendTheme({
         fontFamily: "Fira Mono",
         lineHeight: "1.4",
       },
+      html: {
+        overflowY: "overlay",
+      },
       body: {
         margin: 0,
       },
       a: {
         color: "atom.cyan",
+      },
+      code: {
+        backgroundColor: "atom.white",
+        color: "atom.midnight",
+        fontSize: "sm",
+        padding: "0.2em",
+        borderRadius: "sm",
       },
     },
   },
@@ -39,7 +49,7 @@ export const theme = extendTheme({
     },
     atom: {
       black: "#000000",
-      white: "#ffffff",
+      white: "#EDF2F7",
       midnight: "#282c34",
       highlight: "#2b303b",
       mono1: "#abb2bf",
