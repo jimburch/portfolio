@@ -1,20 +1,15 @@
+import { Heading, Text } from "@chakra-ui/react";
 import React from "react";
-import { Link } from "gatsby";
-import Layout from "../components/Layout";
+import { Seo } from "../components/Seo";
 
-import { root } from "../styles/index.module.css";
+const NotFoundPage = () => (
+  <>
+    <Seo title="404: Not found" />
+    <Heading>404: Not Found</Heading>
+    <Text fontSize="xl" my={5}>
+      You just hit a route that doesn&#39;t exist... the sadness.
+    </Text>
+  </>
+);
 
-const NotFound = () => {
-  return (
-    <Layout>
-      <div className={root}>
-        <h1>404: Page Not Found</h1>
-        <p>
-          <Link to="/">Go Home</Link>
-        </p>
-      </div>
-    </Layout>
-  );
-};
-
-export default NotFound;
+export default NotFoundPage;

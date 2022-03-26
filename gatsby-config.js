@@ -11,6 +11,18 @@ module.exports = {
     // seo
     "gatsby-plugin-react-helmet",
 
+    // chakra ui
+    "@chakra-ui/gatsby-plugin",
+
+    // fonts
+    {
+      resolve: "gatsby-plugin-google-fonts",
+      options: {
+        fonts: ["Fira Mono"],
+        display: "swap",
+      },
+    },
+
     // images
     {
       resolve: "gatsby-plugin-sharp",
@@ -61,12 +73,13 @@ module.exports = {
           {
             resolve: "gatsby-remark-images",
             options: {
+              extensions: [".mdx", ".md"],
               maxWidth: 1200,
             },
           },
         ],
         defaultLayouts: {
-          posts: require.resolve("./src/components/PostLayout.js"),
+          posts: require.resolve("./src/components/PostLayout/PostLayout.jsx"),
         },
       },
     },
