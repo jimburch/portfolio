@@ -2,9 +2,13 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  position: absolute;
+  position: fixed;
   width: 100%;
-  padding: 10px 20px 0px 20px;
+  max-width: 1200px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 10px 20px;
+  z-index: 1;
 }
 
 .nav {
@@ -17,6 +21,10 @@
 }
 
 @media only screen and (max-width: 768px) {
+  .root {
+    position: absolute;
+  }
+
   .nav {
     display: none;
   }

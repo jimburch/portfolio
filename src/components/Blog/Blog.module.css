@@ -18,6 +18,14 @@
   text-align: right;
 }
 
+.list {
+  padding-top: 10px;
+}
+
+.list * {
+  margin-bottom: 4px;
+}
+
 .article {
   display: flex;
   flex-direction: column;
@@ -26,12 +34,20 @@
 
 @media only screen and (max-width: 768px) {
   .root {
+    display: flex;
     flex-direction: column;
+    text-align: center;
     margin-top: 20px;
   }
 
   .title {
-    align-items: flex-start;
+    align-items: center;
+    margin-right: 0;
+  }
+
+  .description {
+    text-align: center;
+    width: 80%;
   }
 
   .article {

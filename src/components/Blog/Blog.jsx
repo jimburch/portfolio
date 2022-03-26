@@ -2,7 +2,7 @@ import React from "react";
 import { Link as GatsbyLink, useStaticQuery, graphql } from "gatsby";
 import { Heading, Text, Link } from "@chakra-ui/react";
 
-import { root, title, description, article } from "./Blog.module.css";
+import { root, title, description, list, article } from "./Blog.module.css";
 
 export const Blog = () => {
   const data = useStaticQuery(graphql`
@@ -32,7 +32,7 @@ export const Blog = () => {
           An in-depth journal on how this site changes and grows.
         </Text>
       </div>
-      <div>
+      <div className={list}>
         {posts.map((post) => (
           <div className={article} key={post.id}>
             <Link as={GatsbyLink} to={post.slug} color="atom.cyan">

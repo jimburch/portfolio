@@ -2,6 +2,7 @@ import React from "react";
 import { Link as GatsbyLink } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
 import {
+  Box,
   ButtonGroup,
   Button,
   Link,
@@ -18,7 +19,7 @@ import { BsCode } from "react-icons/bs";
 import { root, logo, nav, short } from "./Header.module.css";
 
 export const Header = () => (
-  <header className={root}>
+  <Box as="header" bg="atom.midnight" className={root}>
     <div className={logo}>
       <Link as={GatsbyLink} to="/">
         <StaticImage
@@ -50,20 +51,20 @@ export const Header = () => (
           variant="outline"
         />
         <MenuList color="atom.midnight">
-          <GatsbyLink to="/">
+          <Link as={GatsbyLink} to="/">
             <MenuItem icon={<AiFillHome />}>Home</MenuItem>
-          </GatsbyLink>
+          </Link>
           <Link href="https://github.com/JimBurch">
             <MenuItem icon={<AiFillGithub />}>GitHub</MenuItem>
           </Link>
           <Link href="https://www.linkedin.com/in/jimburch1/">
             <MenuItem icon={<AiFillLinkedin />}>LinkedIn</MenuItem>
           </Link>
-          <GatsbyLink to="/changeblog">
+          <Link as={GatsbyLink} to="/changeblog">
             <MenuItem icon={<BsCode />}>Changeblog</MenuItem>
-          </GatsbyLink>
+          </Link>
         </MenuList>
       </Menu>
     </nav>
-  </header>
+  </Box>
 );
