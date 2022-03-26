@@ -59,7 +59,8 @@
   }
 
   .truncated p {
-    padding: 10px 0px;
+    padding-top: 10px;
+    margin-bottom: 10px;
     white-space: normal;
   }
 }
