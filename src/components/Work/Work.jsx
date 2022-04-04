@@ -3,7 +3,7 @@ import { StaticImage } from "gatsby-plugin-image";
 import { Heading, Text, Icon } from "@chakra-ui/react";
 import { MdWork } from "react-icons/md";
 
-import { root, hero, heroHeadings } from "./Work.module.css";
+import { root, hero, heroHeadings, image } from "./Work.module.css";
 
 export const Work = () => {
   return (
@@ -36,6 +36,7 @@ export const Work = () => {
           src="../../images/memoji_work.png"
           alt="Jim Burch memoji sitting behind a MacBook Pro"
           height={350}
+          className={image}
         />
       </div>
     </div>

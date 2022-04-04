@@ -12,6 +12,7 @@
   justify-content: center;
   align-items: center;
   text-align: center;
+  margin-top: 50px;
 }
 
 .heroHeadings {
@@ -21,8 +22,15 @@
 }
 
 @media only screen and (max-width: 768px) {
+  .root {
+    position: relative;
+    z-index: 2;
+  }
+
   .hero {
     flex-direction: column;
+    margin-top: 90px;
+    overflow: hidden;
   }
 
   .hero h1 {
@@ -32,5 +40,15 @@
   .hero h2 {
     font-size: 24px;
     margin-bottom: 10px;
+  }
+
+  .heroHeadings {
+    z-index: 1;
+  }
+
+  .image {
+    position: absolute;
+    opacity: 20%;
+    z-index: -1;
   }
 }
