@@ -15,6 +15,7 @@ import {
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { AiFillHome, AiFillGithub, AiFillLinkedin } from "react-icons/ai";
 import { BsCode } from "react-icons/bs";
+import { MdWork } from "react-icons/md";
 
 import { root, logo, nav, short } from "./Header.module.css";
 
@@ -31,6 +32,9 @@ export const Header = () => (
     </div>
     <nav className={nav}>
       <ButtonGroup variant="outline">
+        <Button as={GatsbyLink} to="/#work">
+          Work
+        </Button>
         <Button as="a" href="https://github.com/JimBurch">
           GitHub
         </Button>
@@ -53,6 +57,9 @@ export const Header = () => (
         <MenuList color="atom.midnight">
           <Link as={GatsbyLink} to="/">
             <MenuItem icon={<AiFillHome />}>Home</MenuItem>
+          </Link>
+          <Link as={GatsbyLink} to="/#work">
+            <MenuItem icon={<MdWork />}>Work</MenuItem>
           </Link>
           <Link href="https://github.com/JimBurch">
             <MenuItem icon={<AiFillGithub />}>GitHub</MenuItem>

@@ -9,13 +9,11 @@ import { root, hero, heroHeadings, truncated } from "./Home.module.css";
 export const Home = () => (
   <div className={root}>
     <div className={hero}>
-      <>
-        <StaticImage
-          src="../../images/memoji.png"
-          alt="Jim Burch memoji sitting behind a MacBook Pro"
-          height={350}
-        />
-      </>
+      <StaticImage
+        src="../../images/memoji.png"
+        alt="Jim Burch memoji sitting behind a MacBook Pro"
+        height={350}
+      />
       <div className={heroHeadings}>
         <Heading as="h1" fontSize="4xl">
           <Text as="span">{"<"}</Text>
