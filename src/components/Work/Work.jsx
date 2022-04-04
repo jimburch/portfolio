@@ -32,12 +32,13 @@ export const Work = () => {
             & Personal Projects
           </Heading>
         </div>
-        <StaticImage
-          src="../../images/memoji_work.png"
-          alt="Jim Burch memoji sitting behind a MacBook Pro"
-          height={350}
-          className={image}
-        />
+        <div className={image}>
+          <StaticImage
+            src="../../images/memoji_work.png"
+            alt="Jim Burch memoji sitting behind a MacBook Pro"
+            height={350}
+          />
+        </div>
       </div>
     </div>
   );
