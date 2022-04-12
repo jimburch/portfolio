@@ -84,6 +84,9 @@ module.exports = {
       },
     },
 
+    // Netlify
+    `gatsby-plugin-netlify`,
+
     // PWA
     {
       resolve: "gatsby-plugin-manifest",
