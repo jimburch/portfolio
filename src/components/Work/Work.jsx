@@ -12,24 +12,23 @@ export const Work = () => {
     query GetContentfulEntries {
       allContentfulProject {
         nodes {
+          contentful_id
           description {
             raw
           }
+          image {
+            description
+            title
+            url
+          }
           projectName
           url
-          image {
-            url
-            title
-            description
-          }
-          contentful_id
         }
-        totalCount
       }
     }
   `);
 
-  console.log(data.allContentfulProject.nodes[0]);
+  const projects = data.allContentfulProject.nodes;
 
   return (
     <div id="work" className={root}>
@@ -65,7 +64,15 @@ export const Work = () => {
           />
         </div>
       </div>
-      <Project />
+      {projects.map((project) => (
+        <Project
+          key={project.contentful_id}
+          projectName={project.projectName}
+          description={project.description}
+          image={project.image}
+          url={project.url}
+        />
+      ))}
     </div>
   );
 };
