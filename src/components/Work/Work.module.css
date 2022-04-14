@@ -21,16 +21,21 @@
   width: auto;
 }
 
+.projectsContainer {
+  padding-bottom: 25px;
+}
+
 @media only screen and (max-width: 768px) {
   .root {
     position: relative;
     z-index: 2;
+    margin-bottom: 25px;
   }
 
   .hero {
     flex-direction: column;
-    margin-top: 90px;
-    overflow: hidden;
+    margin: 90px 0px;
+    /* overflow: hidden; */
   }
 
   .hero h1 {

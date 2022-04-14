@@ -1,11 +1,45 @@
 import React from "react";
+import { useStaticQuery, graphql } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
 import { Heading, Text, Icon } from "@chakra-ui/react";
 import { MdWork } from "react-icons/md";
 
-import { root, hero, heroHeadings, image } from "./Work.module.css";
+import { Project } from "../Project";
+import {
+  root,
+  hero,
+  heroHeadings,
+  image,
+  projectsContainer,
+} from "./Work.module.css";
 
 export const Work = () => {
+  const data = useStaticQuery(graphql`
+    query GetContentfulEntries {
+      allContentfulProject(sort: { fields: order, order: ASC }) {
+        nodes {
+          contentful_id
+          projectName
+          id
+          description {
+            raw
+          }
+          github
+          image {
+            description
+            url
+            title
+          }
+          order
+          updatedAt
+          url
+        }
+      }
+    }
+  `);
+
+  const projects = data.allContentfulProject.nodes;
+
   return (
     <div id="work" className={root}>
       <div className={hero}>
@@ -39,6 +73,18 @@ export const Work = () => {
             height={350}
           />
         </div>
+      </div>
+      <div className={projectsContainer}>
+        {projects.map((project) => (
+          <Project
+            key={project.contentful_id}
+            projectName={project.projectName}
+            description={project.description}
+            image={project.image}
+            url={project.url}
+            github={project.github}
+          />
+        ))}
       </div>
     </div>
   );

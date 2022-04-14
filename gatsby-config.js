@@ -1,3 +1,7 @@
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV}`,
+});
+
 module.exports = {
   siteMetadata: {
     title: "Jim Burch | Software Engineer & Creative Pro",
@@ -20,6 +24,15 @@ module.exports = {
       options: {
         fonts: ["Fira Mono"],
         display: "swap",
+      },
+    },
+
+    // contentful
+    {
+      resolve: `gatsby-source-contentful`,
+      options: {
+        spaceId: process.env.CONTENTFUL_SPACE_ID,
+        accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
       },
     },
 
