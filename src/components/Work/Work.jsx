@@ -5,23 +5,33 @@ import { Heading, Text, Icon } from "@chakra-ui/react";
 import { MdWork } from "react-icons/md";
 
 import { Project } from "../Project";
-import { root, hero, heroHeadings, image } from "./Work.module.css";
+import {
+  root,
+  hero,
+  heroHeadings,
+  image,
+  projectsContainer,
+} from "./Work.module.css";
 
 export const Work = () => {
   const data = useStaticQuery(graphql`
     query GetContentfulEntries {
-      allContentfulProject {
+      allContentfulProject(sort: { fields: order, order: ASC }) {
         nodes {
           contentful_id
+          projectName
+          id
           description {
             raw
           }
+          github
           image {
             description
-            title
             url
+            title
           }
-          projectName
+          order
+          updatedAt
           url
         }
       }
@@ -64,15 +74,18 @@ export const Work = () => {
           />
         </div>
       </div>
-      {projects.map((project) => (
-        <Project
-          key={project.contentful_id}
-          projectName={project.projectName}
-          description={project.description}
-          image={project.image}
-          url={project.url}
-        />
-      ))}
+      <div className={projectsContainer}>
+        {projects.map((project) => (
+          <Project
+            key={project.contentful_id}
+            projectName={project.projectName}
+            description={project.description}
+            image={project.image}
+            url={project.url}
+            github={project.github}
+          />
+        ))}
+      </div>
     </div>
   );
 };

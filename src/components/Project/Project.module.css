@@ -1,8 +1,6 @@
 .root {
   display: flex;
   flex-direction: row;
-  border: 1px solid;
-  border-radius: 5px;
   padding: 25px;
   margin-bottom: 10px;
 }
@@ -15,4 +13,26 @@
 
 .details {
   flex-direction: column;
+}
+
+.details ul {
+  margin: 10px 0px;
+}
+
+.richText {
+  margin: 10px 0px;
+}
+
+@media only screen and (max-width: 768px) {
+  .root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .root img {
+    margin-right: 0px;
+    margin-bottom: 10px;
+  }
 }
