@@ -33,6 +33,7 @@ export const Work = () => {
           order
           updatedAt
           url
+          stack
         }
       }
     }
@@ -81,6 +82,7 @@ export const Work = () => {
             projectName={project.projectName}
             description={project.description}
             image={project.image}
+            stack={project.stack}
             url={project.url}
             github={project.github}
           />

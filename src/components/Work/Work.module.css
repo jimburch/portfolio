@@ -29,13 +29,13 @@
   .root {
     position: relative;
     z-index: 2;
+    margin-top: 50px;
     margin-bottom: 25px;
   }
 
   .hero {
     flex-direction: column;
     margin: 90px 0px;
-    /* overflow: hidden; */
   }
 
   .hero h1 {
