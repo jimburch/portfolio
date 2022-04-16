@@ -1,10 +1,7 @@
 .root {
   display: flex;
   flex-direction: row;
-<<<<<<< HEAD
   align-items: center;
-=======
->>>>>>> 7f7e25df2641e13032057bfba578b895ed1a6a3f
   padding: 25px;
   margin-bottom: 10px;
 }
