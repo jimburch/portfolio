@@ -18,6 +18,9 @@ module.exports = {
     // chakra ui
     "@chakra-ui/gatsby-plugin",
 
+    // navigation
+    "gatsby-plugin-anchor-links",
+
     // fonts
     {
       resolve: "gatsby-plugin-google-fonts",
