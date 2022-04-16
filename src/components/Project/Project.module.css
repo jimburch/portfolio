@@ -1,6 +1,7 @@
 .root {
   display: flex;
   flex-direction: row;
+  align-items: center;
   padding: 25px;
   margin-bottom: 10px;
 }
@@ -23,6 +24,10 @@
   margin: 10px 0px;
 }
 
+.stackContainer {
+  margin: 10px 0px;
+}
+
 @media only screen and (max-width: 768px) {
   .root {
     display: flex;
@@ -34,5 +39,9 @@
   .root img {
     margin-right: 0px;
     margin-bottom: 10px;
+  }
+
+  .stackContainer {
+    justify-content: center;
   }
 }

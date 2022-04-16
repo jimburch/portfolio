@@ -1,11 +1,28 @@
 import React from "react";
-import { Box, Heading, Text, Link } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  Text,
+  Link,
+  Button,
+  ButtonGroup,
+  Badge,
+  Stack,
+} from "@chakra-ui/react";
+import { MdExitToApp, MdOutlineCode } from "react-icons/md";
 import { renderRichText } from "gatsby-source-contentful/rich-text";
 import { BLOCKS } from "@contentful/rich-text-types";
 
-import { root, details, richText } from "./Project.module.css";
+import { root, details, richText, stackContainer } from "./Project.module.css";
 
-export const Project = ({ projectName, description, image, url, github }) => {
+export const Project = ({
+  projectName,
+  description,
+  image,
+  stack,
+  url,
+  github,
+}) => {
   const options = {
     renderNode: {
       [BLOCKS.PARAGRAPH]: (node, children) => <Text>{children}</Text>,
@@ -27,14 +44,39 @@ export const Project = ({ projectName, description, image, url, github }) => {
           {projectName}
         </Heading>
         <div className={richText}>{renderRichText(description, options)}</div>
-        <Link href={url} fontSize="lg" fontWeight="bold" marginRight="15px">
-          App
-        </Link>
-        {github ? (
-          <Link href={github} fontSize="lg" fontWeight="bold">
-            GitHub
-          </Link>
-        ) : null}
+        <Stack
+          className={stackContainer}
+          direction="row"
+          wrap="wrap"
+          shouldWrapChildren={true}
+        >
+          {stack.map((item, i) => (
+            <Badge key={i}>{item}</Badge>
+          ))}
+        </Stack>
+        <ButtonGroup variant="ghost">
+          {url ? (
+            <Button
+              as="a"
+              href={url}
+              aira-label="project app"
+              leftIcon={<MdExitToApp />}
+            >
+              App
+            </Button>
+          ) : null}
+
+          {github ? (
+            <Button
+              as="a"
+              href={github}
+              aria-label="github repository"
+              leftIcon={<MdOutlineCode />}
+            >
+              Code
+            </Button>
+          ) : null}
+        </ButtonGroup>
       </div>
     </Box>
   );

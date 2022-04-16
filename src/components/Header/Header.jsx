@@ -1,5 +1,6 @@
 import React from "react";
 import { Link as GatsbyLink } from "gatsby";
+import { AnchorLink } from "gatsby-plugin-anchor-links";
 import { StaticImage } from "gatsby-plugin-image";
 import {
   Box,
@@ -32,7 +33,7 @@ export const Header = () => (
     </div>
     <nav className={nav}>
       <ButtonGroup variant="outline">
-        <Button as={GatsbyLink} to="/#work">
+        <Button as={AnchorLink} to="/#work">
           Work
         </Button>
         <Button as="a" href="https://github.com/JimBurch">
@@ -58,7 +59,7 @@ export const Header = () => (
           <Link as={GatsbyLink} to="/">
             <MenuItem icon={<AiFillHome />}>Home</MenuItem>
           </Link>
-          <Link as={GatsbyLink} to="/#work">
+          <Link as={AnchorLink} to="/#work">
             <MenuItem icon={<MdWork />}>Work</MenuItem>
           </Link>
           <Link href="https://github.com/JimBurch">
