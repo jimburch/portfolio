@@ -1,3 +1,7 @@
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV}`,
+});
+
 module.exports = {
   siteMetadata: {
     title: "Jim Burch | Software Engineer & Creative Pro",
@@ -14,12 +18,24 @@ module.exports = {
     // chakra ui
     "@chakra-ui/gatsby-plugin",
 
+    // navigation
+    "gatsby-plugin-anchor-links",
+
     // fonts
     {
       resolve: "gatsby-plugin-google-fonts",
       options: {
         fonts: ["Fira Mono"],
         display: "swap",
+      },
+    },
+
+    // contentful
+    {
+      resolve: `gatsby-source-contentful`,
+      options: {
+        spaceId: process.env.CONTENTFUL_SPACE_ID,
+        accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
       },
     },
 
@@ -83,6 +99,9 @@ module.exports = {
         },
       },
     },
+
+    // Netlify
+    `gatsby-plugin-netlify`,
 
     // PWA
     {

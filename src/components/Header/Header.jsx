@@ -1,5 +1,6 @@
 import React from "react";
 import { Link as GatsbyLink } from "gatsby";
+import { AnchorLink } from "gatsby-plugin-anchor-links";
 import { StaticImage } from "gatsby-plugin-image";
 import {
   Box,
@@ -15,6 +16,7 @@ import {
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { AiFillHome, AiFillGithub, AiFillLinkedin } from "react-icons/ai";
 import { BsCode } from "react-icons/bs";
+import { MdWork } from "react-icons/md";
 
 import { root, logo, nav, short } from "./Header.module.css";
 
@@ -31,6 +33,9 @@ export const Header = () => (
     </div>
     <nav className={nav}>
       <ButtonGroup variant="outline">
+        <AnchorLink to="/#work" title="work">
+          <Button color="atom.mono1">Work</Button>
+        </AnchorLink>
         <Button as="a" href="https://github.com/JimBurch">
           GitHub
         </Button>
@@ -54,6 +59,11 @@ export const Header = () => (
           <Link as={GatsbyLink} to="/">
             <MenuItem icon={<AiFillHome />}>Home</MenuItem>
           </Link>
+          <AnchorLink to="/#work" title="work">
+            <MenuItem color="atom.midnight" icon={<MdWork />}>
+              Work
+            </MenuItem>
+          </AnchorLink>
           <Link href="https://github.com/JimBurch">
             <MenuItem icon={<AiFillGithub />}>GitHub</MenuItem>
           </Link>
