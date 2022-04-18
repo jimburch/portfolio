@@ -33,9 +33,9 @@ export const Header = () => (
     </div>
     <nav className={nav}>
       <ButtonGroup variant="outline">
-        <Button as={AnchorLink} to="/#work">
-          Work
-        </Button>
+        <AnchorLink to="/#work" title="work">
+          <Button color="atom.mono1">Work</Button>
+        </AnchorLink>
         <Button as="a" href="https://github.com/JimBurch">
           GitHub
         </Button>
@@ -59,9 +59,11 @@ export const Header = () => (
           <Link as={GatsbyLink} to="/">
             <MenuItem icon={<AiFillHome />}>Home</MenuItem>
           </Link>
-          <Link as={AnchorLink} to="/#work">
-            <MenuItem icon={<MdWork />}>Work</MenuItem>
-          </Link>
+          <AnchorLink to="/#work" title="work">
+            <MenuItem color="atom.midnight" icon={<MdWork />}>
+              Work
+            </MenuItem>
+          </AnchorLink>
           <Link href="https://github.com/JimBurch">
             <MenuItem icon={<AiFillGithub />}>GitHub</MenuItem>
           </Link>
