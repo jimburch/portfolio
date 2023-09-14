@@ -7,7 +7,13 @@ type TextElements =
   | "small"
   | "muted";
 
-const Text = ({ children, as }: { children: React.ReactNode; as: string }) => {
+const Text = ({
+  children,
+  as,
+}: {
+  children: React.ReactNode;
+  as: TextElements;
+}) => {
   switch (as) {
     case "p":
       return <p className="leading-7 [&:not(:first-child)]:mt-6">{children}</p>;
