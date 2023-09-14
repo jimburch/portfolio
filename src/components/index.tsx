@@ -1,3 +1,4 @@
 import { ThemeProvider } from "./theme-provider";
+import Header from "./header";
 
-export { ThemeProvider };
+export { ThemeProvider, Header };
