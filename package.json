@@ -1,61 +1,30 @@
 {
   "name": "portfolio",
-  "private": false,
-  "description": "Jim Burch's Portfolio",
   "version": "0.1.0",
-  "author": "Jim Burch <jrburch1@gmail.com>",
-  "dependencies": {
-    "@chakra-ui/gatsby-plugin": "^2.0.4",
-    "@chakra-ui/icons": "^1.1.7",
-    "@chakra-ui/react": "^1.8.6",
-    "@emotion/react": "^11.8.2",
-    "@emotion/styled": "^11.8.1",
-    "@mdx-js/mdx": "^1.6.22",
-    "@mdx-js/react": "^1.6.22",
-    "dotenv": "^16.0.0",
-    "framer-motion": "^6.2.8",
-    "gatsby": "^4.5.1",
-    "gatsby-plugin-anchor-links": "^1.2.1",
-    "gatsby-plugin-google-fonts": "^1.0.1",
-    "gatsby-plugin-image": "^2.5.0",
-    "gatsby-plugin-manifest": "^4.5.0",
-    "gatsby-plugin-mdx": "^3.5.1",
-    "gatsby-plugin-netlify": "^4.2.0",
-    "gatsby-plugin-offline": "^5.5.0",
-    "gatsby-plugin-page-creator": "^4.5.1",
-    "gatsby-plugin-react-helmet": "^5.5.0",
-    "gatsby-plugin-sharp": "^4.5.0",
-    "gatsby-remark-images": "^6.5.1",
-    "gatsby-source-contentful": "^7.9.1",
-    "gatsby-source-filesystem": "^4.5.0",
-    "gatsby-transformer-sharp": "^4.5.0",
-    "moment": "^2.29.1",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-helmet": "^6.1.0",
-    "react-icons": "^4.3.1"
-  },
-  "devDependencies": {
-    "prettier": "^2.5.1"
-  },
-  "keywords": [
-    "gatsby"
-  ],
-  "license": "0BSD",
+  "private": true,
   "scripts": {
-    "build": "gatsby build",
-    "develop": "gatsby develop",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "start": "gatsby develop",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean",
-    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jimburch/portfolio"
-  },
-  "bugs": {
-    "url": "https://github.com/gatsbyjs/gatsby/issues"
+  "dependencies": {
+    "@types/node": "20.6.0",
+    "@types/react": "18.2.21",
+    "@types/react-dom": "18.2.7",
+    "autoprefixer": "10.4.15",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "eslint": "8.49.0",
+    "eslint-config-next": "13.4.19",
+    "lucide-react": "^0.277.0",
+    "next": "13.4.19",
+    "postcss": "8.4.29",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tailwind-merge": "^1.14.0",
+    "tailwindcss": "3.3.3",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "5.2.2"
   }
 }
