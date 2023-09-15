@@ -3,7 +3,7 @@ import Heading from "@/components/ui/typography/heading";
 
 const About = () => {
   return (
-    <Center className="w-full h-screen">
+    <Center id="about" className="w-full h-screen">
       <Heading as="h1">About</Heading>
     </Center>
   );

@@ -3,7 +3,7 @@ import Heading from "@/components/ui/typography/heading";
 
 const Contact = () => {
   return (
-    <Center className="w-full h-screen">
+    <Center id="contact" className="w-full h-screen">
       <Heading as="h1">Contact</Heading>
     </Center>
   );

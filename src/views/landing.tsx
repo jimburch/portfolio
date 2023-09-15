@@ -5,6 +5,7 @@ import { headerHeight } from "@/lib/constants";
 const Landing = () => {
   return (
     <Center
+      id="home"
       style={{ height: `calc(100vh - ${headerHeight})` }}
       className="w-full"
     >
