@@ -45,3 +45,6 @@ const Text = ({
 };
 
 export default Text;
+
+// check this out at some point
+// https://tailwindcss.com/docs/typography-plugin
