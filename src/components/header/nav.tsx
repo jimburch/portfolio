@@ -90,17 +90,19 @@ export const DesktopNav = () => {
       <Link href="/#contact">
         <Button variant="link">Contact</Button>
       </Link>
-      <Link href="https://github.com/jimburch">
-        <Button variant="outline" size="icon">
-          <Github className="w-6 h-6" />
-        </Button>
-      </Link>
-      <Link href="https://www.linkedin.com/in/jimburch1/">
-        <Button variant="outline" size="icon">
-          <Linkedin className="w-6 h-6" />
-        </Button>
-      </Link>
-      <ModeToggle />
+      <div className="flex flex-row space-x-1">
+        <Link href="https://github.com/jimburch">
+          <Button variant="outline" size="icon">
+            <Github className="w-6 h-6" />
+          </Button>
+        </Link>
+        <Link href="https://www.linkedin.com/in/jimburch1/">
+          <Button variant="outline" size="icon">
+            <Linkedin className="w-6 h-6" />
+          </Button>
+        </Link>
+        <ModeToggle />
+      </div>
     </div>
   );
 };

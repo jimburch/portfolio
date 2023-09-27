@@ -1,17 +1,12 @@
-import Landing from "@/views/landing";
-import About from "@/views/about";
-import Experience from "@/views/experience";
-import Projects from "@/views/projects";
-import Contact from "@/views/contact";
+import { Github, Introduction } from "@/components";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col">
-      <Landing />
-      <About />
-      <Experience />
-      <Projects />
-      <Contact />
+    <main>
+      <section className="flex flex-row">
+        <Introduction />
+        <Github />
+      </section>
     </main>
   );
 }
