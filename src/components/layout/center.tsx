@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 type CenterProps = {
   id?: string;
   children: React.ReactNode;
@@ -10,7 +12,7 @@ const Center = ({ id, children, style, className = "" }: CenterProps) => {
     <div
       id={id}
       style={style}
-      className={`flex justify-center items-center ${className}`}
+      className={cn("flex justify-center items-center w-full", className)}
     >
       {children}
     </div>
