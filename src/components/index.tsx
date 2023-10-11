@@ -1,6 +1,7 @@
 import { ThemeProvider } from "./theme-provider";
 import Header from "./header/header";
 import Introduction from "./introduction/introduction";
-import Github from "./github/github";
+import Projects from "./projects/projects";
+import Section from "./layout/section";
 
-export { ThemeProvider, Header, Introduction, Github };
+export { ThemeProvider, Header, Introduction, Projects, Section };
