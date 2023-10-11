@@ -1,7 +1,7 @@
 import { headerHeight } from "@/lib/constants";
 import { DesktopNav, MobileNav } from "./nav";
 
-const Header = () => {
+export default function Header() {
   return (
     <header className={`h-[${headerHeight}]`}>
       <div className="flex justify-end p-4">
@@ -16,6 +16,4 @@ const Header = () => {
       </div>
     </header>
   );
-};
-
-export default Header;
+}
