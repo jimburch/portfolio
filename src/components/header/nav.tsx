@@ -31,7 +31,7 @@ export const MobileNav = () => {
           <DropdownMenuGroup>
             <DropdownMenuItem>
               <Home className="mr-2 h-4 w-4" />
-              <Link href="/#home">Home</Link>
+              <Link href="/">Home</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
@@ -71,7 +71,7 @@ export const MobileNav = () => {
 export const DesktopNav = () => {
   return (
     <div className="flex flex-row">
-      <Link href="/#home">
+      <Link href="/">
         <Button variant="link">Home</Button>
       </Link>
       <Separator orientation="vertical" />

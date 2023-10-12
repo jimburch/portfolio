@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} ml-auto mr-auto w-full max-w-screen-xl`}
+        className={`${inter.className} ml-auto mr-auto w-full max-w-screen-lg`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Header />

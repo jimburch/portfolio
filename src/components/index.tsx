@@ -4,5 +4,14 @@ import Introduction from "./introduction/introduction";
 import Projects from "./projects/projects";
 import Section from "./layout/section";
 import Contact from "./contact/contact";
+import Experience from "./experience/experience";
 
-export { ThemeProvider, Header, Introduction, Projects, Section, Contact };
+export {
+  ThemeProvider,
+  Header,
+  Introduction,
+  Projects,
+  Section,
+  Contact,
+  Experience,
+};
