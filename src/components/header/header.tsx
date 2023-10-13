@@ -4,7 +4,7 @@ import { DesktopNav, MobileNav } from "./nav";
 export default function Header() {
   return (
     <header className={`h-[${headerHeight}]`}>
-      <div className="flex justify-end p-4">
+      <div className="flex justify-end p-4 md:justify-center">
         <nav className="flex flex-row">
           <div className="hidden md:flex">
             <DesktopNav />

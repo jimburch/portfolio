@@ -9,6 +9,7 @@ export default function Introduction() {
         alt="jim burch behind a computer"
         width={200}
         height={200}
+        priority
       />
       <div className="flex flex-col items-center space-y-2">
         <Heading as="h1">Jim Burch</Heading>

@@ -51,7 +51,9 @@ export default function Contact() {
 
   return (
     <Center className="flex-col">
-      <Heading as="h1">Talk to Me 🗣️</Heading>
+      <Heading as="h1" className="pb-5">
+        Talk to Me 🗣️
+      </Heading>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

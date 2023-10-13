@@ -9,10 +9,10 @@ type TextElements =
 
 const Text = ({
   children,
-  as,
+  as = "p",
 }: {
   children: React.ReactNode;
-  as: TextElements;
+  as?: TextElements;
 }) => {
   switch (as) {
     case "p":

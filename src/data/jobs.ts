@@ -1,0 +1,46 @@
+export const jobs = [
+  {
+    company: "FanPower",
+    role: "Full Stack Software Engineer",
+    startDate: "May 2021",
+    endDate: "Present",
+    image: "/fanpower.png",
+    fallback: "FP",
+    description: [
+      "Current full-time position",
+      "Building React tools to track & analyze fan sentiment",
+      "Creating unique sports content with AI",
+    ],
+    link: "https://fanpower.io",
+    linkText: "Visit FanPower",
+  },
+  {
+    company: "Mentumm",
+    role: "Full Stack Software Engineer",
+    startDate: "January 2023",
+    endDate: "Present",
+    image: "/mentumm.png",
+    fallback: "ME",
+    description: [
+      "Building a platform to connect professionals & mentors",
+      "Design & manage APIs to track coaching sessions",
+    ],
+    link: "https://mentumm.com/",
+    linkText: "Visit Mentumm",
+  },
+  {
+    company: "Message Lab",
+    role: "Front End Software Engineer",
+    startDate: "September 2023",
+    endDate: "Present",
+    image: "/messagelab.png",
+    fallback: "ML",
+    description: [
+      "Creating static pages with Gatsby",
+      "Building new features & improving site UI",
+      "Improving tracking & analytics",
+    ],
+    link: "https://messagelab.com/",
+    linkText: "Visit Message Lab",
+  },
+];
