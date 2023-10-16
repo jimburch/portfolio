@@ -22,7 +22,7 @@ import { ModeToggle } from "../ui/mode-toggle";
 
 export const MobileNav = () => {
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row space-x-1">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">Menu</Button>

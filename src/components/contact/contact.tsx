@@ -41,25 +41,34 @@ export default function Contact() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await fetch("https://formspree.io/f/mknypzbo", {
+    await fetch(`https://formspree.io/f/${process.env.NEXT_PUBLIC_FORM}`, {
       method: "POST",
       body: JSON.stringify(values),
       headers: {
         "Content-Type": "application/json",
       },
     })
-      .then(() => {
-        toast({
-          title: "Message sent",
-          description: "Thanks for reaching out! I'll get back to you ASAP.",
-        });
-        form.reset();
+      .then((res) => {
+        if (res.status === 200) {
+          toast({
+            title: "Message sent",
+            description: "Thanks for reaching out! I'll get back to you ASAP.",
+          });
+          form.reset();
+        } else {
+          toast({
+            title: "Message failed to send",
+            description: "Please try again later.",
+          });
+          throw new Error(`Contact message failed with status ${res.status}`);
+        }
       })
       .catch((err) => {
         toast({
           title: "Message failed to send",
           description: "Please try again later.",
         });
+        throw err;
       });
   }
 
