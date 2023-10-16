@@ -40,13 +40,27 @@ export default function Contact() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: "Message sent",
-      description: "Thanks for reaching out! I'll get back to you ASAP.",
-    });
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await fetch("https://formspree.io/f/mknypzbo", {
+      method: "POST",
+      body: JSON.stringify(values),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then(() => {
+        toast({
+          title: "Message sent",
+          description: "Thanks for reaching out! I'll get back to you ASAP.",
+        });
+        form.reset();
+      })
+      .catch((err) => {
+        toast({
+          title: "Message failed to send",
+          description: "Please try again later.",
+        });
+      });
   }
 
   return (

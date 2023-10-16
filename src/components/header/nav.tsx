@@ -34,10 +34,6 @@ export const MobileNav = () => {
               <Link href="/">Home</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <Link href="/#about">About</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
               <ScrollText className="mr-2 h-4 w-4" />
               <Link href="/#experience">Experience</Link>
             </DropdownMenuItem>
@@ -73,10 +69,6 @@ export const DesktopNav = () => {
     <div className="flex flex-row">
       <Link href="/">
         <Button variant="link">Home</Button>
-      </Link>
-      <Separator orientation="vertical" />
-      <Link href="/#about">
-        <Button variant="link">About</Button>
       </Link>
       <Separator orientation="vertical" />
       <Link href="/#experience">
