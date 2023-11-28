@@ -14,7 +14,6 @@ import {
   Home,
   Linkedin,
   ScrollText,
-  User,
 } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "../ui/separator";
@@ -29,33 +28,45 @@ export const MobileNav = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-44">
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Home className="mr-2 h-4 w-4" />
-              <Link href="/">Home</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <ScrollText className="mr-2 h-4 w-4" />
-              <Link href="/#experience">Experience</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Hammer className="mr-2 h-4 w-4" />
-              <Link href="/#projects">Projects</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <FormInput className="mr-2 h-4 w-4" />
-              <Link href="/#contact">Contact</Link>
-            </DropdownMenuItem>
+            <Link href="/">
+              <DropdownMenuItem>
+                <Home className="mr-2 h-4 w-4" />
+                {"Home"}
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/#experience">
+              <DropdownMenuItem>
+                <ScrollText className="mr-2 h-4 w-4" />
+                {"Experience"}
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/#projects">
+              <DropdownMenuItem>
+                <Hammer className="mr-2 h-4 w-4" />
+                {"Projects"}
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/#contact">
+              <DropdownMenuItem>
+                <FormInput className="mr-2 h-4 w-4" />
+                {"Contact"}
+              </DropdownMenuItem>
+            </Link>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Github className="mr-2 h-4 w-4" />
-              <Link href="https://github.com/jimburch">Github</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Linkedin className="mr-2 h-4 w-4" />
-              <Link href="https://www.linkedin.com/in/jimburch1/">Contact</Link>
-            </DropdownMenuItem>
+            <Link href="https://github.com/jimburch">
+              <DropdownMenuItem>
+                <Github className="mr-2 h-4 w-4" />
+                {"Github"}
+              </DropdownMenuItem>
+            </Link>
+            <Link href="https://www.linkedin.com/in/jimburch1/">
+              <DropdownMenuItem>
+                <Linkedin className="mr-2 h-4 w-4" />
+                {"Contact"}
+              </DropdownMenuItem>
+            </Link>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -83,12 +94,12 @@ export const DesktopNav = () => {
         <Button variant="link">Contact</Button>
       </Link>
       <div className="flex flex-row space-x-1">
-        <Link href="https://github.com/jimburch">
+        <Link href="https://github.com/jimburch" target="_blank">
           <Button variant="outline" size="icon">
             <Github className="w-6 h-6" />
           </Button>
         </Link>
-        <Link href="https://www.linkedin.com/in/jimburch1/">
+        <Link href="https://www.linkedin.com/in/jimburch1/" target="_blank">
           <Button variant="outline" size="icon">
             <Linkedin className="w-6 h-6" />
           </Button>
