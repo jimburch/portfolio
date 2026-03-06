@@ -1,0 +1,79 @@
+---
+import FadeIn from "./FadeIn.tsx";
+import FaqItem from "./FaqItem.astro";
+---
+
+<div>
+  <FadeIn client:visible>
+    <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+      No invoices. No hourly rates.<br class="hidden md:block" /> Aligned incentives.
+    </h2>
+    <p class="mt-4 text-lg text-neutral-300 leading-relaxed">
+      Instead of charging you money you probably don't have, I take a small
+      equity stake — typically 5-10% depending on scope. That means:
+    </p>
+
+    <div class="mt-8 space-y-6">
+      <div>
+        <h3 class="text-lg font-semibold text-white">
+          I only take on projects I believe in.
+        </h3>
+        <p class="mt-1 text-neutral-400 leading-relaxed">
+          If I don't think your idea has legs, I'll tell you honestly and we'll
+          part ways. No hard feelings.
+        </p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-white">
+          My incentives are aligned with yours.
+        </h3>
+        <p class="mt-1 text-neutral-400 leading-relaxed">
+          I don't win unless you win. I'm not billing hours — I'm investing my
+          time because I think what you're building matters.
+        </p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-white">
+          You keep your cash for what matters.
+        </h3>
+        <p class="mt-1 text-neutral-400 leading-relaxed">
+          Spend your money on marketing, customers, and growth — not on dev
+          invoices before you've made a dollar.
+        </p>
+      </div>
+    </div>
+  </FadeIn>
+
+  <FadeIn client:visible>
+    <div class="mt-12">
+      <h3 class="text-xl font-semibold text-white mb-2">
+        Quick answers to what you're probably thinking:
+      </h3>
+
+      <div>
+        <FaqItem question={`"10% is a lot."`}>
+          It might be, depending on scope. That's why it's a range — a weekend
+          prototype is different from a 6-week build. We'll agree on terms that
+          reflect the actual work.
+        </FaqItem>
+
+        <FaqItem question={`"What's included?"`}>
+          A working MVP with the features we agree on, deployed and ready for
+          real users. We define scope together before anything starts.
+        </FaqItem>
+
+        <FaqItem question={`"What about ongoing work after launch?"`}>
+          The equity covers the initial build. If you need continued development
+          after launch and before you can pay, we'll figure that out together —
+          I'm flexible. Once revenue or funding comes in, we can talk about a
+          paid engagement.
+        </FaqItem>
+
+        <FaqItem question={`"How is the equity structured?"`}>
+          Vesting schedule with a cliff, documented in a standard agreement. I'm
+          not trying to surprise anyone — clean terms, just like the code.
+        </FaqItem>
+      </div>
+    </div>
+  </FadeIn>
+</div>

@@ -1,0 +1,56 @@
+---
+import FadeIn from "./FadeIn.tsx";
+import CalButton from "./CalButton.tsx";
+import ContactForm from "./ContactForm.tsx";
+---
+
+<div class="text-center">
+  <FadeIn client:visible>
+    <h2 class="text-3xl md:text-5xl font-bold tracking-tight">
+      Ready to build something&nbsp;real?
+    </h2>
+    <p class="mt-4 text-lg text-neutral-400 max-w-xl mx-auto leading-relaxed">
+      I take on a handful of projects at a time. If you've got an idea worth
+      building, let's talk.
+    </p>
+    <div class="mt-8">
+      <CalButton
+        client:visible
+        className="bg-teal-300 text-neutral-950 font-semibold px-8 py-3 rounded-lg hover:bg-teal-200 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
+      >
+        Let's talk about your idea →
+      </CalButton>
+    </div>
+  </FadeIn>
+
+  <FadeIn client:visible>
+    <div class="mt-16">
+      <p class="text-sm text-neutral-500 mb-6">Or, send me a message:</p>
+      <div class="flex justify-center">
+        <ContactForm client:visible />
+      </div>
+    </div>
+  </FadeIn>
+
+  <footer
+    class="mt-20 pt-8 border-t border-neutral-800 text-sm text-neutral-500"
+  >
+    <div class="flex items-center justify-center gap-6">
+      <a
+        href="https://github.com/jimburch"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-neutral-300 transition-colors focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:rounded"
+        >GitHub</a
+      >
+      <a
+        href="https://linkedin.com/in/jimburch"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-neutral-300 transition-colors focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:rounded"
+        >LinkedIn</a
+      >
+    </div>
+    <p class="mt-4">&copy; {new Date().getFullYear()} Jim Burch</p>
+  </footer>
+</div>

@@ -1,0 +1,46 @@
+---
+import FadeIn from "./FadeIn.tsx";
+import Step from "./Step.astro";
+---
+
+<div>
+  <FadeIn client:visible>
+    <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+      From idea to working product in four&nbsp;steps.
+    </h2>
+  </FadeIn>
+
+  <div class="mt-12 grid md:grid-cols-2 gap-10">
+    <FadeIn client:visible>
+      <Step
+        number={1}
+        title="You pitch me your idea."
+        description="Tell me what you're building and why. I want to understand the problem, the market, and why you're the right person to solve it."
+      />
+    </FadeIn>
+
+    <FadeIn client:visible delay={0.1}>
+      <Step
+        number={2}
+        title="I decide if I'm in."
+        description="I'm selective — I take on 2-3 projects at a time. If I believe in what you're building, we move forward. If not, I'll be honest about why."
+      />
+    </FadeIn>
+
+    <FadeIn client:visible delay={0.2}>
+      <Step
+        number={3}
+        title="We define scope and terms."
+        description="We agree on what the MVP includes, the equity split, vesting terms, and a timeline. Everything documented, nothing ambiguous."
+      />
+    </FadeIn>
+
+    <FadeIn client:visible delay={0.3}>
+      <Step
+        number={4}
+        title="I build. You launch."
+        description="I deliver a working, deployed product with clean code, proper security, and documentation. You take it to users, investors, or both."
+      />
+    </FadeIn>
+  </div>
+</div>

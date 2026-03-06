@@ -1,15 +1,44 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import FadeIn from "../components/FadeIn.tsx";
+import Hero from "../components/Hero.astro";
+import Section from "../components/Section.astro";
+import ProblemSection from "../components/ProblemSection.astro";
+import SolutionSection from "../components/SolutionSection.astro";
+import EquitySection from "../components/EquitySection.astro";
+import InvestorSection from "../components/InvestorSection.astro";
+import HowItWorksSection from "../components/HowItWorksSection.astro";
+import CtaSection from "../components/CtaSection.astro";
+import MobileStickyCtaBar from "../components/MobileStickyCtaBar.tsx";
 ---
 
-<Layout title="Jim Burch">
-  <main
-    class="min-h-screen bg-neutral-950 text-white flex items-center justify-center"
-  >
-    <FadeIn client:load>
-      <h1 class="text-4xl font-bold">Jim Burch</h1>
-      <p class="mt-2 text-neutral-400">Coming soon.</p>
-    </FadeIn>
+<Layout title="Jim Burch — MVP Builder for Founders">
+  <main id="main">
+    <Hero />
+
+    <Section id="problem" dark>
+      <ProblemSection />
+    </Section>
+
+    <Section id="solution" narrow>
+      <SolutionSection />
+    </Section>
+
+    <Section id="equity" dark narrow>
+      <EquitySection />
+    </Section>
+
+    <Section id="investors" narrow>
+      <InvestorSection />
+    </Section>
+
+    <Section id="how-it-works" dark>
+      <HowItWorksSection />
+    </Section>
+
+    <Section id="cta" dark>
+      <CtaSection />
+    </Section>
   </main>
+
+  <MobileStickyCtaBar client:load />
 </Layout>

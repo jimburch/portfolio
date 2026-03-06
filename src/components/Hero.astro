@@ -1,0 +1,35 @@
+---
+import CalButton from "./CalButton.tsx";
+import FadeIn from "./FadeIn.tsx";
+---
+
+<section
+  id="hero"
+  class="min-h-screen flex items-center justify-center px-6 bg-neutral-950"
+>
+  <div class="max-w-4xl mx-auto text-center">
+    <FadeIn client:load>
+      <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white">
+        Your MVP needs to survive&nbsp;success.
+      </h1>
+      <p
+        class="mt-6 text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed"
+      >
+        I build production-ready MVPs for founders — clean code, real security,
+        scalable architecture. No hourly rate. I take equity, because I only
+        build things I believe in.
+      </p>
+      <div class="mt-10">
+        <CalButton
+          client:load
+          className="bg-teal-300 text-neutral-950 font-semibold px-8 py-3 rounded-lg hover:bg-teal-200 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
+        >
+          Let's talk about your idea →
+        </CalButton>
+      </div>
+      <p class="mt-8 text-sm text-neutral-500">
+        React · Node · PostgreSQL · 5+ years building production software
+      </p>
+    </FadeIn>
+  </div>
+</section>

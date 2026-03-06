@@ -1,0 +1,21 @@
+---
+interface Props {
+  id: string;
+  dark?: boolean;
+  narrow?: boolean;
+}
+
+const { id, dark = false, narrow = false } = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={[
+    "px-6 py-24 md:py-32",
+    dark ? "bg-neutral-950" : "bg-neutral-900/30",
+  ]}
+>
+  <div class:list={["mx-auto", narrow ? "max-w-2xl" : "max-w-4xl"]}>
+    <slot />
+  </div>
+</section>

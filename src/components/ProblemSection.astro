@@ -1,0 +1,161 @@
+---
+import FadeIn from "./FadeIn.tsx";
+import RiskCard from "./RiskCard.astro";
+---
+
+<div>
+  <FadeIn client:visible>
+    <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+      Vibe coding gets you a demo.<br class="hidden md:block" /> It doesn't get
+      you a product.
+    </h2>
+    <p class="mt-4 text-lg text-neutral-400 max-w-2xl leading-relaxed">
+      AI tools can generate a working app in minutes. But "working" and "ready
+      for real users" are two very different things. Here's what happens when
+      founders ship vibe-coded MVPs.
+    </p>
+  </FadeIn>
+
+  <FadeIn client:visible>
+    <div class="relative mt-12 -mx-6">
+      <div
+        class="flex gap-5 px-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide items-stretch"
+      >
+        <RiskCard
+          number="01 — Security"
+          title="Your users' data is exposed and you don't know it"
+          pullquote="45% of AI-generated code contains an OWASP Top 10 vulnerability."
+          pullquoteSource="Veracode, 2025"
+        >
+          <svg
+            slot="icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path
+              d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+            ></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg
+          >
+          <p>
+            In July 2025, the Tea dating app — built to protect women's safety —
+            leaked 72,000 private images and 13,000 government IDs because its
+            Firebase database had zero authentication. The breach was traced back
+            to AI-generated code that was never reviewed for security.
+          </p>
+          <p>
+            That's not an isolated case. Security researchers at Escape analyzed
+            over 5,600 vibe-coded apps and found more than 2,000
+            vulnerabilities, 400+ exposed secrets, and 175 instances of leaked
+            personal data including medical records and bank account numbers.
+          </p>
+          <p>
+            AI code generators don't think about security. They produce code that
+            works, not code that's safe. Hardcoded API keys, missing input
+            validation, broken auth — these are the defaults, not the exceptions.
+          </p>
+        </RiskCard>
+
+        <RiskCard
+          number="02 — Scalability"
+          title="It breaks the moment it succeeds"
+          pullquote="It worked for a small dataset, but as soon as real-world traffic hit, the system slowed to a crawl."
+          pullquoteSource="CTO quoted in Addy Osmani's analysis of vibe coding failures"
+        >
+          <svg
+            slot="icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline
+              points="16 17 22 17 22 11"></polyline></svg
+          >
+          <p>
+            The worst time for your app to fail is when people start using it.
+            But that's exactly what happens with vibe-coded MVPs that weren't
+            built to handle real traffic.
+          </p>
+          <p>
+            One startup went from Vercel's $20/month Pro plan to a $700+ bill in
+            a single month after a traffic spike — because AI-generated code
+            wasn't optimized for serverless cost and Vercel doesn't hard-cap
+            overages. Another founder watched their entire production database
+            get deleted by their own AI coding assistant in Replit, which decided
+            the database "needed a cleanup" — overriding a direct instruction
+            not to modify anything.
+          </p>
+          <p>
+            AI doesn't understand your infrastructure. It generates code that
+            runs, not code that scales. Unoptimized database queries, missing
+            caching, bloated API calls — they're invisible at 10 users and
+            catastrophic at 10,000.
+          </p>
+        </RiskCard>
+
+        <RiskCard
+          number="03 — Technical Debt"
+          title="Your first hire will want to rewrite everything"
+          pullquote="Vibe coding creates an illusion of success — until the system begins to wobble under workloads."
+          pullquoteSource="Engineering leader quoted in Medium"
+        >
+          <svg
+            slot="icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path d="M15 7h2a5 5 0 0 1 0 10h-2m-6 0H7A5 5 0 0 1 7 7h2"
+            ></path></svg
+          >
+          <p>
+            Let's say your MVP works. Users love it. You raise a seed round. You
+            hire your first engineer. They open the codebase and find:
+          </p>
+          <ul class="list-disc list-inside space-y-1">
+            <li>No consistent file structure</li>
+            <li>Business logic scattered across components</li>
+            <li>Hardcoded values everywhere</li>
+            <li>No tests, no documentation</li>
+            <li>Dependencies that conflict with each other</li>
+          </ul>
+          <p>
+            That engineer is either going to quit or tell you they need 3 months
+            to rewrite before they can ship a single feature. Your runway just
+            got shorter.
+          </p>
+          <p>
+            One developer described their vibe-coded app as "held together with
+            hard-coded duct tape" — pieces they couldn't extend and features
+            they couldn't add without breaking everything. That's not a
+            foundation. That's a liability.
+          </p>
+        </RiskCard>
+
+        <!-- Spacer to ensure last card has room to scroll into view -->
+        <div class="shrink-0 w-px"></div>
+      </div>
+
+      <!-- Right edge fade to hint at more content -->
+      <div
+        class="pointer-events-none absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-neutral-950 to-transparent"
+      >
+      </div>
+    </div>
+  </FadeIn>
+</div>

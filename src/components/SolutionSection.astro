@@ -1,0 +1,52 @@
+---
+import FadeIn from "./FadeIn.tsx";
+import ValueProp from "./ValueProp.astro";
+---
+
+<div>
+  <FadeIn client:visible>
+    <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+      I build MVPs that your future team can actually work&nbsp;in.
+    </h2>
+    <p class="mt-4 text-lg text-neutral-300 leading-relaxed">
+      I'm a software engineer with 5+ years of experience building production
+      applications in React, Node.js, and PostgreSQL. I've worked on teams, I've
+      freelanced, and I know what it takes to build something that doesn't fall
+      apart when real users show up.
+    </p>
+    <p class="mt-4 text-lg text-neutral-300 leading-relaxed">
+      Here's what I deliver:
+    </p>
+  </FadeIn>
+
+  <div class="mt-10 space-y-8">
+    <FadeIn client:visible>
+      <ValueProp title="Clean, modular architecture">
+        Component structure, API design, and database schemas that make sense to
+        the next developer who touches the code. No spaghetti, no duct tape.
+      </ValueProp>
+    </FadeIn>
+
+    <FadeIn client:visible>
+      <ValueProp title="Security from day one">
+        Proper authentication, input validation, environment-based secrets
+        management, and role-based access control. Not afterthoughts — defaults.
+      </ValueProp>
+    </FadeIn>
+
+    <FadeIn client:visible>
+      <ValueProp title="Built to scale">
+        Optimized queries, proper caching strategies, and infrastructure choices
+        that won't bankrupt you when traffic spikes. I've seen the Vercel horror
+        stories. You won't be one of them.
+      </ValueProp>
+    </FadeIn>
+
+    <FadeIn client:visible>
+      <ValueProp title="Tested and documented">
+        Enough test coverage and documentation that your first hire can onboard
+        in days, not weeks.
+      </ValueProp>
+    </FadeIn>
+  </div>
+</div>

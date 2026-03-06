@@ -1,0 +1,29 @@
+---
+interface Props {
+  number: string;
+  title: string;
+  pullquote: string;
+  pullquoteSource: string;
+}
+
+const { number, title, pullquote, pullquoteSource } = Astro.props;
+---
+
+<div class="w-[85vw] md:w-[480px] shrink-0 flex flex-col border border-neutral-800 rounded-2xl bg-neutral-900/50 p-6 md:p-8 snap-start">
+  <div class="mb-5">
+    <span class="text-xs font-mono tracking-widest text-teal-300/40 uppercase">{number}</span>
+  </div>
+  <div class="flex items-start gap-3 mb-4">
+    <div class="shrink-0 mt-1 text-teal-300/60">
+      <slot name="icon" />
+    </div>
+    <h3 class="text-lg md:text-xl font-semibold text-white leading-snug">{title}</h3>
+  </div>
+  <div class="text-sm text-neutral-400 leading-relaxed space-y-3 mb-6">
+    <slot />
+  </div>
+  <blockquote class="mt-auto pt-5 border-t border-neutral-800">
+    <p class="text-sm italic text-neutral-300 leading-relaxed">{pullquote}</p>
+    <cite class="block mt-2 text-xs not-italic text-neutral-500">— {pullquoteSource}</cite>
+  </blockquote>
+</div>
