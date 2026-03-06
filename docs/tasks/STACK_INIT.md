@@ -30,3 +30,13 @@ Installed `astro@5.18.0` with pnpm. Set up:
 - `.gitignore` — added `dist`, `.astro`, `.env`
 - Verified `pnpm build` completes successfully
 - Disabled Astro telemetry
+
+### Tailwind CSS
+
+Installed `tailwindcss@4.2.1` + `@tailwindcss/vite` (Tailwind v4 — Vite plugin, no tailwind.config needed). Set up:
+
+- `astro.config.mjs` — added `@tailwindcss/vite` plugin
+- `src/styles/global.css` — `@import "tailwindcss"`
+- `src/layouts/Layout.astro` — imports global.css
+- `src/pages/index.astro` — added Tailwind classes (dark bg, centered text) to verify
+- Verified `pnpm build` succeeds with Tailwind CSS in output
