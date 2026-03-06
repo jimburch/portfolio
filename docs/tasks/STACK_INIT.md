@@ -40,3 +40,22 @@ Installed `tailwindcss@4.2.1` + `@tailwindcss/vite` (Tailwind v4 — Vite plugin
 - `src/layouts/Layout.astro` — imports global.css
 - `src/pages/index.astro` — added Tailwind classes (dark bg, centered text) to verify
 - Verified `pnpm build` succeeds with Tailwind CSS in output
+
+### Framer Motion + React
+
+Installed `@astrojs/react@4.4.2`, `react@19.2.4`, `react-dom@19.2.4`, and `framer-motion@12.35.0`. Set up:
+
+- `astro.config.mjs` — added `react()` integration
+- `src/components/FadeIn.tsx` — reusable fade-in animation component using `motion.div`
+- `src/pages/index.astro` — uses `FadeIn` as a `client:load` React island to verify hydration
+- Will use `client:visible` for scroll-triggered sections during site build to minimize initial JS
+- Verified `pnpm build` succeeds with client-side JS bundle
+
+### Cal.com
+
+Installed `@calcom/embed-react@1.5.3`. Set up:
+
+- `src/components/CalButton.tsx` — popup modal trigger with dark theme, lazy-loads Cal embed script on mount
+- Uses `data-cal-link` attribute for modal popup (keeps page flow clean, fits CTA pattern from outline)
+- Placeholder `CAL_LINK` constant ready to swap with real booking URL
+- Verified `pnpm build` succeeds
