@@ -22,10 +22,7 @@ export default function CalButton({
   }, []);
 
   return (
-    <button
-      data-cal-link={CAL_LINK}
-      className={className}
-    >
+    <button data-cal-link={CAL_LINK} className={className}>
       {children}
     </button>
   );

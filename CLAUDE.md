@@ -13,8 +13,9 @@ See docs/OUTLINE_STRUCTURE.md for a content/structure outline of this page (we'l
 - Cal.com (booking embed)
 - Formspree (contact form fallback)
 - Plausible or Cloudflare Analytics (no cookie banner needed)
-- Biome for code formatting
+- Prettier for code formatting (with prettier-plugin-astro)
 - No CMS — content is hardcoded
+- Playwright CLI (use this for snapshots of the UI as we build)
 
 ## Project Structure
 

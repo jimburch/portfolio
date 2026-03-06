@@ -9,14 +9,15 @@
 - Cal.com (booking embed)
 - Formspree (contact form fallback)
 - Plausible or Cloudflare Analytics (no cookie banner needed)
-- Biome for code formatting
+- Prettier for code formatting (with prettier-plugin-astro)
 - No CMS — content is hardcoded
+- Playwright CLI (use this for snapshots of the UI as we build)
 
 ## Overview
 
 This document is where will install and setup the tech stack one by one. This isn't where the project is coded, just where everything is installed and set up so that it's ready to go when the site building begins. Write your progress and summaries below here:
 
------
+---
 
 ### Astro
 
@@ -59,3 +60,23 @@ Installed `@calcom/embed-react@1.5.3`. Set up:
 - Uses `data-cal-link` attribute for modal popup (keeps page flow clean, fits CTA pattern from outline)
 - Placeholder `CAL_LINK` constant ready to swap with real booking URL
 - Verified `pnpm build` succeeds
+
+### Formspree
+
+No additional packages needed — plain `fetch` to the Formspree API. Set up:
+
+- `src/components/ContactForm.tsx` — React island with name/email/message fields
+- Handles idle/submitting/success/error states
+- Dark-themed styling matching design principles
+- Placeholder `FORMSPREE_ID` constant ready to swap with real form ID
+- Verified `pnpm build` succeeds
+
+### Prettier
+
+Installed `prettier@3.8.1` + `prettier-plugin-astro@0.14.1`. Replaced Biome (no native `.astro` support). Set up:
+
+- `.prettierrc` — configures `prettier-plugin-astro` with astro parser override
+- `.prettierignore` — ignores `dist`, `.astro`, `node_modules`, `pnpm-lock.yaml`
+- `package.json` — added `format` and `format:check` scripts
+- Ran `pnpm format` — formatted all files including `.astro` components
+- Removed `biome.json` and `@biomejs/biome`

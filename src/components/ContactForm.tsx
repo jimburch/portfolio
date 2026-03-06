@@ -4,7 +4,9 @@ import type { FormEvent } from "react";
 const FORMSPREE_ID = "PLACEHOLDER";
 
 export default function ContactForm() {
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,7 +34,10 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 w-full max-w-md"
+    >
       <input
         type="text"
         name="name"
@@ -62,7 +67,9 @@ export default function ContactForm() {
         {status === "submitting" ? "Sending..." : "Send message"}
       </button>
       {status === "error" && (
-        <p className="text-red-400 text-sm">Something went wrong. Try again or email me directly.</p>
+        <p className="text-red-400 text-sm">
+          Something went wrong. Try again or email me directly.
+        </p>
       )}
     </form>
   );
