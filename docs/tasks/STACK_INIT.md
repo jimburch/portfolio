@@ -80,3 +80,21 @@ Installed `prettier@3.8.1` + `prettier-plugin-astro@0.14.1`. Replaced Biome (no 
 - `package.json` — added `format` and `format:check` scripts
 - Ran `pnpm format` — formatted all files including `.astro` components
 - Removed `biome.json` and `@biomejs/biome`
+
+### Cloudflare Analytics
+
+No packages needed — lightweight `defer` script, no cookies required. Set up:
+
+- `src/layouts/Layout.astro` — added Cloudflare Web Analytics beacon script before `</body>`
+- Placeholder token ready to swap once Cloudflare domain setup completes
+- Verified `pnpm build` succeeds
+
+### Playwright CLI
+
+Installed `@playwright/test@1.58.2` + Chromium browser. Used for taking UI snapshots during development. Set up:
+
+- Chromium browser installed via `playwright install chromium`
+- CLI usage for desktop: `pnpm exec playwright screenshot --viewport-size="1280,800" http://localhost:4321 screenshots/desktop.png`
+- CLI usage for mobile: `pnpm exec playwright screenshot --viewport-size="375,812" http://localhost:4321 screenshots/mobile.png`
+- `.gitignore` — added `screenshots` directory
+- Verified both desktop (1280x800) and mobile (375x812) screenshots capture correctly
