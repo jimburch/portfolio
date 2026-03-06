@@ -13,7 +13,7 @@ See docs/OUTLINE_STRUCTURE.md for a content/structure outline of this page (we'l
 - Cal.com (booking embed)
 - Formspree (contact form fallback)
 - Plausible or Cloudflare Analytics (no cookie banner needed)
-- Prettier for code formatting
+- Biome for code formatting
 - No CMS — content is hardcoded
 
 ## Project Structure
