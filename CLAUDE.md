@@ -73,3 +73,7 @@ public/
 - Custom domain (TBD)
 - No build secrets or env vars needed for static site
 - Formspree form ID and Cal.com embed URL can be hardcoded or stored in a .env for cleanliness
+
+## Reference
+
+- See ./claude/PROGRESS.md for a snapshot of what we've built so far

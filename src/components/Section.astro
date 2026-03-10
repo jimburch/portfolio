@@ -3,18 +3,31 @@ interface Props {
   id: string;
   dark?: boolean;
   narrow?: boolean;
+  noDivider?: boolean;
 }
 
-const { id, dark = false, narrow = false } = Astro.props;
+const { id, dark = false, narrow = false, noDivider = false } = Astro.props;
 ---
 
 <section
   id={id}
   class:list={[
-    "px-6 py-24 md:py-32",
-    dark ? "bg-neutral-950" : "bg-neutral-900/30",
+    "relative px-6 py-24 md:py-32",
+    dark ? "bg-[var(--color-surface-0)]" : "bg-[var(--color-surface-1)]/30",
   ]}
 >
+  {
+    !noDivider && (
+      <div
+        class="absolute top-0 left-1/2 -translate-x-1/2 flex items-center gap-3 -translate-y-px"
+        aria-hidden="true"
+      >
+        <div class="w-16 h-px bg-[var(--color-border)]" />
+        <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-accent-muted)]" />
+        <div class="w-16 h-px bg-[var(--color-border)]" />
+      </div>
+    )
+  }
   <div class:list={["mx-auto", narrow ? "max-w-2xl" : "max-w-4xl"]}>
     <slot />
   </div>
