@@ -1,0 +1,133 @@
+---
+import FadeIn from "./FadeIn.tsx";
+---
+
+<div>
+  <FadeIn client:visible>
+    <div class="flex flex-col md:flex-row gap-10 md:gap-14 items-center">
+      <!-- Photo -->
+      <div class="shrink-0">
+        <div class="relative">
+          <div
+            class="absolute -inset-1 rounded-2xl bg-gradient-to-br from-teal-300/20 via-transparent to-teal-300/10 blur-sm"
+            aria-hidden="true"
+          >
+          </div>
+          <img
+            src="/jim.jpeg"
+            alt="Jim Burch"
+            width="280"
+            height="280"
+            class="relative rounded-2xl object-cover w-56 h-56 md:w-70 md:h-70 grayscale hover:grayscale-0 transition-all duration-700"
+          />
+        </div>
+      </div>
+
+      <!-- Bio -->
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+          Hey, I'm Jim.
+        </h2>
+        <p class="mt-4 text-lg text-neutral-400 leading-relaxed">
+          I've been writing software professionally since 2020. I spent two
+          years building full-stack JavaScript at a sports data startup —
+          production databases, microservices, DevOps, the whole stack. Now I'm
+          a front-end developer at
+          <a
+            href="https://showit.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-teal-300 hover:text-teal-200 transition-colors"
+            >Showit</a
+          >, a drag-and-drop website builder, where I specialize in React.
+        </p>
+        <p class="mt-3 text-lg text-neutral-400 leading-relaxed">
+          I build MVPs on the side because I like working with founders who are
+          solving real problems — and because the best way to stay sharp is to
+          ship things that matter.
+        </p>
+
+        <!-- Personal details -->
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span
+            class="inline-flex items-center gap-1.5 text-sm text-neutral-500 border border-neutral-800 rounded-full px-3 py-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"
+              ></path><circle cx="12" cy="10" r="3"></circle></svg
+            >
+            Mesa, AZ
+          </span>
+          <span
+            class="inline-flex items-center gap-1.5 text-sm text-neutral-500 border border-neutral-800 rounded-full px-3 py-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="m8 3 4 8 5-5 5 15H2L8 3z"
+              ></path></svg
+            >
+            Hiking & backpacking
+          </span>
+          <span
+            class="inline-flex items-center gap-1.5 text-sm text-neutral-500 border border-neutral-800 rounded-full px-3 py-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+              ></path><circle cx="9" cy="7" r="4"></circle><path
+                d="M23 21v-2a4 4 0 0 0-3-3.87"
+              ></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg
+            >
+            Husband & dad
+          </span>
+          <span
+            class="inline-flex items-center gap-1.5 text-sm text-neutral-500 border border-neutral-800 rounded-full px-3 py-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><circle cx="12" cy="12" r="10"></circle><path
+                d="m4.93 4.93 14.14 14.14"
+              ></path></svg
+            >
+            STL Cardinals & Blues
+          </span>
+        </div>
+      </div>
+    </div>
+  </FadeIn>
+</div>

@@ -16,7 +16,7 @@ import RiskCard from "./RiskCard.astro";
   </FadeIn>
 
   <FadeIn client:visible>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-12 lg:-mx-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-12">
       <RiskCard
         number="01 — Security"
         title="Your users' data is exposed and you don't know it"
@@ -48,7 +48,39 @@ import RiskCard from "./RiskCard.astro";
       </RiskCard>
 
       <RiskCard
-        number="02 — Scalability"
+        number="02 — Control"
+        title="One AI command wiped 2.5 years of production data"
+        pullquote="I over-relied on the AI agent to run Terraform commands. I treated plan, apply, and destroy as something that could be delegated. That removed the last safety layer."
+        pullquoteSource="Alexey Grigorev, DataTalks.Club founder"
+      >
+        <svg
+          slot="icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><polyline points="4 17 10 11 4 5"></polyline><line
+            x1="12"
+            y1="19"
+            x2="20"
+            y2="19"></line></svg
+        >
+        <p>
+          A developer delegated an AWS migration to an AI coding agent. After
+          a forgotten state file left Terraform blind to existing
+          infrastructure, the agent ran <code class="text-xs bg-neutral-800 px-1.5 py-0.5 rounded">terraform destroy</code>
+          on production — wiping the VPC, database, load balancers, and 1.9
+          million rows of course data in seconds.
+        </p>
+      </RiskCard>
+
+      <RiskCard
+        number="03 — Scalability"
         title="It breaks the moment it succeeds"
         pullquote="It worked for a small dataset, but as soon as real-world traffic hit, the system slowed to a crawl."
         pullquoteSource="CTO quoted in Addy Osmani's analysis of vibe coding failures"
@@ -77,7 +109,7 @@ import RiskCard from "./RiskCard.astro";
       </RiskCard>
 
       <RiskCard
-        number="03 — Technical Debt"
+        number="04 — Technical Debt"
         title="Your first hire will want to rewrite everything"
         pullquote="Vibe coding creates an illusion of success — until the system begins to wobble under workloads."
         pullquoteSource="Engineering leader quoted in Medium"
