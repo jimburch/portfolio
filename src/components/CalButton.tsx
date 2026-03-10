@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const CAL_LINK = "PLACEHOLDER/intro-call";
+const CAL_LINK = "jim-burch/30min";
 
 export default function CalButton({
   children,
