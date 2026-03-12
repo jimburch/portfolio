@@ -1,43 +1,33 @@
 ---
 import CalButton from "./CalButton.tsx";
 import FadeIn from "./FadeIn.tsx";
+import RetroGrid from "./RetroGrid.tsx";
 ---
 
 <section
   id="hero"
-  class="relative min-h-screen flex items-center justify-center px-6 bg-[var(--color-surface-0)]"
+  class="relative min-h-screen flex items-center justify-center px-6 bg-[var(--color-surface-0)] overflow-hidden"
 >
-  <!-- Aurora glow background -->
+  <!-- Three.js retro grid background -->
+  <RetroGrid client:visible />
+
+  <!-- Bottom fade to blend hero into next section -->
   <div
-    id="hero-glow"
-    class="absolute inset-0 overflow-hidden flex items-center justify-center pointer-events-none will-change-[opacity]"
+    class="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[var(--color-surface-1)]/30 to-transparent pointer-events-none"
     aria-hidden="true"
-  >
-    <div
-      class="absolute w-[800px] h-[500px] bg-teal-300 opacity-[0.05] blur-[150px] rounded-full"
-    >
-    </div>
-    <div
-      class="absolute -translate-x-60 -translate-y-32 w-[400px] h-[300px] bg-teal-400 opacity-[0.03] blur-[100px] rounded-full"
-    >
-    </div>
-    <div
-      class="absolute translate-x-40 translate-y-24 w-[300px] h-[400px] bg-teal-200 opacity-[0.03] blur-[120px] rounded-full"
-    >
-    </div>
-  </div>
+  ></div>
 
   <div class="relative max-w-4xl mx-auto text-center">
     <!-- Top framing line -->
     <div
-      class="h-px w-full max-w-xl mx-auto bg-gradient-to-r from-transparent via-[var(--color-border)] to-transparent mb-10"
+      class="h-px w-full max-w-xl mx-auto bg-gradient-to-r from-transparent via-[var(--color-accent)]/20 to-transparent mb-10"
       aria-hidden="true"
     >
     </div>
 
     <FadeIn client:load delay={0}>
       <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white">
-        Your MVP needs to survive&nbsp;success.
+        Your MVP needs to survive&nbsp;<span class="text-[var(--color-accent)] neon-glow">success.</span>
       </h1>
     </FadeIn>
 
@@ -54,7 +44,7 @@ import FadeIn from "./FadeIn.tsx";
       <div class="mt-10">
         <CalButton
           client:load
-          className="bg-teal-300 text-neutral-950 font-semibold px-8 py-3 rounded-lg hover:bg-teal-200 transition-colors cursor-pointer"
+          className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-rose)] text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition-opacity cursor-pointer cta-glow"
         >
           Let's talk about your idea →
         </CalButton>
@@ -62,26 +52,16 @@ import FadeIn from "./FadeIn.tsx";
     </FadeIn>
 
     <FadeIn client:load delay={0.3}>
-      <p class="mt-8 text-sm text-neutral-500">
+      <p class="mt-8 font-mono text-sm text-neutral-400">
         React · Node · PostgreSQL · 5+ years building production software
       </p>
     </FadeIn>
 
     <!-- Bottom framing line -->
     <div
-      class="h-px w-full max-w-xl mx-auto bg-gradient-to-r from-transparent via-[var(--color-border)] to-transparent mt-10"
+      class="h-px w-full max-w-xl mx-auto bg-gradient-to-r from-transparent via-[var(--color-accent)]/20 to-transparent mt-10"
       aria-hidden="true"
     >
     </div>
   </div>
 </section>
-
-<script>
-  const glow = document.getElementById('hero-glow');
-  if (glow) {
-    window.addEventListener('scroll', () => {
-      const ratio = 1 - Math.min(window.scrollY / window.innerHeight, 1);
-      glow.style.opacity = String(ratio);
-    }, { passive: true });
-  }
-</script>

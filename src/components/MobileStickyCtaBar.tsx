@@ -28,8 +28,8 @@ export default function MobileStickyCtaBar() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-neutral-950/90 backdrop-blur-sm border-t border-neutral-800 px-4 pt-3 pb-8">
-      <CalButton className="w-full bg-teal-300 text-neutral-950 font-semibold py-3 rounded-lg text-center cursor-pointer">
+    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0f0f1a]/90 backdrop-blur-sm border-t border-[var(--color-border)] px-4 pt-3 pb-8">
+      <CalButton className="w-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-rose)] text-white font-semibold py-3 rounded-lg text-center cursor-pointer cta-glow">
         Let's talk about your idea →
       </CalButton>
     </div>

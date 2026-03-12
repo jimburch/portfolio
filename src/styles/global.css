@@ -1,30 +1,93 @@
 @import "tailwindcss";
 
-/* Self-hosted Inter (latin subset, variable weight) */
+/* Self-hosted Outfit (latin subset) */
 @font-face {
-  font-family: "Inter";
+  font-family: "Outfit";
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 300;
   font-display: swap;
-  src: url("/fonts/inter-latin.woff2") format("woff2");
+  src: url("/fonts/outfit-latin-300.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/outfit-latin-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/outfit-latin-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/outfit-latin-700.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/fonts/outfit-latin-800.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Self-hosted JetBrains Mono (latin subset) */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-latin-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-latin-700.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
     U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
     U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @theme {
-  --color-accent: #5eead4;
-  --color-accent-hover: #99f6e4;
-  --color-accent-muted: #5eead466;
-  --color-accent-subtle: #5eead433;
-  --color-accent-ghost: #5eead41a;
+  --color-accent: #fb923c;
+  --color-accent-hover: #fdba74;
+  --color-accent-muted: #fb923c66;
+  --color-accent-subtle: #fb923c33;
+  --color-accent-ghost: #fb923c1a;
+  --color-accent-rose: #f43f5e;
 
-  --color-surface-0: #0a0a0a;
-  --color-surface-1: #171717;
-  --color-surface-2: #262626;
+  --color-surface-0: #0f0f1a;
+  --color-surface-1: #161625;
+  --color-surface-2: #1e1e30;
 
-  --color-border: #262626;
-  --color-border-subtle: #1a1a1a;
+  --color-border: #2a2a40;
+  --color-border-subtle: #1e1e30;
 
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -48,21 +111,86 @@
 }
 
 body {
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Outfit", system-ui, sans-serif;
   background-color: var(--color-surface-0);
   color: white;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.03) 1px,
-    transparent 1px
-  );
-  background-size: 24px 24px;
 }
 
 ::selection {
   background-color: var(--color-accent-subtle);
   color: white;
+}
+
+/* Utility: Monospace font */
+.font-mono {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Utility: Chrome border with corner accents */
+.chrome-border {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+.chrome-border::before,
+.chrome-border::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--color-accent);
+  pointer-events: none;
+}
+.chrome-border::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-top-left-radius: 1rem;
+}
+.chrome-border::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+  border-bottom-right-radius: 1rem;
+}
+
+/* Utility: Neon text glow */
+.neon-glow {
+  text-shadow:
+    0 0 7px rgba(251, 146, 60, 0.3),
+    0 0 20px rgba(251, 146, 60, 0.15);
+}
+
+/* Utility: Box glow */
+.box-glow {
+  box-shadow:
+    0 0 15px rgba(251, 146, 60, 0.1),
+    0 0 40px rgba(251, 146, 60, 0.05);
+}
+
+/* Utility: CTA button glow */
+.cta-glow {
+  box-shadow:
+    0 0 20px rgba(251, 146, 60, 0.25),
+    0 0 40px rgba(244, 63, 94, 0.1);
+}
+
+/* Optional: Scan lines overlay */
+.scan-lines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
 }

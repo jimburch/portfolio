@@ -30,7 +30,9 @@ export default function ContactForm() {
   }
 
   if (status === "success") {
-    return <p className="text-green-400">Thanks! I'll be in touch.</p>;
+    return (
+      <p className="text-[var(--color-accent)]">Thanks! I'll be in touch.</p>
+    );
   }
 
   return (
@@ -43,26 +45,26 @@ export default function ContactForm() {
         name="name"
         placeholder="Your name"
         required
-        className="bg-neutral-900 border border-neutral-800 rounded-md px-4 py-2 text-white placeholder:text-neutral-500 focus:outline-none"
+        className="bg-[var(--color-surface-1)] border border-[var(--color-border)] rounded-md px-4 py-2 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[var(--color-accent)]/50 focus:shadow-[0_0_10px_rgba(251,146,60,0.1)] transition-all"
       />
       <input
         type="email"
         name="email"
         placeholder="Your email"
         required
-        className="bg-neutral-900 border border-neutral-800 rounded-md px-4 py-2 text-white placeholder:text-neutral-500 focus:outline-none"
+        className="bg-[var(--color-surface-1)] border border-[var(--color-border)] rounded-md px-4 py-2 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[var(--color-accent)]/50 focus:shadow-[0_0_10px_rgba(251,146,60,0.1)] transition-all"
       />
       <textarea
         name="message"
         placeholder="Tell me about your idea"
         rows={4}
         required
-        className="bg-neutral-900 border border-neutral-800 rounded-md px-4 py-2 text-white placeholder:text-neutral-500 focus:outline-none resize-none"
+        className="bg-[var(--color-surface-1)] border border-[var(--color-border)] rounded-md px-4 py-2 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[var(--color-accent)]/50 focus:shadow-[0_0_10px_rgba(251,146,60,0.1)] transition-all resize-none"
       />
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="bg-teal-300 text-neutral-950 font-semibold px-8 py-3 rounded-lg hover:bg-teal-200 transition-colors disabled:opacity-50 cursor-pointer"
+        className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-rose)] text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer cta-glow"
       >
         {status === "submitting" ? "Sending..." : "Send message"}
       </button>
