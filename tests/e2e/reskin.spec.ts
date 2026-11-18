@@ -20,6 +20,8 @@ test('reskin changes the board, persists, and carries to the back', async ({ pag
 });
 
 test('reskin works when storage is blocked', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
   await page.addInitScript(() => {
     const boom = () => {
       throw new DOMException('blocked', 'SecurityError');
@@ -30,6 +32,10 @@ test('reskin works when storage is blocked', async ({ page }) => {
   await openReskin(page);
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('html')).not.toHaveAttribute('data-board', 'green');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowRight');
+  expect(errors).toEqual([]);
 });
 
 test('konami unlocks the midnight board', async ({ page }) => {
@@ -57,4 +63,16 @@ test('values are tappable buttons that cycle, and the metal row works', async ({
   // the tap selected the METAL row, so left cycles it back
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('html')).toHaveAttribute('data-metal', 'gold');
+});
+
+test('cycling keeps focus on the row button and updates its name', async ({ page }) => {
+  await openReskin(page);
+  const board = page.locator('#lcd-screen .lcd-reskin-row').first();
+  await board.focus();
+  await expect(board).toHaveAccessibleName('Board: green');
+  await page.keyboard.press('Enter');
+  await expect(board).toHaveAccessibleName('Board: black');
+  await page.keyboard.press('Enter');
+  await expect(board).toHaveAccessibleName('Board: blue');
+  await expect(board).toBeFocused();
 });

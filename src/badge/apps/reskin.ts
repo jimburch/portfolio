@@ -37,22 +37,19 @@ function cycle(row: number, step: 1 | -1): void {
   render();
 }
 
-function render(): void {
-  if (!ctx || !root) return;
-  const theme = ctx.theme.get();
-  const rows = ROWS.map((row, i) => {
-    const current = row.options(ctx!).find((o) => o.id === theme[row.field]);
+/** The two row buttons, built once per mount and updated in place so focus survives. */
+let buttons: HTMLButtonElement[] = [];
+
+function build(): HTMLElement {
+  const wrap = document.createElement('div');
+  wrap.className = 'lcd-reskin';
+  buttons = ROWS.map((row, i) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'lcd-item lcd-reskin-row';
-    button.setAttribute('aria-label', `${row.label[0]}${row.label.slice(1).toLowerCase()}: ${current?.label.toLowerCase() ?? ''}`);
-    if (i === selected) button.setAttribute('aria-current', 'true');
     const marker = Object.assign(document.createElement('span'), { className: 'lcd-marker', textContent: '▸ ' });
     const label = Object.assign(document.createElement('span'), { className: 'lcd-reskin-label', textContent: row.label });
-    const value = Object.assign(document.createElement('span'), {
-      className: 'lcd-reskin-value',
-      textContent: `‹ ${current?.label.toUpperCase() ?? ''} ›`,
-    });
+    const value = Object.assign(document.createElement('span'), { className: 'lcd-reskin-value' });
     for (const n of [marker, label, value]) n.setAttribute('aria-hidden', 'true');
     button.append(marker, label, value);
     button.addEventListener('click', () => {
@@ -65,7 +62,22 @@ function render(): void {
     className: 'lcd-line lcd-reskin-hint',
     textContent: '◀▶ change  B: back',
   });
-  root.replaceChildren(...rows, hint);
+  wrap.append(...buttons, hint);
+  return wrap;
+}
+
+function render(): void {
+  if (!ctx || !root) return;
+  const theme = ctx.theme.get();
+  ROWS.forEach((row, i) => {
+    const current = row.options(ctx!).find((o) => o.id === theme[row.field]);
+    const name = current?.label ?? '';
+    const button = buttons[i];
+    button.setAttribute('aria-label', `${row.label[0]}${row.label.slice(1).toLowerCase()}: ${name.toLowerCase()}`);
+    button.toggleAttribute('aria-current', i === selected);
+    if (i === selected) button.setAttribute('aria-current', 'true');
+    button.querySelector('.lcd-reskin-value')!.textContent = `‹ ${name.toUpperCase()} ›`;
+  });
 }
 
 const reskin: BadgeApp = {
@@ -74,14 +86,14 @@ const reskin: BadgeApp = {
   mount(context) {
     ctx = context;
     selected = 0;
-    root = document.createElement('div');
-    root.className = 'lcd-reskin';
+    root = build();
     context.screen.replaceChildren(root);
     render();
   },
   unmount() {
     root?.remove();
     root = null;
+    buttons = [];
     ctx = null;
   },
   onInput(input: BadgeInput) {
