@@ -41,16 +41,17 @@ async function loadApp(entry: AppEntry): Promise<BadgeApp> {
 }
 
 export function createRuntime(opts: {
+  /** The badge the OS reflects its mode and glitch on. */
+  badge: HTMLElement;
   lcd: Lcd;
   apps: readonly AppEntry[];
   bus: InputBus;
-  ctxBase: Omit<AppContext, 'screen' | 'announce' | 'exit' | 'dispatch'>;
+  ctxBase: Omit<AppContext, 'screen' | 'announce' | 'exit' | 'dispatch' | 'os'>;
   reducedMotion: boolean;
   session: SafeStorage;
 }): Runtime {
-  const { lcd, apps, bus, ctxBase, reducedMotion, session } = opts;
+  const { badge, lcd, apps, bus, ctxBase, reducedMotion, session } = opts;
   const screen = lcd.view;
-  const badge = screen.closest<HTMLElement>('#badge');
   const flipListeners = new Set<(route: string) => void>();
   const readyListeners = new Set<() => void>();
   let ready = false;
@@ -65,7 +66,6 @@ export function createRuntime(opts: {
   let offHinted = false;
 
   function reflect() {
-    if (!badge) return;
     badge.dataset.mode = state.mode;
     badge.dataset.glitch = state.glitch ? 'on' : 'off';
   }
@@ -105,6 +105,7 @@ export function createRuntime(opts: {
         if (mounted === app) dispatch({ type: 'EXIT_APP' });
       },
       dispatch,
+      os: () => state,
     };
     try {
       await app.mount(ctx);

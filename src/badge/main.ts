@@ -38,6 +38,7 @@ const lcd = createLcd(document.getElementById('lcd-screen')!);
 // What the OS sees: raw input minus the inputs that complete a combo.
 const osBus = createInputBus();
 const runtime = createRuntime({
+  badge: root,
   lcd,
   apps: APPS,
   bus: osBus,

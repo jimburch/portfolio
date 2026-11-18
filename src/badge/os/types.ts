@@ -15,6 +15,8 @@ export interface AppContext {
   announce(text: string): void;
   exit(): void;
   dispatch(e: OsEvent): void;
+  /** The OS state right now, read-only: apps ask the OS, never the badge's DOM. */
+  os(): Readonly<OsState>;
   /** Reads JSON from `<script type="application/json" id="data-{id}">`. */
   data<T>(id: string): T | null;
 }

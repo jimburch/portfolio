@@ -11,8 +11,8 @@ interface Item {
   run(ctx: AppContext): void;
 }
 
-/** The OS state is the source of truth; the app reads it back from #badge. */
-const glitching = (ctx: AppContext): boolean => ctx.screen.closest('#badge')?.getAttribute('data-glitch') === 'on';
+/** The OS state is the source of truth; the app reads it back from the OS. */
+const glitching = (ctx: AppContext): boolean => ctx.os().glitch;
 
 const ITEMS: readonly Item[] = [
   {
