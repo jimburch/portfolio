@@ -530,3 +530,65 @@
     transition: box-shadow 80ms ease-out;
   }
 }
+
+/* ---- Print: the resume PDF is a plain black-on-white document ------------ */
+
+@media print {
+  :root:has(> body > .back-face),
+  body:has(> .back-face) {
+    background: none;
+  }
+
+  .back-face {
+    display: block;
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: #000;
+    background: none;
+  }
+
+  .back-face::before,
+  .back-face::after,
+  .back-face :is(.back-topline, .back-nav, .back-footer, .back-credits, .back-pad) {
+    display: none;
+  }
+
+  .back-face #back-main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: #000;
+    background: none;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  .back-face :is(h1, h2, h3, p, dt, dd, li, a, .back-name, .back-role, .work-meta, .lede) {
+    color: #000;
+    text-shadow: none;
+  }
+
+  .back-face #back-main .lede {
+    color: #000;
+  }
+
+  .back-face #back-main h2 {
+    border-top-color: #000;
+  }
+
+  .back-face #back-main a:not(.back-pad) {
+    color: #000;
+    text-decoration: none;
+  }
+
+  .back-face :is(.work-entry, li) {
+    break-inside: avoid;
+  }
+}
