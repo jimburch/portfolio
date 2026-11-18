@@ -4,11 +4,10 @@
    no glitch or power state. */
 
 import type { AppContext, BadgeApp, BadgeInput } from '../os/types';
+import { createLcdMenu, type LcdMenu, type RowView } from './lcd-menu';
 
 interface Item {
-  label(ctx: AppContext): string;
-  /** What assistive tech hears for the row. */
-  name(ctx: AppContext): string;
+  view(ctx: AppContext): RowView;
   run(ctx: AppContext): void;
 }
 
@@ -17,63 +16,25 @@ const glitching = (ctx: AppContext): boolean => ctx.screen.closest('#badge')?.ge
 
 const ITEMS: readonly Item[] = [
   {
-    label: (ctx) => `OVERCLOCK: ${glitching(ctx) ? 'ON' : 'OFF'}`,
-    name: (ctx) => `Overclock: ${glitching(ctx) ? 'on' : 'off'}`,
+    view: (ctx) => ({
+      name: `Overclock: ${glitching(ctx) ? 'on' : 'off'}`,
+      parts: [`OVERCLOCK: ${glitching(ctx) ? 'ON' : 'OFF'}`],
+    }),
     run: (ctx) => ctx.dispatch({ type: 'SET_GLITCH', on: !glitching(ctx) }),
   },
   {
-    label: () => 'POWER OFF',
-    name: () => 'Power off',
+    view: () => ({ name: 'Power off', parts: ['POWER OFF'] }),
     run: (ctx) => ctx.dispatch({ type: 'POWER_OFF' }),
   },
 ];
 
 let ctx: AppContext | null = null;
-let selected = 0;
-let root: HTMLElement | null = null;
-let buttons: HTMLButtonElement[] = [];
+let menu: LcdMenu | null = null;
 
 function activate(index: number): void {
   if (!ctx) return;
-  selected = index;
-  const current = ctx;
-  ITEMS[index].run(current);
-  render(); // POWER OFF unmounts first, which clears `ctx`
-}
-
-/** The row buttons, built once per mount and updated in place so focus survives. */
-function build(): HTMLElement {
-  const wrap = document.createElement('div');
-  wrap.className = 'lcd-break';
-  buttons = ITEMS.map((_, i) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'lcd-item';
-    const marker = Object.assign(document.createElement('span'), { className: 'lcd-marker', textContent: '▸ ' });
-    const label = document.createElement('span');
-    marker.setAttribute('aria-hidden', 'true');
-    label.setAttribute('aria-hidden', 'true');
-    button.append(marker, label);
-    button.addEventListener('click', () => activate(i));
-    return button;
-  });
-  const hint = Object.assign(document.createElement('p'), {
-    className: 'lcd-line lcd-break-hint',
-    textContent: 'RESET button fixes it',
-  });
-  wrap.append(...buttons, hint);
-  return wrap;
-}
-
-function render(): void {
-  if (!ctx || !root) return;
-  ITEMS.forEach((item, i) => {
-    const button = buttons[i];
-    button.setAttribute('aria-label', item.name(ctx!));
-    button.toggleAttribute('aria-current', i === selected);
-    if (i === selected) button.setAttribute('aria-current', 'true');
-    button.children[1].textContent = item.label(ctx!);
-  });
+  ITEMS[index]!.run(ctx);
+  menu?.changed(); // POWER OFF unmounts first, which clears `menu`
 }
 
 const breakIt: BadgeApp = {
@@ -81,26 +42,31 @@ const breakIt: BadgeApp = {
   title: 'BREAK IT',
   mount(context) {
     ctx = context;
-    selected = 0;
-    root = build();
-    context.screen.replaceChildren(root);
-    render();
+    menu = createLcdMenu({
+      className: 'lcd-break',
+      partClasses: ['lcd-break-label'],
+      hint: { className: 'lcd-break-hint', text: 'RESET button fixes it' },
+      count: ITEMS.length,
+      view: (i) => ITEMS[i]!.view(context),
+      onPick: activate,
+      announce: context.announce,
+    });
+    menu.mount(context.screen);
   },
   unmount() {
-    root?.remove();
-    root = null;
-    buttons = [];
+    menu?.remove();
+    menu = null;
     ctx = null;
   },
   onInput(input: BadgeInput) {
+    if (!menu) return false;
     switch (input) {
       case 'up':
       case 'down':
-        selected = (selected + (input === 'down' ? 1 : -1) + ITEMS.length) % ITEMS.length;
-        render();
+        menu.move(input === 'down' ? 1 : -1);
         return true;
       case 'a':
-        activate(selected);
+        activate(menu.selected());
         return true;
       default:
         return false;

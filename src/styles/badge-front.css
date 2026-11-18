@@ -440,17 +440,27 @@
   height: 100%;
 }
 
-/* Launcher: four rows, the ▲/▼ indicators sit at the right edge. */
+/* Launcher: every entry is in the list; the LCD shows four rows of it,
+   scrolled to --start (set by os/screen.ts). The ▲/▼ indicators sit at the
+   right edge. */
 .lcd-launcher {
   position: relative;
   /* Exactly four rows (the LCD's line-height is 1.6). */
   height: calc(4 * 1.6em);
+  /* clip, not hidden: focus must never scroll the list behind --start's back. */
+  overflow: hidden;
+  overflow: clip;
 }
 
 .lcd-menu {
   margin: 0;
   padding: 0 1.4ch 0 0;
   list-style: none;
+  translate: 0 calc(var(--start, 0) * -1.6em);
+}
+
+.lcd-menu > li {
+  height: 1.6em;
 }
 
 .lcd-item {
@@ -506,6 +516,19 @@
 
 .lcd-more-down {
   bottom: 0.2em;
+}
+
+/* The LCD's status line: heard by assistive tech, never drawn. */
+.lcd-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Toast: one inverted line over whatever is on screen. */

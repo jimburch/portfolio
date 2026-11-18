@@ -3,6 +3,7 @@
 
 import { BOARDS, METALS } from '../theme/palettes';
 import type { AppContext, BadgeApp, BadgeInput } from '../os/types';
+import { createLcdMenu, type LcdMenu, type RowView } from './lcd-menu';
 
 type Field = 'board' | 'metal';
 
@@ -23,61 +24,26 @@ const ROWS: readonly Row[] = [
 ];
 
 let ctx: AppContext | null = null;
-let selected = 0;
-let root: HTMLElement | null = null;
+let menu: LcdMenu | null = null;
+
+function view(context: AppContext, i: number): RowView {
+  const row = ROWS[i]!;
+  const value = row.options(context).find((o) => o.id === context.theme.get()[row.field])?.label ?? '';
+  return {
+    name: `${row.label[0]}${row.label.slice(1).toLowerCase()}: ${value.toLowerCase()}`,
+    parts: [row.label, `‹ ${value.toUpperCase()} ›`],
+  };
+}
 
 function cycle(row: number, step: 1 | -1): void {
-  if (!ctx) return;
-  const { field, options } = ROWS[row];
+  if (!ctx || !menu) return;
+  const { field, options } = ROWS[row]!;
   const list = options(ctx);
   const theme = ctx.theme.get();
   const at = list.findIndex((o) => o.id === theme[field]);
-  const next = list[(Math.max(at, 0) + step + list.length) % list.length];
+  const next = list[(Math.max(at, 0) + step + list.length) % list.length]!;
   ctx.theme.set({ ...theme, [field]: next.id } as typeof theme);
-  render();
-}
-
-/** The two row buttons, built once per mount and updated in place so focus survives. */
-let buttons: HTMLButtonElement[] = [];
-
-function build(): HTMLElement {
-  const wrap = document.createElement('div');
-  wrap.className = 'lcd-reskin';
-  buttons = ROWS.map((row, i) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'lcd-item lcd-reskin-row';
-    const marker = Object.assign(document.createElement('span'), { className: 'lcd-marker', textContent: '▸ ' });
-    const label = Object.assign(document.createElement('span'), { className: 'lcd-reskin-label', textContent: row.label });
-    const value = Object.assign(document.createElement('span'), { className: 'lcd-reskin-value' });
-    for (const n of [marker, label, value]) n.setAttribute('aria-hidden', 'true');
-    button.append(marker, label, value);
-    button.addEventListener('click', () => {
-      selected = i;
-      cycle(i, 1);
-    });
-    return button;
-  });
-  const hint = Object.assign(document.createElement('p'), {
-    className: 'lcd-line lcd-reskin-hint',
-    textContent: '◀▶ change  B: back',
-  });
-  wrap.append(...buttons, hint);
-  return wrap;
-}
-
-function render(): void {
-  if (!ctx || !root) return;
-  const theme = ctx.theme.get();
-  ROWS.forEach((row, i) => {
-    const current = row.options(ctx!).find((o) => o.id === theme[row.field]);
-    const name = current?.label ?? '';
-    const button = buttons[i];
-    button.setAttribute('aria-label', `${row.label[0]}${row.label.slice(1).toLowerCase()}: ${name.toLowerCase()}`);
-    button.toggleAttribute('aria-current', i === selected);
-    if (i === selected) button.setAttribute('aria-current', 'true');
-    button.querySelector('.lcd-reskin-value')!.textContent = `‹ ${name.toUpperCase()} ›`;
-  });
+  menu.changed();
 }
 
 const reskin: BadgeApp = {
@@ -85,27 +51,33 @@ const reskin: BadgeApp = {
   title: 'RESKIN',
   mount(context) {
     ctx = context;
-    selected = 0;
-    root = build();
-    context.screen.replaceChildren(root);
-    render();
+    menu = createLcdMenu({
+      className: 'lcd-reskin',
+      rowClass: 'lcd-reskin-row',
+      partClasses: ['lcd-reskin-label', 'lcd-reskin-value'],
+      hint: { className: 'lcd-reskin-hint', text: '◀▶ change  B: back' },
+      count: ROWS.length,
+      view: (i) => view(context, i),
+      onPick: (i) => cycle(i, 1),
+      announce: context.announce,
+    });
+    menu.mount(context.screen);
   },
   unmount() {
-    root?.remove();
-    root = null;
-    buttons = [];
+    menu?.remove();
+    menu = null;
     ctx = null;
   },
   onInput(input: BadgeInput) {
+    if (!menu) return false;
     switch (input) {
       case 'up':
       case 'down':
-        selected = (selected + (input === 'down' ? 1 : -1) + ROWS.length) % ROWS.length;
-        render();
+        menu.move(input === 'down' ? 1 : -1);
         return true;
       case 'left':
       case 'right':
-        cycle(selected, input === 'right' ? 1 : -1);
+        cycle(menu.selected(), input === 'right' ? 1 : -1);
         return true;
       default:
         return false;

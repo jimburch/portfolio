@@ -1,6 +1,7 @@
 /* What JIM/OS draws on the LCD: the boot log, the launcher, one-line messages
-   and toasts. Everything is DOM text so assistive tech can read it. This module
-   only renders; the runtime decides when. */
+   and toasts, plus the LCD's status line for assistive tech. Everything is DOM
+   text so assistive tech can read it. This module only renders; the runtime
+   decides when. */
 
 import type { AppEntry } from './types';
 
@@ -18,6 +19,7 @@ export const BOOT_LINES: readonly string[] = [
 const BOOT_LINE_MS = 260;
 const BOOT_HOLD_MS = 500;
 const TOAST_MS = 1500;
+const ANNOUNCE_GAP_MS = 50;
 
 export const LAUNCHER_ROWS = 4;
 
@@ -46,26 +48,47 @@ function show(screen: HTMLElement, ...nodes: Node[]): void {
 export interface Lcd {
   /** Where the OS and its apps render. */
   view: HTMLElement;
-  /** Shows a one-line message over the view for ~1.5 s without disturbing it. */
+  /** Shows a one-line message over the view for ~1.5 s without disturbing it (and announces it). */
   toast(text: string): void;
+  /**
+   * Tells assistive tech `text` through the LCD's one polite status line, which
+   * draws nothing. The view itself is not a live region: only what is passed
+   * here is announced.
+   */
+  announce(text: string): void;
 }
 
-/** Takes over the LCD host (replacing the no-JS menu) with a view and a toast layer. */
+/** Takes over the LCD host (replacing the no-JS menu) with a view, a toast layer and a status line. */
 export function createLcd(host: HTMLElement): Lcd {
   const view = el('div', 'lcd-view');
   view.tabIndex = -1;
   const toastEl = el('p', 'lcd-toast');
   toastEl.hidden = true;
-  host.replaceChildren(view, toastEl);
+  const status = el('p', 'lcd-status');
+  status.setAttribute('role', 'status');
+  host.replaceChildren(view, toastEl, status);
 
-  let timer = 0;
+  let toastTimer = 0;
+  let announceTimer = 0;
+
+  function announce(text: string): void {
+    // Clear first and write a beat later, so the same text twice is still a change.
+    window.clearTimeout(announceTimer);
+    status.textContent = '';
+    announceTimer = window.setTimeout(() => {
+      status.textContent = text;
+    }, ANNOUNCE_GAP_MS);
+  }
+
   return {
     view,
+    announce,
     toast(text) {
-      window.clearTimeout(timer);
+      window.clearTimeout(toastTimer);
       toastEl.textContent = text;
       toastEl.hidden = false;
-      timer = window.setTimeout(() => {
+      announce(text);
+      toastTimer = window.setTimeout(() => {
         toastEl.hidden = true;
         toastEl.textContent = '';
       }, TOAST_MS);
@@ -138,16 +161,16 @@ export function launcherWindow(count: number, selected: number, prevStart: numbe
 /** The pick handler for each rendered menu; kept current across in-place updates. */
 const pickers = new WeakMap<HTMLElement, (index: number) => void>();
 
-function buildMenu(entries: readonly AppEntry[], start: number, key: string): HTMLElement {
+/** Every entry as a `<button>` in one list; CSS shows a `LAUNCHER_ROWS`-tall window of it. */
+function buildMenu(entries: readonly AppEntry[], key: string): HTMLElement {
   const menu = el('div', 'lcd-launcher');
-  menu.dataset.window = key;
-  menu.dataset.start = String(start);
+  menu.dataset.entries = key;
 
   const list = el('ul', 'lcd-menu');
-  entries.slice(start, start + LAUNCHER_ROWS).forEach((entry, i) => {
+  entries.forEach((entry, index) => {
     const button = el('button', 'lcd-item');
     button.type = 'button';
-    button.dataset.index = String(start + i);
+    button.dataset.index = String(index);
     const marker = el('span', 'lcd-marker', '▶');
     marker.setAttribute('aria-hidden', 'true');
     button.append(marker, el('span', 'lcd-title', entry.title));
@@ -156,17 +179,14 @@ function buildMenu(entries: readonly AppEntry[], start: number, key: string): HT
     list.append(li);
   });
 
-  const more = (dir: 'up' | 'down', glyph: string, on: boolean) => {
-    const m = el('span', `lcd-more lcd-more-${dir}`, on ? glyph : '');
+  // Visual only: assistive tech has the whole list.
+  const more = (dir: 'up' | 'down') => {
+    const m = el('span', `lcd-more lcd-more-${dir}`);
     m.setAttribute('aria-hidden', 'true');
     return m;
   };
 
-  menu.append(
-    list,
-    more('up', '▲', start > 0),
-    more('down', '▼', start + LAUNCHER_ROWS < entries.length),
-  );
+  menu.append(list, more('up'), more('down'));
   menu.addEventListener('click', (e) => {
     const button = (e.target as Element).closest<HTMLElement>('button[data-index]');
     if (button) pickers.get(menu)?.(Number(button.dataset.index));
@@ -175,10 +195,12 @@ function buildMenu(entries: readonly AppEntry[], start: number, key: string): HT
 }
 
 /**
- * Draws the launcher: a window of four `<button>`s, the selected one marked
- * `aria-current` with a `▶`, and `▲`/`▼` when more items are out of view.
- * Moving within the same window updates in place, so the live region does not
- * re-announce the whole menu. Focus moves only if it was already in the LCD.
+ * Draws the launcher: every entry is a `<button>` (so assistive tech can reach
+ * them all), the selected one marked `aria-current` with a `▶` and the only one
+ * in the tab order. The LCD shows four rows of the list at a time, scrolled
+ * inside the screen to keep the selection in view, with `▲`/`▼` when more
+ * entries are out of view. Updates in place unless the entries change. Focus
+ * moves only if it was already in the LCD.
  */
 export function renderLauncher(
   screen: HTMLElement,
@@ -189,17 +211,19 @@ export function renderLauncher(
   const hadFocus = screen.contains(document.activeElement);
   const current = screen.querySelector<HTMLElement>(':scope > .lcd-launcher');
   const start = launcherWindow(entries.length, selected, Number(current?.dataset.start ?? 0), LAUNCHER_ROWS);
-  const key = `${start}/${entries.length}:${entries
-    .slice(start, start + LAUNCHER_ROWS)
-    .map((e) => e.id)
-    .join(',')}`;
+  const key = entries.map((e) => e.id).join(',');
 
   let menu = current;
-  if (!menu || menu.dataset.window !== key) {
-    menu = buildMenu(entries, start, key);
+  if (!menu || menu.dataset.entries !== key) {
+    menu = buildMenu(entries, key);
     screen.replaceChildren(menu);
   }
   pickers.set(menu, onPick);
+
+  menu.dataset.start = String(start);
+  menu.style.setProperty('--start', String(start));
+  menu.querySelector('.lcd-more-up')!.textContent = start > 0 ? '▲' : '';
+  menu.querySelector('.lcd-more-down')!.textContent = start + LAUNCHER_ROWS < entries.length ? '▼' : '';
 
   let selectedButton: HTMLElement | null = null;
   for (const button of menu.querySelectorAll<HTMLElement>('button[data-index]')) {

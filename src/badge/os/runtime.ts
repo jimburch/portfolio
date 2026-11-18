@@ -1,11 +1,12 @@
 /* JIM/OS runtime: holds the OS state, feeds events through the pure reducer,
-   runs the effects it asks for (boot, mount/unmount apps, flip) and reflects
-   the state on the screen and on #badge. */
+   runs the effects it asks for (boot, mount/unmount apps, flip), reflects the
+   state on the screen and on #badge, and announces what changed. */
 
 import type { InputBus } from '../input/bus';
 import type { SafeStorage } from '../storage';
+import { OFF_ANNOUNCEMENT, describeChange } from './announcements';
 import { initialState, reduce, visibleApps } from './reducer';
-import { BOOT_LINES, clearScreen, renderBoot, renderLauncher, renderMessage, renderOffHint } from './screen';
+import { BOOT_LINES, clearScreen, renderBoot, renderLauncher, renderMessage, renderOffHint, type Lcd } from './screen';
 import type { AppContext, AppEntry, BadgeApp, OsEffect, OsEvent, OsState } from './types';
 
 export interface Runtime {
@@ -40,14 +41,15 @@ async function loadApp(entry: AppEntry): Promise<BadgeApp> {
 }
 
 export function createRuntime(opts: {
-  screen: HTMLElement;
+  lcd: Lcd;
   apps: readonly AppEntry[];
   bus: InputBus;
-  ctxBase: Omit<AppContext, 'screen' | 'exit' | 'dispatch'>;
+  ctxBase: Omit<AppContext, 'screen' | 'announce' | 'exit' | 'dispatch'>;
   reducedMotion: boolean;
   session: SafeStorage;
 }): Runtime {
-  const { screen, apps, bus, ctxBase, reducedMotion, session } = opts;
+  const { lcd, apps, bus, ctxBase, reducedMotion, session } = opts;
+  const screen = lcd.view;
   const badge = screen.closest<HTMLElement>('#badge');
   const flipListeners = new Set<(route: string) => void>();
   const readyListeners = new Set<() => void>();
@@ -98,6 +100,7 @@ export function createRuntime(opts: {
     const ctx: AppContext = {
       ...ctxBase,
       screen,
+      announce: lcd.announce,
       exit: () => {
         if (mounted === app) dispatch({ type: 'EXIT_APP' });
       },
@@ -167,7 +170,16 @@ export function createRuntime(opts: {
     reflect();
     for (const effect of result.effects) run(effect);
     render();
+    announce(prev);
     if (!ready && state.mode !== 'booting') markReady();
+  }
+
+  function announce(prev: OsState) {
+    const text = describeChange(prev, state, apps, {
+      // renderLauncher moves focus onto the selection if it was in the LCD.
+      selectionHasFocus: screen.contains(document.activeElement),
+    });
+    if (text) lcd.announce(text);
   }
 
   function markReady() {
@@ -182,6 +194,7 @@ export function createRuntime(opts: {
       if (!offHinted) {
         offHinted = true;
         renderOffHint(screen, OFF_HINT);
+        lcd.announce(OFF_ANNOUNCEMENT);
       }
       return;
     }

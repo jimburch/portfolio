@@ -11,6 +11,8 @@ export interface AppContext {
   tilt: TiltSource;
   theme: ThemeController;
   storage: SafeStorage;
+  /** Tells assistive tech `text` politely; draws nothing. */
+  announce(text: string): void;
   exit(): void;
   dispatch(e: OsEvent): void;
   /** Reads JSON from `<script type="application/json" id="data-{id}">`. */

@@ -38,7 +38,7 @@ const lcd = createLcd(document.getElementById('lcd-screen')!);
 // What the OS sees: raw input minus the inputs that complete a combo.
 const osBus = createInputBus();
 const runtime = createRuntime({
-  screen: lcd.view,
+  lcd,
   apps: APPS,
   bus: osBus,
   ctxBase: { tilt, theme, storage: local, data: readPageData },

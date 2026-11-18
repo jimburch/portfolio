@@ -53,14 +53,27 @@ test('mode and glitch attributes are always written', async ({ page }) => {
   await expect(page.locator('#badge')).toHaveAttribute('data-glitch', 'off');
 });
 
-test('the launcher shows a window of four items with a more indicator', async ({ page }) => {
+test('the launcher lists every entry and shows a window of four with more indicators', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('Escape');
   const screen = page.locator('#lcd-screen');
-  await expect(screen.getByRole('button')).toHaveCount(4);
+  await expect(screen.getByRole('button')).toHaveCount(7); // all reachable by assistive tech
+  await expect(screen.getByRole('listitem')).toHaveCount(7);
+  const inView = () =>
+    page.locator('.lcd-launcher').evaluate((menu) => {
+      const box = menu.getBoundingClientRect();
+      return [...menu.querySelectorAll('button')]
+        .filter((b) => {
+          const r = b.getBoundingClientRect();
+          return r.top >= box.top - 1 && r.bottom <= box.bottom + 1;
+        })
+        .map((b) => b.textContent!.replace('▶', ''));
+    });
+  expect(await inView()).toEqual(['NOW TINKERING', 'PROJECTS', 'RESUME', 'ABOUT']);
   await expect(screen).toContainText('▼');
   for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
   await expect(screen.locator('button[aria-current="true"]')).toHaveText(/CONTACT/);
+  await expect.poll(inView).toEqual(['PROJECTS', 'RESUME', 'ABOUT', 'CONTACT']);
   await expect(screen).toContainText('▲');
 });
 
@@ -84,7 +97,8 @@ test('the konami code unlocks midnight and toasts over the launcher', async ({ p
   await expect(page.locator('#lcd-screen')).toContainText('CHEAT ENABLED');
   await expect(page.locator('#lcd-screen button[aria-current="true"]')).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('badge-unlocked'))).toContain('midnight');
-  await expect(page.locator('#lcd-screen')).not.toContainText('CHEAT ENABLED', { timeout: 3000 });
+  // The toast goes; the status line keeps the announcement for assistive tech.
+  await expect(page.locator('#lcd-screen .lcd-toast')).toBeHidden({ timeout: 3000 });
 });
 
 test('re-rendering the launcher does not steal focus', async ({ page }) => {
