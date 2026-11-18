@@ -41,7 +41,8 @@ export function createTiltSource(opts: {
   let target: Tilt = { x: 0, y: 0 };
   let baseline: Orientation | null = null;
   let frame = 0;
-  let asked = false;
+  let inFlight = false;
+  let answered = false;
 
   function render() {
     root.style.setProperty('--tx', current.x.toFixed(4));
@@ -81,18 +82,25 @@ export function createTiltSource(opts: {
   }
 
   function onPointerMove(e: PointerEvent) {
-    if (kind !== 'pointer' || e.pointerType === 'touch') return;
+    if (kind !== 'pointer') return;
     setTarget(pointerToTilt(e.clientX, e.clientY, root.getBoundingClientRect()));
   }
 
-  function onPointerLeave() {
+  function recenter() {
     if (kind === 'pointer') setTarget({ x: 0, y: 0 });
+  }
+
+  // A mouse keeps hovering after pointerup; a finger or pen is gone.
+  function onPointerRelease(e: PointerEvent) {
+    if (e.pointerType !== 'mouse') recenter();
   }
 
   if (!reducedMotion) {
     window.addEventListener('deviceorientation', onOrientation);
     window.addEventListener('pointermove', onPointerMove);
-    document.documentElement.addEventListener('pointerleave', onPointerLeave);
+    window.addEventListener('pointerup', onPointerRelease);
+    window.addEventListener('pointercancel', onPointerRelease);
+    document.documentElement.addEventListener('pointerleave', recenter);
     document.addEventListener('visibilitychange', wake);
   }
 
@@ -107,13 +115,17 @@ export function createTiltSource(opts: {
       const ctor = (typeof DeviceOrientationEvent === 'undefined'
         ? undefined
         : DeviceOrientationEvent) as PermissionedOrientationEvent | undefined;
-      if (reducedMotion || asked || !ctor?.requestPermission) return;
+      if (reducedMotion || inFlight || answered || !ctor?.requestPermission) return;
       if (session.get(DENIED_KEY)) return;
-      asked = true;
+      inFlight = true;
       try {
-        if ((await ctor.requestPermission()) !== 'granted') session.set(DENIED_KEY, '1');
+        const result = await ctor.requestPermission();
+        answered = true;
+        if (result === 'denied') session.set(DENIED_KEY, '1');
       } catch {
-        session.set(DENIED_KEY, '1');
+        // A throw (e.g. outside a gesture) is not an answer; a later gesture may retry.
+      } finally {
+        inFlight = false;
       }
     },
   };
