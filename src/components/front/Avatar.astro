@@ -1,0 +1,12 @@
+---
+import { AVATAR } from '../../data/avatar';
+
+// Only lit dots become elements; the unlit grid is the avatar's background.
+const dots = AVATAR.flatMap((row, r) =>
+  [...row].flatMap((ch, c) => (ch === '#' ? [`grid-area:${r + 1}/${c + 1}`] : [])),
+);
+---
+
+<div class="avatar" data-part="avatar" role="img" aria-label="Pixel portrait of Jim">
+  {dots.map((area) => <i style={area}></i>)}
+</div>

@@ -1,0 +1,18 @@
+---
+import { BACK_ROUTES } from '../../data/site';
+---
+
+<nav class="static-menu" aria-label="Badge menu">
+  <ul>
+    {
+      BACK_ROUTES.map(({ title, route }) => (
+        <li>
+          <a href={route} data-flip>
+            <span class="cursor" aria-hidden="true">&gt;</span>
+            {title}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>

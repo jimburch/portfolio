@@ -8,3 +8,11 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
+
+/* Desktop surface the phone-sized badge hangs on.
+   TODO(jim): placeholder neutral; desktop background options to bring to Jim. */
+@media (min-width: 768px) {
+  body {
+    background: #d6d3cd;
+  }
+}

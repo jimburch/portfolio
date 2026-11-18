@@ -7,9 +7,10 @@
   --lcd-bg: #12201b;
   --lcd-fg: #d9f7e9;
   --lcd-hl: #ffd84d;
-  --case: #14171a;
-  --case-edge: #2a2f35;
-  --case-side: #0a0c0e;
+  /* Case keys and RESET cap: top face, lit top edge, side face (mockup values). */
+  --case: #2a2f35;
+  --case-edge: #474e57;
+  --case-side: #111417;
   --metal: #e6c57c;
   --metal-side: #a8843c;
   --metal-lit: #f6e2ae;
