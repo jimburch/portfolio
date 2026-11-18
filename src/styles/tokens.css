@@ -1,5 +1,11 @@
 /* Theme tokens. :root is the default green board with gold metal.
-   Board values are placeholders pending Jim's palette (TODO(jim)). */
+   Board values are placeholders pending Jim's palette (TODO(jim)).
+
+   Metal is a fill (caps, pads, avatar dots). Text printed on the board uses
+   --ink and focus rings use --focus, so a light board can keep its metal parts
+   and still read: tests/unit/palette-contrast.test.ts holds every board × metal
+   to 3:1 for both. Selectors here stay single (:root or one attribute) so
+   source order is the cascade; that test relies on it. */
 :root {
   --board: #1b6b4e;
   --board-dot: #2a7d5e;
@@ -14,6 +20,11 @@
   --metal: #e6c57c;
   --metal-side: #a8843c;
   --metal-lit: #f6e2ae;
+  /* The metal's color dark enough to print on a light board. */
+  --metal-deep: #6b5216;
+  /* Printed text (silkscreen, name, role) and focus rings on the board. */
+  --ink: var(--metal);
+  --focus: var(--lcd-hl);
 }
 
 [data-board='black'] {
@@ -56,6 +67,8 @@
   --case: #22262b;
   --case-edge: #3a4048;
   --case-side: #0e1013;
+  --ink: var(--metal-deep);
+  --focus: #1b1d20;
 }
 
 [data-board='midnight'] {
@@ -71,4 +84,5 @@
   --metal: #cfd4da;
   --metal-side: #8b929b;
   --metal-lit: #f1f4f7;
+  --metal-deep: #3f454d;
 }
