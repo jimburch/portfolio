@@ -48,3 +48,44 @@ test('RESUME pad still works while powered off', async ({ page }) => {
   await page.locator('[data-part="resume-pad"]').click();
   await expect(page).toHaveURL(/\/resume\/?$/);
 });
+
+test('overclock jitters the app text, and nothing outside the LCD moves', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await openBreak(page);
+  await page.keyboard.press('z');
+  const seen = new Set<string>();
+  for (let i = 0; i < 12; i++) {
+    seen.add(await page.locator('#lcd-screen .lcd-break').evaluate((el) => getComputedStyle(el.parentElement!).translate));
+    await page.waitForTimeout(60);
+  }
+  expect(seen.size).toBeGreaterThan(1);
+  expect(await page.locator('#lcd').evaluate((el) => getComputedStyle(el).translate)).toBe('none');
+});
+
+test('a flip started during the board flicker still completes', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await openBreak(page);
+  await page.keyboard.press('z'); // OVERCLOCK on, board flicker starts
+  await page.locator('[data-part="resume-pad"]').click(); // well inside 600 ms
+  await expect(page.locator('#badge')).toHaveAttribute('data-side', 'back');
+  await expect(page).toHaveURL(/\/resume\/?$/);
+  await expect(page.locator('#back-slot [data-back-face] h1')).toBeVisible();
+});
+
+test('the press RESET hint returns on a second power-off cycle', async ({ page }) => {
+  await openBreak(page);
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('z');
+  await page.keyboard.press('z');
+  await expect(page.locator('#lcd-screen')).toContainText('press RESET');
+  await page.getByRole('button', { name: 'Reset badge' }).click();
+  await expect(page.locator('#badge')).toHaveAttribute('data-mode', 'launcher', { timeout: 3000 });
+  for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('z');
+  await expect(page.locator('#lcd-screen .lcd-break')).toBeVisible();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('z');
+  await expect(page.locator('#lcd-screen')).not.toContainText('press RESET');
+  await page.keyboard.press('z');
+  await expect(page.locator('#lcd-screen')).toContainText('press RESET');
+});
