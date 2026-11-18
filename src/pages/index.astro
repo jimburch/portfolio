@@ -3,10 +3,21 @@ import Base from '../layouts/Base.astro';
 import BadgeFront from '../components/front/BadgeFront.astro';
 // The flip lifts back faces into this page, so their styles ship with it.
 import '../styles/badge-back.css';
+import { getEntry } from 'astro:content';
+
+const now = await getEntry('now', 'current');
+const nowData = now && {
+  title: now.data.title,
+  blurb: now.data.blurb,
+  route: `/projects/${now.data.project.id}`,
+};
+// Escape `<` so the JSON can never close its own script tag.
+const nowJson = JSON.stringify(nowData ?? null).replace(/</g, '\\u003c');
 ---
 
 <Base title="Jim Burch">
   <BadgeFront />
+  <script type="application/json" id="data-now" set:html={nowJson} />
 </Base>
 
 <script>

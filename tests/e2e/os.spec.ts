@@ -67,12 +67,14 @@ test('the launcher shows a window of four items with a more indicator', async ({
 test('tapping a screen entry opens it and B returns to the launcher', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('Escape');
-  await page.locator('#lcd-screen').getByRole('button', { name: /NOW TINKERING/ }).click();
+  // BREAK IT has no app yet (placeholder); update when it gets its `load`.
+  for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowDown'); // scroll BREAK IT into the window
+  await page.locator('#lcd-screen').getByRole('button', { name: /BREAK IT/ }).click();
   await expect(page.locator('#badge')).toHaveAttribute('data-mode', 'app');
   await expect(page.locator('#lcd-screen')).toContainText('COMING SOON');
   await page.keyboard.press('x');
   await expect(page.locator('#badge')).toHaveAttribute('data-mode', 'launcher');
-  await expect(page.locator('#lcd-screen button[aria-current="true"]')).toHaveText(/NOW TINKERING/);
+  await expect(page.locator('#lcd-screen button[aria-current="true"]')).toHaveText(/BREAK IT/);
 });
 
 test('the konami code unlocks midnight and toasts over the launcher', async ({ page }) => {

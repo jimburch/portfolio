@@ -665,3 +665,34 @@
   font-size: 0.72em;
   opacity: 0.8;
 }
+
+/* NOW TINKERING and SENSORS */
+.lcd-now-kicker {
+  font-size: 0.72em;
+  opacity: 0.8;
+}
+
+.lcd-now-title {
+  color: var(--lcd-hl);
+}
+
+.lcd-now-blurb {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  margin: 0.2em 0;
+  font-size: 0.72em;
+  line-height: 1.25;
+}
+
+.lcd-now-link {
+  color: var(--lcd-hl);
+  text-decoration: none;
+}
+
+.lcd-now-link:focus-visible {
+  outline: 1px dashed var(--lcd-hl);
+  outline-offset: 1px;
+}
