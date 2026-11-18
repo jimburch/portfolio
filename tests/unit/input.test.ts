@@ -15,7 +15,6 @@ test.each([
   ['Escape', 'b'],
   ['x', 'b'],
   ['s', 'start'],
-  ['Shift', 'select'],
   ['q', null],
 ] as const)('%s → %s', (key, out) => expect(keyToInput(key, null, none)).toBe(out));
 
@@ -27,6 +26,9 @@ test('Enter and Space on a focused button are left to the browser', () => {
 
 test('modifier shortcuts are never hijacked', () =>
   expect(keyToInput('ArrowLeft', null, { ...none, meta: true })).toBeNull());
+
+test('bare Shift is not a mapped key (handled as lone-Shift in controls)', () =>
+  expect(keyToInput('Shift', null, none)).toBeNull());
 
 test('text fields are ignored', () => expect(keyToInput('x', 'INPUT', none)).toBeNull());
 

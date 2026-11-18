@@ -14,7 +14,6 @@ const KEYS: Record<string, BadgeInput> = {
   X: 'b',
   s: 'start',
   S: 'start',
-  Shift: 'select',
 };
 
 const TEXT_TARGETS = new Set(['INPUT', 'TEXTAREA', 'SELECT']);

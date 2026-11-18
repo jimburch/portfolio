@@ -24,10 +24,12 @@ export function wireControls(
 
   const inputOf = (el: Element | null) => el?.closest<HTMLElement>('[data-input]') ?? null;
 
+  // Only activation-triggering events (click, non-mouse pointerup, mapped keydown) call this.
   const gesture = (target: EventTarget | null) => {
     if (gestured) return;
     const el = target instanceof Element ? target : null;
     if (!el || el.closest('[data-no-permission]')) return;
+    if (!el.closest('[data-input], [data-action], #lcd')) return;
     gestured = true;
     opts.onFirstGesture();
   };
@@ -53,7 +55,6 @@ export function wireControls(
   root.addEventListener(
     'pointerdown',
     (e) => {
-      gesture(e.target);
       const btn = inputOf(e.target as Element);
       if (btn && e.pointerType === 'touch') {
         btn.setAttribute('data-pressed', '');
@@ -62,7 +63,15 @@ export function wireControls(
     },
     { signal },
   );
-  for (const type of ['pointerup', 'pointercancel', 'pointerleave'] as const) {
+  root.addEventListener(
+    'pointerup',
+    (e) => {
+      if (e.pointerType !== 'mouse') gesture(e.target);
+      release();
+    },
+    { signal },
+  );
+  for (const type of ['pointercancel', 'pointerleave'] as const) {
     root.addEventListener(type, release, { signal, capture: type === 'pointerleave' });
   }
 
@@ -70,6 +79,7 @@ export function wireControls(
     'click',
     (e) => {
       const btn = inputOf(e.target as Element);
+      gesture(e.target);
       if (!btn) return;
       vibrate();
       bus.emit(btn.dataset.input as BadgeInput);
@@ -77,23 +87,46 @@ export function wireControls(
     { signal },
   );
 
+  const emitKey = (input: BadgeInput) => {
+    const board = root.querySelector<HTMLElement>(`[data-input="${input}"]:not([data-case])`);
+    if (board) flash(board);
+    vibrate();
+    bus.emit(input);
+  };
+
+  // A lone Shift press-and-release is SELECT; Shift+Tab, Shift+letter never are.
+  let shiftArmed = false;
+
   document.addEventListener(
     'keydown',
     (e) => {
+      if (e.key === 'Shift') {
+        if (!e.repeat) shiftArmed = true;
+        return;
+      }
+      shiftArmed = false;
       const target = e.target instanceof Element ? e.target : null;
-      if (target?.closest('#lcd, [data-input]')) gesture(target);
       const input = keyToInput(e.key, target?.tagName ?? null, {
         meta: e.metaKey,
         ctrl: e.ctrlKey,
         alt: e.altKey,
       });
       if (!input || !opts.isActive()) return;
+      gesture(target);
       e.preventDefault();
       if (e.repeat) return;
-      const board = root.querySelector<HTMLElement>(`[data-input="${input}"]:not([data-case])`);
-      if (board) flash(board);
-      vibrate();
-      bus.emit(input);
+      emitKey(input);
+    },
+    { signal },
+  );
+
+  document.addEventListener(
+    'keyup',
+    (e) => {
+      if (e.key !== 'Shift') return;
+      const armed = shiftArmed;
+      shiftArmed = false;
+      if (armed && opts.isActive()) emitKey('select');
     },
     { signal },
   );
