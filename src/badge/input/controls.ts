@@ -1,6 +1,6 @@
 import type { BadgeInput } from '../os/types';
 import type { InputBus } from './bus';
-import { keyToInput } from './keymap';
+import { isIgnoredKeyContext, keyToInput } from './keymap';
 
 const FLASH_MS = 120;
 
@@ -100,17 +100,14 @@ export function wireControls(
   document.addEventListener(
     'keydown',
     (e) => {
+      const target = e.target instanceof Element ? e.target : null;
+      const mods = { meta: e.metaKey, ctrl: e.ctrlKey, alt: e.altKey };
       if (e.key === 'Shift') {
-        if (!e.repeat) shiftArmed = true;
+        if (!e.repeat) shiftArmed = !isIgnoredKeyContext(target?.tagName ?? null, mods);
         return;
       }
       shiftArmed = false;
-      const target = e.target instanceof Element ? e.target : null;
-      const input = keyToInput(e.key, target?.tagName ?? null, {
-        meta: e.metaKey,
-        ctrl: e.ctrlKey,
-        alt: e.altKey,
-      });
+      const input = keyToInput(e.key, target?.tagName ?? null, mods);
       if (!input || !opts.isActive()) return;
       gesture(target);
       e.preventDefault();
@@ -126,10 +123,17 @@ export function wireControls(
       if (e.key !== 'Shift') return;
       const armed = shiftArmed;
       shiftArmed = false;
-      if (armed && opts.isActive()) emitKey('select');
+      const target = e.target instanceof Element ? e.target : null;
+      const mods = { meta: e.metaKey, ctrl: e.ctrlKey, alt: e.altKey };
+      if (armed && opts.isActive() && !isIgnoredKeyContext(target?.tagName ?? null, mods)) emitKey('select');
     },
     { signal },
   );
+  const disarmShift = () => {
+    shiftArmed = false;
+  };
+  window.addEventListener('blur', disarmShift, { signal });
+  document.addEventListener('pointerdown', disarmShift, { signal, capture: true });
 
   return () => {
     ac.abort();

@@ -112,3 +112,28 @@ test('tap on the RESUME pad does not request permission', async ({ page }) => {
   await page.waitForTimeout(50);
   expect(await perms(page)).toBe(0);
 });
+
+test('lone Shift in a text field emits nothing', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    const i = document.createElement('input');
+    i.id = 'probe';
+    document.body.append(i);
+    i.focus();
+  });
+  await countEmits(page);
+  await page.keyboard.press('Shift');
+  await page.waitForTimeout(50);
+  expect(await emits(page)).toBe(0);
+});
+
+test('Shift held across a mouse click emits no select', async ({ page }) => {
+  await page.goto('/');
+  await countEmits(page);
+  await page.keyboard.down('Shift');
+  await page.getByRole('button', { name: 'B button', exact: true }).click();
+  await page.keyboard.up('Shift');
+  await page.waitForTimeout(50);
+  await expect(page.locator('html')).toHaveAttribute('data-last-input', /^b:\d+$/);
+  expect(await emits(page)).toBe(1);
+});

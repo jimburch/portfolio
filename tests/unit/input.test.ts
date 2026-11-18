@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { COMBOS, createComboDetector } from '../../src/badge/input/combos';
 import { createInputBus } from '../../src/badge/input/bus';
-import { keyToInput } from '../../src/badge/input/keymap';
+import { isIgnoredKeyContext, keyToInput } from '../../src/badge/input/keymap';
 
 const none = { meta: false, ctrl: false, alt: false };
 
@@ -55,4 +55,14 @@ test('bus delivers to subscribers until unsubscribed', () => {
   off();
   bus.emit('b');
   expect(got).toEqual(['a']);
+});
+
+test('shared guard ignores text fields and modifier shortcuts only', () => {
+  expect(isIgnoredKeyContext('INPUT', none)).toBe(true);
+  expect(isIgnoredKeyContext('TEXTAREA', none)).toBe(true);
+  expect(isIgnoredKeyContext('SELECT', none)).toBe(true);
+  expect(isIgnoredKeyContext(null, { ...none, ctrl: true })).toBe(true);
+  expect(isIgnoredKeyContext('BUTTON', { ...none, alt: true })).toBe(true);
+  expect(isIgnoredKeyContext('BUTTON', none)).toBe(false);
+  expect(isIgnoredKeyContext(null, none)).toBe(false);
 });
