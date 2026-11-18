@@ -55,6 +55,8 @@ const flipper = createFlipper({
     if (side === 'front') lcd.view.focus({ preventScroll: true });
   },
 });
+// flipTo never throws or rejects (it falls back to normal navigation), so the
+// runtime's listener loop is safe.
 runtime.onFlip((route) => void flipper.flipTo(route));
 runtime.onReady(() => prefetchBackPages(BACK_ROUTES.map((r) => r.route)));
 

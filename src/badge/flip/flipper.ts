@@ -62,6 +62,19 @@ interface Box {
   marginTop: number;
 }
 
+/** What the flipper stores on the history entries it creates. */
+interface EntryState {
+  side: Side;
+  route?: string;
+  /** Set on a back entry that sits directly on top of a front entry. */
+  from?: 'front';
+}
+
+function entryState(): EntryState | null {
+  const state: unknown = history.state;
+  return state && typeof state === 'object' && 'side' in state ? (state as EntryState) : null;
+}
+
 /** A turn under way: the routes at its two ends (null is the front). */
 interface Turn {
   fromRoute: string | null;
@@ -258,20 +271,53 @@ export function createFlipper(opts: {
     return settling;
   }
 
-  function flipTo(route: string, { push = true }: { push?: boolean } = {}): Promise<void> {
-    const target = backRouteOf(new URL(route, location.href).pathname);
-    if (target === null) return flipBack({ viaHistory: !push });
-    if (push && backRouteOf(location.pathname) !== target) {
-      history.pushState({ side: 'back', route: target }, '', target);
+  /**
+   * Runs the synchronous start of a flip (resolve the route, move the URL,
+   * steer a turn under way). Its callers are click handlers and the runtime's
+   * flip listener, so a throw here (a bad URL, a refused pushState, an animation
+   * that will not reverse) must not escape into them: the visitor gets
+   * `fallbackUrl` by normal navigation instead. Failures after that point are
+   * settle()'s to handle.
+   */
+  function guarded(fallbackUrl: string, start: () => Promise<void>): Promise<void> {
+    try {
+      return start();
+    } catch {
+      try {
+        location.assign(fallbackUrl);
+      } catch {
+        /* not even a URL: nothing more to do */
+      }
+      return Promise.resolve();
     }
-    return settle();
+  }
+
+  function flipTo(route: string, { push = true }: { push?: boolean } = {}): Promise<void> {
+    return guarded(route, () => {
+      const target = backRouteOf(new URL(route, location.href).pathname);
+      if (target === null) return flipBack({ viaHistory: !push });
+      const current = backRouteOf(location.pathname);
+      if (push && current !== target) {
+        if (current === null) {
+          history.pushState({ side: 'back', route: target, from: 'front' } satisfies EntryState, '', target);
+        } else {
+          // Already on a back entry (a second flip before the first landed):
+          // take it over, so the front stays right behind it in history.
+          const { from } = entryState() ?? {};
+          history.replaceState({ side: 'back', route: target, from } satisfies EntryState, '', target);
+        }
+      }
+      return settle();
+    });
   }
 
   function flipBack({ viaHistory = false }: { viaHistory?: boolean } = {}): Promise<void> {
-    if (!viaHistory && backRouteOf(location.pathname) !== null) {
-      history.pushState({ side: 'front' }, '', FRONT_PATH);
-    }
-    return settle();
+    return guarded(FRONT_PATH, () => {
+      if (!viaHistory && backRouteOf(location.pathname) !== null) {
+        history.pushState({ side: 'front' } satisfies EntryState, '', FRONT_PATH);
+      }
+      return settle();
+    });
   }
 
   const isPlainClick = (e: MouseEvent) =>
@@ -286,8 +332,8 @@ export function createFlipper(opts: {
       void flipTo(link.pathname);
     } else if (link.hasAttribute('data-home') && backSlot.contains(link)) {
       e.preventDefault();
-      // A back we pushed has the front right behind it in history: step back to it.
-      if ((history.state as { side?: string } | null)?.side === 'back') history.back();
+      // A back entry pushed from the front has the front right behind it: step back to it.
+      if (entryState()?.from === 'front') history.back();
       else void flipBack();
     }
   });

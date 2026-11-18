@@ -53,6 +53,22 @@ test('Back after the fallback returns to the front', async ({ page }) => {
   await expect(page).toHaveTitle('Jim Burch');
 });
 
+test('a second flip before landing still leaves HOME pointing at the front', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('ArrowDown'); // NOW → PROJECTS
+  await page.keyboard.press('z'); // flips to /projects after the LCD's "loading…"
+  await page.locator('[data-part="resume-pad"]').click(); // flips to /resume first
+  await expect.poll(() => new URL(page.url()).pathname).toMatch(/^\/projects\/?$/);
+  await expect(page.locator('#back-slot [data-back-face] h1')).toHaveText(/Projects/);
+  await expect(page.locator('#badge')).not.toHaveAttribute('data-flipping');
+  await page.locator('#back-slot a[data-home]').click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/');
+  await expect(page.locator('#badge')).toHaveAttribute('data-side', 'front');
+  await page.goBack();
+  expect(new URL(page.url()).pathname).not.toMatch(/^\/resume\/?$/);
+});
+
 test('double tap and back mid-flip settle to match the URL', async ({ page }) => {
   await page.goto('/');
   const pad = page.locator('[data-part="resume-pad"]');
