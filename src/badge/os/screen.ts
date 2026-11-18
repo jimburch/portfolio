@@ -217,3 +217,8 @@ export function renderLauncher(
     selectedButton.focus({ preventScroll: true });
   }
 }
+
+/** The one dim line a powered-off LCD shows when someone presses something. */
+export function renderOffHint(screen: HTMLElement, text: string): void {
+  show(screen, el('p', 'lcd-off-hint', text));
+}

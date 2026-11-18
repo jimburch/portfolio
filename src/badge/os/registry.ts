@@ -14,6 +14,6 @@ export const APPS: AppEntry[] = [
   flip('about'),
   flip('contact'),
   { id: 'reskin', title: 'RESKIN', kind: 'screen', load: () => import('../apps/reskin') },
-  { id: 'break', title: 'BREAK IT', kind: 'screen' },
+  { id: 'break', title: 'BREAK IT', kind: 'screen', load: () => import('../apps/break-it') },
   { id: 'sensors', title: 'SENSORS', kind: 'screen', hidden: true, load: () => import('../apps/sensors') },
 ];

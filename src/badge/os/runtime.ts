@@ -5,7 +5,7 @@
 import type { InputBus } from '../input/bus';
 import type { SafeStorage } from '../storage';
 import { initialState, reduce, visibleApps } from './reducer';
-import { BOOT_LINES, clearScreen, renderBoot, renderLauncher, renderMessage } from './screen';
+import { BOOT_LINES, clearScreen, renderBoot, renderLauncher, renderMessage, renderOffHint } from './screen';
 import type { AppContext, AppEntry, BadgeApp, OsEffect, OsEvent, OsState } from './types';
 
 export interface Runtime {
@@ -18,6 +18,7 @@ export interface Runtime {
 
 const BOOTED_KEY = 'booted';
 const FLIP_LOADING_MS = 300;
+const OFF_HINT = 'press RESET';
 
 /** Stand-in for apps that have nothing on screen yet, or failed to load. */
 function messageApp(entry: AppEntry, message: string): BadgeApp {
@@ -58,6 +59,8 @@ export function createRuntime(opts: {
   let mountSeq = 0;
   let boot: AbortController | null = null;
   let pendingFlip = 0;
+  /** True once this power-off has shown its `press RESET` hint. */
+  let offHinted = false;
 
   function reflect() {
     if (!badge) return;
@@ -159,6 +162,7 @@ export function createRuntime(opts: {
       session.set(BOOTED_KEY, '1');
     }
     if (state.mode !== 'launcher') cancelFlip();
+    if (state.mode !== 'off') offHinted = false;
 
     reflect();
     for (const effect of result.effects) run(effect);
@@ -173,6 +177,14 @@ export function createRuntime(opts: {
   }
 
   bus.subscribe((input) => {
+    if (state.mode === 'off') {
+      // The reducer ignores input while off; the first press just says why.
+      if (!offHinted) {
+        offHinted = true;
+        renderOffHint(screen, OFF_HINT);
+      }
+      return;
+    }
     if (state.mode === 'app' && mounted?.onInput?.(input)) return;
     dispatch({ type: 'INPUT', input });
   });
