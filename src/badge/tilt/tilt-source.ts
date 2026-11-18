@@ -15,6 +15,12 @@ export interface TiltSource {
   kind(): TiltSourceKind;
   subscribe(fn: (t: Tilt, kind: TiltSourceKind) => void): () => void;
   requestPermissionFromGesture(): Promise<void>;
+  /**
+   * Inactive (while the back of the badge shows): the loop stops, readings are
+   * ignored and the badge sits at rest (`--tx`/`--ty` 0). Active again, the
+   * next reading picks up from rest with a fresh gyro baseline.
+   */
+  setActive(active: boolean): void;
 }
 
 const REST_EPSILON = 0.0005;
@@ -43,6 +49,7 @@ export function createTiltSource(opts: {
   let frame = 0;
   let inFlight = false;
   let answered = false;
+  let active = true;
 
   function render() {
     root.style.setProperty('--tx', current.x.toFixed(4));
@@ -62,16 +69,17 @@ export function createTiltSource(opts: {
   }
 
   function wake() {
-    if (!frame && !document.hidden) frame = requestAnimationFrame(tick);
+    if (active && !frame && !document.hidden) frame = requestAnimationFrame(tick);
   }
 
   function setTarget(next: Tilt) {
+    if (!active) return;
     target = next;
     wake();
   }
 
   function onOrientation(e: DeviceOrientationEvent) {
-    if (e.beta === null || e.gamma === null) return;
+    if (!active || e.beta === null || e.gamma === null) return;
     const reading = { beta: e.beta, gamma: e.gamma };
     if (!baseline) {
       baseline = reading;
@@ -104,7 +112,19 @@ export function createTiltSource(opts: {
     document.addEventListener('visibilitychange', wake);
   }
 
+  function setActive(next: boolean) {
+    if (next === active) return;
+    active = next;
+    if (active) return;
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
+    current = target = { x: 0, y: 0 };
+    baseline = null;
+    render();
+  }
+
   return {
+    setActive,
     current: () => current,
     kind: () => kind,
     subscribe(fn) {

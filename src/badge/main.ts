@@ -52,6 +52,8 @@ const flipper = createFlipper({
   backSlot: document.getElementById('back-slot')!,
   reducedMotion,
   onSideChange: (side) => {
+    // Tilt only means something while the front faces the visitor.
+    tilt.setActive(side === 'front');
     if (side === 'front') lcd.view.focus({ preventScroll: true });
   },
 });
