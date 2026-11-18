@@ -1,0 +1,18 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ProjectStatus from './ProjectStatus.astro';
+
+/** One project in the /projects list, linking to its build log. */
+interface Props {
+  entry: CollectionEntry<'projects'>;
+}
+
+const { entry } = Astro.props;
+const { title, status, summary } = entry.data;
+---
+
+<article class="project-card" data-project={entry.id}>
+  <h2><a href={`/projects/${entry.id}`}>{title}</a></h2>
+  <ProjectStatus status={status} />
+  <p>{summary}</p>
+</article>

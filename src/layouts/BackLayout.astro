@@ -1,0 +1,29 @@
+---
+import '../styles/badge-back.css';
+import Base from './Base.astro';
+import BackHeader from '../components/back/BackHeader.astro';
+import BackFooter from '../components/back/BackFooter.astro';
+import { SITE } from '../data/site';
+
+interface Props {
+  /** Page name for the browser tab; the site name is appended. */
+  title: string;
+  /** The page's h1. */
+  heading: string;
+}
+
+const { title, heading } = Astro.props;
+---
+
+<Base title={`${title} · ${SITE.name}`}>
+  <!-- The flip (front → back) lifts exactly this element into the front page,
+       so everything visible on a back page lives inside it. -->
+  <div data-back-face class="back-face">
+    <BackHeader />
+    <main id="back-main">
+      <h1 tabindex="-1">{heading}</h1>
+      <slot />
+    </main>
+    <BackFooter />
+  </div>
+</Base>

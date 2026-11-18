@@ -1,0 +1,18 @@
+---
+import { CONTACT_LINKS } from '../../data/contact';
+
+/** Email, LinkedIn and GitHub written out in full, for reading pages. */
+---
+
+<dl class="contact-links">
+  {
+    CONTACT_LINKS.map(({ label, href, text }) => (
+      <div>
+        <dt>{label}</dt>
+        <dd>
+          <a href={href}>{text}</a>
+        </dd>
+      </div>
+    ))
+  }
+</dl>

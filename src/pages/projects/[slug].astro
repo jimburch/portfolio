@@ -1,0 +1,41 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BackLayout from '../../layouts/BackLayout.astro';
+import ProjectStatus from '../../components/back/ProjectStatus.astro';
+
+export const getStaticPaths = (async () => {
+  const projects = await getCollection('projects');
+  return projects.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+}
+
+const { entry } = Astro.props;
+const { title, status, summary, cover, links } = entry.data;
+const { Content } = await render(entry);
+---
+
+<BackLayout title={title} heading={title}>
+  <ProjectStatus status={status} />
+  <p class="lede">{summary}</p>
+  {
+    links && links.length > 0 && (
+      <ul class="project-links">
+        {links.map(({ label, url }) => (
+          <li>
+            <a href={url}>{label}</a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  {cover && <Image class="project-cover" src={cover} alt="" widths={[390, 780]} sizes="(min-width: 768px) 68ch, 100vw" />}
+  <div class="build-log">
+    <Content />
+  </div>
+  <p class="back-link"><a href="/projects">← All projects</a></p>
+</BackLayout>

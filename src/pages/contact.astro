@@ -1,0 +1,18 @@
+---
+import BackLayout from '../layouts/BackLayout.astro';
+import ContactLinks from '../components/back/ContactLinks.astro';
+import ContactQr from '../components/back/ContactQr.astro';
+import { CONTACT } from '../data/contact';
+---
+
+<BackLayout title="Contact" heading="Contact">
+  <p class="lede">The quickest way to reach me is email. I'm in {CONTACT.city}.</p>
+  <ContactLinks />
+
+  <figure class="contact-card">
+    <ContactQr class="contact-card-qr" />
+    <figcaption>
+      Scan to save my contact card, or <a href="/jim-burch.vcf">download it</a>.
+    </figcaption>
+  </figure>
+</BackLayout>

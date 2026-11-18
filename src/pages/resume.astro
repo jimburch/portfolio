@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BackLayout from '../layouts/BackLayout.astro';
+import WorkEntry from '../components/back/WorkEntry.astro';
+import ContactLinks from '../components/back/ContactLinks.astro';
+import { frontmatter as about } from '../copy/about.md';
+import { byOrder } from '../data/order';
+
+const work = (await getCollection('work')).sort(byOrder);
+const summary: string = about.summary;
+---
+
+<BackLayout title="Resume" heading="Resume">
+  <p class="lede">{summary}</p>
+  <p><a class="back-pad" href="/jim-burch-resume.pdf" download>Download PDF</a></p>
+
+  <section aria-labelledby="work-heading">
+    <h2 id="work-heading">Work</h2>
+    {work.map((entry) => <WorkEntry entry={entry} />)}
+  </section>
+
+  <section aria-labelledby="skills-heading">
+    <h2 id="skills-heading">Skills</h2>
+    <p>TODO(jim)</p>
+  </section>
+
+  <section aria-labelledby="contact-heading">
+    <h2 id="contact-heading">Contact</h2>
+    <ContactLinks />
+  </section>
+</BackLayout>

@@ -1,3 +1,8 @@
+/* Type stacks shared by both faces of the badge. */
+:root {
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
 *,
 *::before,
 *::after {

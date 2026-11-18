@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+import BackLayout from '../../layouts/BackLayout.astro';
+import ProjectCard from '../../components/back/ProjectCard.astro';
+import { byOrder } from '../../data/order';
+
+const projects = (await getCollection('projects')).sort(byOrder);
+---
+
+<BackLayout title="Projects" heading="Projects">
+  <p class="lede">Build logs: what I wanted, how I built it, what broke, and how it turned out.</p>
+  <div class="project-list">
+    {projects.map((entry) => <ProjectCard entry={entry} />)}
+  </div>
+</BackLayout>

@@ -1,0 +1,18 @@
+---
+import QRCode from 'qrcode';
+import { CONTACT, buildVCard } from '../../data/contact';
+
+/** A QR code that saves Jim's contact card, rendered to SVG at build time. */
+interface Props {
+  class?: string;
+}
+
+const svg = await QRCode.toString(buildVCard(CONTACT), { type: 'svg', margin: 1 });
+---
+
+<span
+  class:list={['contact-qr', Astro.props.class]}
+  role="img"
+  aria-label="QR code: save Jim's contact card"
+  set:html={svg}
+/>

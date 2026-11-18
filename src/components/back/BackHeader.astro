@@ -1,0 +1,47 @@
+---
+import { BACK_ROUTES, SITE } from '../../data/site';
+import { CONTACT } from '../../data/contact';
+import ContactQr from './ContactQr.astro';
+
+/** Top of the back: HOME switch, lanyard slot, contact QR, ID block, page pads. */
+const here = Astro.url.pathname.replace(/\/$/, '') || '/';
+const current = (route: string) =>
+  here === route ? 'page' : here.startsWith(`${route}/`) ? 'true' : undefined;
+---
+
+<header class="back-header">
+  <div class="back-topline">
+    <a class="back-home" href="/" data-home>
+      <span class="back-switch" aria-hidden="true"><span></span></span>
+      <span class="back-silk">HOME</span>
+    </a>
+    <span class="back-slot" aria-hidden="true"></span>
+    <a class="back-qr" href="/jim-burch.vcf">
+      <ContactQr />
+      <span class="back-silk" aria-hidden="true">vCARD</span>
+    </a>
+  </div>
+
+  <div class="back-id">
+    <p class="back-name">{SITE.name}</p>
+    <p class="back-role">{SITE.roleLine}</p>
+    <p class="back-credits">
+      Property of {SITE.name} · {CONTACT.city}<br />
+      If found, press HOME
+    </p>
+  </div>
+
+  <nav class="back-nav" aria-label="Back of the badge">
+    <ul>
+      {
+        BACK_ROUTES.map(({ title, route }) => (
+          <li>
+            <a class="back-pad" href={route} aria-current={current(route)}>
+              {title}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>

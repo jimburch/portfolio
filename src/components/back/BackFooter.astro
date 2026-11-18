@@ -1,0 +1,77 @@
+---
+import { CONTACT_LINKS } from '../../data/contact';
+import { SITE } from '../../data/site';
+
+/** Bottom of the back: contact pads, a chip footprint with traces, credits. */
+const year = new Date().getFullYear();
+---
+
+<footer class="back-footer">
+  <ul class="back-pads" aria-label="Contact">
+    {
+      CONTACT_LINKS.map(({ label, href }) => (
+        <li>
+          <a class="back-pad" href={href}>
+            {label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <svg
+    class="back-circuit"
+    viewBox="0 0 1200 96"
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <g class="trace">
+      <path d="M566 32H520L504 16H360L344 32H0" />
+      <path d="M566 48H0" />
+      <path d="M566 64H530L514 80H300L284 64H0" />
+      <path d="M634 32H680L696 16H840L856 32H1200" />
+      <path d="M634 48H1200" />
+      <path d="M634 64H670L686 80H900L916 64H1200" />
+      <path d="M588 14V0M612 14V0" />
+    </g>
+    <rect class="outline" x="576" y="24" width="48" height="48" rx="3" />
+    <circle class="silk-dot" cx="584" cy="32" r="2" />
+    <g class="pad">
+      <rect x="560" y="30" width="10" height="4" />
+      <rect x="560" y="38" width="10" height="4" />
+      <rect x="560" y="46" width="10" height="4" />
+      <rect x="560" y="54" width="10" height="4" />
+      <rect x="560" y="62" width="10" height="4" />
+      <rect x="630" y="30" width="10" height="4" />
+      <rect x="630" y="38" width="10" height="4" />
+      <rect x="630" y="46" width="10" height="4" />
+      <rect x="630" y="54" width="10" height="4" />
+      <rect x="630" y="62" width="10" height="4" />
+      <rect x="586" y="12" width="4" height="10" />
+      <rect x="610" y="12" width="4" height="10" />
+      <rect x="586" y="74" width="4" height="10" />
+      <rect x="598" y="74" width="4" height="10" />
+      <rect x="610" y="74" width="4" height="10" />
+    </g>
+    <g class="via">
+      <circle cx="450" cy="16" r="3.5" />
+      <circle cx="420" cy="48" r="3.5" />
+      <circle cx="400" cy="80" r="3.5" />
+      <circle cx="750" cy="16" r="3.5" />
+      <circle cx="780" cy="48" r="3.5" />
+      <circle cx="800" cy="80" r="3.5" />
+    </g>
+    <g class="test-point">
+      <circle cx="476" cy="80" r="5" />
+      <circle cx="724" cy="80" r="5" />
+    </g>
+    <g class="silk-text">
+      <text x="476" y="94" text-anchor="middle">TP1</text>
+      <text x="724" y="94" text-anchor="middle">TP2</text>
+      <text x="600" y="94" text-anchor="middle">U1</text>
+    </g>
+  </svg>
+
+  <p class="back-silk back-colophon">JB-26 · REV A · © {year} {SITE.name}</p>
+</footer>

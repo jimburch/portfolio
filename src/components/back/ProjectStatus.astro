@@ -1,0 +1,15 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+/** A status LED and its label: shipped, or still on the bench. */
+interface Props {
+  status: CollectionEntry<'projects'>['data']['status'];
+}
+
+const LABELS = { shipped: 'Shipped', 'on-the-bench': 'On the bench' } as const;
+const { status } = Astro.props;
+---
+
+<p class="project-status" data-status={status}>
+  <span class="project-led" aria-hidden="true"></span>{LABELS[status]}
+</p>

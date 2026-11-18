@@ -1,0 +1,21 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+
+/** One job on the resume: who, what, when, and the highlights in its body. */
+interface Props {
+  entry: CollectionEntry<'work'>;
+}
+
+const { entry } = Astro.props;
+const { company, role, start, end, link, summary } = entry.data;
+const { Content } = await render(entry);
+---
+
+<article class="work-entry" data-work={entry.id}>
+  <h3>{link ? <a href={link}>{company}</a> : company}</h3>
+  <p class="work-meta">
+    {role} · {start} – {end ?? 'Present'}
+  </p>
+  <p>{summary}</p>
+  <Content />
+</article>

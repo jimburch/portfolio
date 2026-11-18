@@ -14,8 +14,6 @@
   --sx: var(--ex);
   --sy: var(--ey);
 
-  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
-
   /* Clear case plastic, tinted from the board so every board reskins coherently. */
   --plastic-tint: color-mix(in srgb, var(--board-dot) 13%, white);
   --plastic: color-mix(in srgb, var(--plastic-tint) 20%, transparent);
