@@ -1,5 +1,7 @@
 ---
+import '../styles/tokens.css';
 import '../styles/base.css';
+import { BOARDS, METALS } from '../badge/theme/palettes';
 
 interface Props {
   title: string;
@@ -7,6 +9,9 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+const boards = BOARDS.map((b) => b.id);
+const hidden = BOARDS.filter((b) => b.hidden).map((b) => b.id);
+const metals = METALS.map((m) => m.id);
 ---
 
 <!doctype html>
@@ -16,6 +21,17 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <script is:inline define:vars={{ boards, hidden, metals }}>
+      try {
+        var s = localStorage,
+          t = JSON.parse(s.getItem('badge-theme')) || {},
+          u = JSON.parse(s.getItem('badge-unlocked')) || [],
+          d = document.documentElement.dataset;
+        if (boards.includes(t.board) && (!hidden.includes(t.board) || u.includes(t.board)))
+          d.board = t.board;
+        if (metals.includes(t.metal)) d.metal = t.metal;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <slot />

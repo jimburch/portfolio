@@ -1,0 +1,73 @@
+/* Theme tokens. :root is the default green board with gold metal.
+   Board values are placeholders pending Jim's palette (TODO(jim)). */
+:root {
+  --board: #1b6b4e;
+  --board-dot: #2a7d5e;
+  --board-edge: #12503a;
+  --lcd-bg: #12201b;
+  --lcd-fg: #d9f7e9;
+  --lcd-hl: #ffd84d;
+  --case: #14171a;
+  --case-edge: #2a2f35;
+  --case-side: #0a0c0e;
+  --metal: #e6c57c;
+  --metal-side: #a8843c;
+  --metal-lit: #f6e2ae;
+}
+
+[data-board='black'] {
+  --board: #1c1f24;
+  --board-dot: #2c3138;
+  --board-edge: #0f1114;
+  --lcd-bg: #101418;
+  --lcd-fg: #e4ecf2;
+  --lcd-hl: #ffd84d;
+  --case: #e9e6df;
+  --case-edge: #cfcbc2;
+  --case-side: #a9a59b;
+}
+
+[data-board='blue'] {
+  --board: #1f4f9a;
+  --board-dot: #3366b3;
+  --board-edge: #163a73;
+  --lcd-bg: #0f1a2e;
+  --lcd-fg: #dbe9ff;
+  --lcd-hl: #ffd84d;
+}
+
+[data-board='red'] {
+  --board: #a3262a;
+  --board-dot: #bd3a3d;
+  --board-edge: #771a1d;
+  --lcd-bg: #24100f;
+  --lcd-fg: #ffe3df;
+  --lcd-hl: #ffd84d;
+}
+
+[data-board='white'] {
+  --board: #e8e6df;
+  --board-dot: #f4f2ec;
+  --board-edge: #c4c1b8;
+  --lcd-bg: #1b1d20;
+  --lcd-fg: #eef0f2;
+  --lcd-hl: #ffd84d;
+  --case: #22262b;
+  --case-edge: #3a4048;
+  --case-side: #0e1013;
+}
+
+[data-board='midnight'] {
+  --board: #14163a;
+  --board-dot: #23265a;
+  --board-edge: #0b0d26;
+  --lcd-bg: #070816;
+  --lcd-fg: #c9d4ff;
+  --lcd-hl: #ff7bd5;
+}
+
+[data-metal='silver'] {
+  --metal: #cfd4da;
+  --metal-side: #8b929b;
+  --metal-lit: #f1f4f7;
+}
