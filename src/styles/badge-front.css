@@ -33,9 +33,13 @@
   font-family: var(--mono);
 }
 
-/* On a phone the front is a fixed object: color the overscroll and stop bounce. */
-:root:has(#badge[data-side='front']) {
+/* On a phone the viewport is the board, front or back: color the overscroll. */
+:root:has(#badge) {
   background: var(--board);
+}
+
+/* The front is a fixed object, so no bounce; the back scrolls like any page. */
+:root:has(#badge[data-side='front']) {
   overscroll-behavior: none;
 }
 
@@ -574,12 +578,61 @@
   visibility: visible;
 }
 
+/* ---- The flip (flip/flipper.ts) ----------------------------------------- */
+
+.face-front[hidden] {
+  display: none;
+}
+
+/* Settled on the back: the badge is the page, and the lifted back face lays
+   out exactly as it does on its own static page (badge-back.css). */
+#badge[data-side='back'] {
+  width: auto;
+  height: auto;
+  margin: 0;
+  aspect-ratio: auto;
+  container-type: normal;
+}
+
+/* Mid-flip nothing on the badge takes a tap. */
+#badge[data-flipping] {
+  pointer-events: none;
+}
+
+/* Mid-turn the flipper animates the badge's box from one side's on-screen size
+   to the other's (badge to reading column on desktop) while it rotates; the two
+   faces sit back to back inside it. */
+#badge[data-flipping='turn'] {
+  margin-inline: auto;
+  container-type: size;
+  transform-style: preserve-3d;
+}
+
+#badge[data-flipping='turn'] > :is(.face-front, #back-slot) {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+#badge[data-flipping='turn'] > #back-slot {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform: rotateY(180deg);
+}
+
+/* The lifted page fills the turning badge instead of laying out as a page. */
+#badge[data-flipping='turn'] > #back-slot > .back-face {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
 /* ---- Desktop: the badge hangs phone-sized in the middle of the page ----- */
 
 @media (min-width: 768px) {
   /* Desktop background: bring options to Jim. The surface itself is a
      neutral placeholder in base.css. */
-  :root:has(#badge[data-side='front']) {
+  :root:has(#badge) {
     background: none;
   }
 

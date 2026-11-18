@@ -13,6 +13,9 @@ for (const [route, heading] of ROUTES)
     await page.goto(route);
     await expect(page.locator('[data-back-face] h1')).toHaveText(new RegExp(heading));
     await expect(page.locator('[data-back-face] a[data-home]')).toHaveAttribute('href', '/');
+    // The flip lifts exactly one face into the front page and focuses its h1.
+    await expect(page.locator('[data-back-face]')).toHaveCount(1);
+    await expect(page.locator('[data-back-face] h1')).toHaveAttribute('tabindex', '-1');
   });
 
 test('back pages ship no module scripts', async ({ request }) => {

@@ -12,6 +12,8 @@ export interface Runtime {
   dispatch(e: OsEvent): void;
   state(): OsState;
   onFlip(fn: (route: string) => void): void;
+  /** Runs `fn` once, when the OS first leaves its boot (at once if it skipped it). */
+  onReady(fn: () => void): void;
 }
 
 const BOOTED_KEY = 'booted';
@@ -47,6 +49,8 @@ export function createRuntime(opts: {
   const { screen, apps, bus, ctxBase, reducedMotion, session } = opts;
   const badge = screen.closest<HTMLElement>('#badge');
   const flipListeners = new Set<(route: string) => void>();
+  const readyListeners = new Set<() => void>();
+  let ready = false;
 
   let state = initialState({ skipBoot: session.get(BOOTED_KEY) !== null });
   let mounted: BadgeApp | null = null;
@@ -116,8 +120,11 @@ export function createRuntime(opts: {
     pendingFlip = window.setTimeout(
       () => {
         pendingFlip = 0;
-        for (const fn of flipListeners) fn(route);
-        render();
+        try {
+          for (const fn of flipListeners) fn(route);
+        } finally {
+          render();
+        }
       },
       reducedMotion ? 0 : FLIP_LOADING_MS,
     );
@@ -156,6 +163,13 @@ export function createRuntime(opts: {
     reflect();
     for (const effect of result.effects) run(effect);
     render();
+    if (!ready && state.mode !== 'booting') markReady();
+  }
+
+  function markReady() {
+    ready = true;
+    for (const fn of readyListeners) fn();
+    readyListeners.clear();
   }
 
   bus.subscribe((input) => {
@@ -170,6 +184,7 @@ export function createRuntime(opts: {
 
   reflect();
   if (state.mode === 'booting') startBoot();
+  else ready = true;
   render();
 
   return {
@@ -177,6 +192,10 @@ export function createRuntime(opts: {
     state: () => state,
     onFlip(fn) {
       flipListeners.add(fn);
+    },
+    onReady(fn) {
+      if (ready) fn();
+      else readyListeners.add(fn);
     },
   };
 }

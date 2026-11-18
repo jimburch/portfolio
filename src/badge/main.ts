@@ -1,3 +1,5 @@
+import { BACK_ROUTES } from '../data/site';
+import { createFlipper, prefetchBackPages } from './flip/flipper';
 import { COMBOS, createComboDetector } from './input/combos';
 import { createInputBus } from './input/bus';
 import { wireControls } from './input/controls';
@@ -43,6 +45,18 @@ const runtime = createRuntime({
   reducedMotion,
   session,
 });
+
+// Front ↔ back. The flipper owns #badge's data-side, which wireControls' isActive reads.
+const flipper = createFlipper({
+  badge: root,
+  backSlot: document.getElementById('back-slot')!,
+  reducedMotion,
+  onSideChange: (side) => {
+    if (side === 'front') lcd.view.focus({ preventScroll: true });
+  },
+});
+runtime.onFlip((route) => void flipper.flipTo(route));
+runtime.onReady(() => prefetchBackPages(BACK_ROUTES.map((r) => r.route)));
 
 const cheats: Record<keyof typeof COMBOS, () => void> = {
   dev: () => {
