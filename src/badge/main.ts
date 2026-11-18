@@ -55,7 +55,8 @@ const flipper = createFlipper({
   onSideChange: (side) => {
     // Tilt only means something while the front faces the visitor.
     tilt.setActive(side === 'front');
-    if (side === 'front') lcd.view.focus({ preventScroll: true });
+    // The flipper hands focus back to the control that started the flip; else the LCD.
+    if (side === 'front' && !root.contains(document.activeElement)) lcd.view.focus({ preventScroll: true });
   },
 });
 // flipTo never throws or rejects (it falls back to normal navigation), so the

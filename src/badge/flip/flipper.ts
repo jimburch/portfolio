@@ -7,7 +7,11 @@
    turn, so rapid input (a double tap, Back mid-flip) always ends on the side the
    URL names. A turn whose start the URL names again midway (Back mid-flip)
    turns back from where it is rather than finishing first. If a back page cannot be fetched, the visitor gets it by normal
-   navigation instead, and the badge is never left half-turned. */
+   navigation instead, and the badge is never left half-turned.
+
+   Focus: landing on a back moves it to the page's h1; landing on the front
+   gives it back to the front control that had it when the badge turned over
+   (the RESUME pad, a launcher entry), if that control is still there. */
 
 export type Side = 'front' | 'back';
 
@@ -100,6 +104,7 @@ export function createFlipper(opts: {
   badge: HTMLElement;
   backSlot: HTMLElement;
   reducedMotion: boolean;
+  /** After landing. On the front, focus is already back on the control that started the flip, if it could be. */
   onSideChange: (side: Side) => void;
 }): Flipper {
   const { badge, backSlot, reducedMotion, onSideChange } = opts;
@@ -111,6 +116,8 @@ export function createFlipper(opts: {
   let settling: Promise<void> | null = null;
   /** The turn under way, if any. */
   let turning: Turn | null = null;
+  /** The front control focused when the badge last turned to its back. */
+  let returnFocus: HTMLElement | null = null;
 
   /** Lays the badge out as a settled side: the front, or the back as a page. */
   function layOut(side: Side) {
@@ -208,6 +215,10 @@ export function createFlipper(opts: {
   }
 
   async function showBack(route: string, page: BackPage) {
+    if (shown === null) {
+      const active = document.activeElement;
+      returnFocus = active instanceof HTMLElement && front.contains(active) ? active : null;
+    }
     backSlot.replaceChildren(page.face);
     if ((await show('back', route)) === 'front') {
       backSlot.replaceChildren();
@@ -224,6 +235,8 @@ export function createFlipper(opts: {
     shown = null;
     backSlot.replaceChildren();
     document.title = frontTitle;
+    if (returnFocus?.isConnected && front.contains(returnFocus)) returnFocus.focus({ preventScroll: true });
+    returnFocus = null;
     onSideChange('front');
   }
 

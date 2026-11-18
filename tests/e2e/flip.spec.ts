@@ -98,3 +98,29 @@ test('reduced motion still flips', async ({ browser }) => {
   await page.locator('[data-part="resume-pad"]').click();
   await expect(page.locator('#badge')).toHaveAttribute('data-side', 'back', { timeout: 500 });
 });
+
+test('flipping back returns focus to the RESUME pad that started it', async ({ page }) => {
+  await page.goto('/');
+  const pad = page.getByRole('link', { name: 'RESUME', exact: true });
+  await pad.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#badge')).toHaveAttribute('data-side', 'back');
+  await expect(page.getByRole('heading', { level: 1, name: /Resume/ })).toBeFocused();
+  await page.goBack();
+  await expect(page.locator('#badge')).toHaveAttribute('data-side', 'front');
+  await expect(pad).toBeFocused();
+});
+
+test('flipping back returns focus to the launcher entry that started it', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await page.locator('#lcd-screen button[aria-current="true"]').focus();
+  for (let i = 0; i < 2; i++) await page.keyboard.press('ArrowDown'); // → RESUME
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#badge')).toHaveAttribute('data-side', 'back');
+  await page.locator('#back-slot a[data-home]').click();
+  await expect(page.locator('#badge')).toHaveAttribute('data-side', 'front');
+  const entry = page.locator('#lcd-screen button[aria-current="true"]');
+  await expect(entry).toHaveText(/RESUME/);
+  await expect(entry).toBeFocused();
+});

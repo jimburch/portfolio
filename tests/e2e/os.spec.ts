@@ -118,3 +118,30 @@ test('focus inside the LCD follows the selection', async ({ page }) => {
   await expect(page.locator('#lcd-screen button[aria-current="true"]')).toHaveText(/CONTACT/);
   await expect(page.locator('#lcd-screen button[aria-current="true"]')).toBeFocused();
 });
+
+test('an app that throws on input shows APP CRASHED and B still exits', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  // Swap the lazily loaded NOW chunk for an app whose input handler throws.
+  await page.route('**/_astro/now.*.js', (route) =>
+    route.fulfill({
+      contentType: 'text/javascript',
+      body: `export default {
+        id: 'now', title: 'NOW TINKERING',
+        mount(ctx) { ctx.screen.textContent = 'FRAGILE'; },
+        unmount() {},
+        onInput() { throw new Error('boom'); },
+      };`,
+    }),
+  );
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('z');
+  await expect(page.locator('#lcd-screen')).toContainText('FRAGILE');
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('#lcd-screen')).toContainText('APP CRASHED');
+  await expect(page.locator('#badge')).toHaveAttribute('data-mode', 'app');
+  await page.keyboard.press('x');
+  await expect(page.locator('#badge')).toHaveAttribute('data-mode', 'launcher');
+  expect(errors).toEqual([]);
+});

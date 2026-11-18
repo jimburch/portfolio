@@ -27,8 +27,12 @@ function build(data: NowData | null): HTMLElement {
   link = Object.assign(document.createElement('a'), {
     className: 'lcd-now-link',
     href: data.route,
-    textContent: 'READ BUILD LOG ↻',
+    textContent: 'READ BUILD LOG ',
   });
+  // The flip glyph is decoration; the link is named "READ BUILD LOG".
+  const glyph = Object.assign(document.createElement('span'), { textContent: '↻' });
+  glyph.setAttribute('aria-hidden', 'true');
+  link.append(glyph);
   link.setAttribute('data-flip', '');
   wrap.append(heading, title, blurb, link);
   return wrap;
@@ -38,9 +42,11 @@ const now: BadgeApp = {
   id: 'now',
   title: 'NOW TINKERING',
   mount(ctx: AppContext) {
+    // Like the launcher: focus moves only if it was already in the LCD.
+    const hadFocus = ctx.screen.contains(document.activeElement);
     root = build(ctx.data<NowData>('now'));
     ctx.screen.replaceChildren(root);
-    link?.focus({ preventScroll: true });
+    if (hadFocus) link?.focus({ preventScroll: true });
   },
   unmount() {
     root?.remove();

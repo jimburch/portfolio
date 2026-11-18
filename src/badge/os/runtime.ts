@@ -4,10 +4,10 @@
 
 import type { InputBus } from '../input/bus';
 import type { SafeStorage } from '../storage';
-import { OFF_ANNOUNCEMENT, describeChange } from './announcements';
+import { OFF_ANNOUNCEMENT, describeChange, spoken } from './announcements';
 import { initialState, reduce, visibleApps } from './reducer';
 import { BOOT_LINES, clearScreen, renderBoot, renderLauncher, renderMessage, renderOffHint, type Lcd } from './screen';
-import type { AppContext, AppEntry, BadgeApp, OsEffect, OsEvent, OsState } from './types';
+import type { AppContext, AppEntry, BadgeApp, BadgeInput, OsEffect, OsEvent, OsState } from './types';
 
 export interface Runtime {
   dispatch(e: OsEvent): void;
@@ -58,6 +58,8 @@ export function createRuntime(opts: {
 
   let state = initialState({ skipBoot: session.get(BOOTED_KEY) !== null });
   let mounted: BadgeApp | null = null;
+  /** The mounted app threw: it gets no more input, and B (the OS's) still exits. */
+  let crashed = false;
   /** Bumped on every mount/unmount so a slow `load()` cannot mount a stale app. */
   let mountSeq = 0;
   let boot: AbortController | null = null;
@@ -97,6 +99,7 @@ export function createRuntime(opts: {
     const app = await loadApp(entry);
     if (seq !== mountSeq || state.appId !== id) return;
     mounted = app;
+    crashed = false;
     const ctx: AppContext = {
       ...ctxBase,
       screen,
@@ -110,7 +113,23 @@ export function createRuntime(opts: {
     try {
       await app.mount(ctx);
     } catch {
-      if (mounted === app) renderMessage(screen, [entry.title, 'APP CRASHED', 'B: back']);
+      if (mounted === app) crash(app);
+    }
+  }
+
+  function crash(app: BadgeApp) {
+    crashed = true;
+    renderMessage(screen, [app.title, 'APP CRASHED', 'B: back']);
+    lcd.announce(`${spoken(app.title)} crashed. Press B to go back.`);
+  }
+
+  /** Offers `input` to the mounted app; a throw crashes the app, not the badge. */
+  function appTakes(app: BadgeApp, input: BadgeInput): boolean {
+    try {
+      return app.onInput?.(input) ?? false;
+    } catch {
+      if (mounted === app) crash(app);
+      return false;
     }
   }
 
@@ -199,7 +218,7 @@ export function createRuntime(opts: {
       }
       return;
     }
-    if (state.mode === 'app' && mounted?.onInput?.(input)) return;
+    if (state.mode === 'app' && mounted && !crashed && appTakes(mounted, input)) return;
     dispatch({ type: 'INPUT', input });
   });
 

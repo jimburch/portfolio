@@ -25,8 +25,11 @@ async function main() {
     });
     console.log(`resume pdf: ${OUT}`);
   } finally {
-    await browser?.close();
-    await server.stop();
+    try {
+      await browser?.close();
+    } finally {
+      await server.stop();
+    }
   }
 }
 

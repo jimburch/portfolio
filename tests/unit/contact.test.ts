@@ -9,6 +9,14 @@ test('vCard has required fields and CRLF endings', () => {
   expect(v.endsWith('END:VCARD\r\n')).toBe(true);
 });
 
+test('vCard carries email, LinkedIn and GitHub only: no address or phone', () => {
+  const v = buildVCard(CONTACT);
+  expect(v).toContain(`EMAIL;TYPE=INTERNET:${CONTACT.email}\r\n`);
+  expect(v).toContain(`URL:${CONTACT.github}\r\n`);
+  expect(v).not.toMatch(/^(ADR|TEL|LABEL|GEO)[:;]/m);
+  expect(v).not.toContain('Mesa');
+});
+
 test('contact links cover email, LinkedIn and GitHub with readable text', () => {
   expect(CONTACT_LINKS).toEqual([
     { label: 'Email', href: `mailto:${CONTACT.email}`, text: CONTACT.email },

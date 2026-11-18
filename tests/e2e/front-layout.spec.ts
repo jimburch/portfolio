@@ -45,7 +45,8 @@ test('every control has an accessible name', async ({ page }) => {
     'Reset badge',
   ])
     await expect(page.getByRole('button', { name, exact: true }).first()).toBeVisible();
-  await expect(page.getByRole('link', { name: /RESUME/ }).first()).toHaveAttribute('href', '/resume');
+  // The ↻ glyph is decoration, not part of the name.
+  await expect(page.getByRole('link', { name: 'RESUME', exact: true })).toHaveAttribute('href', '/resume');
 });
 
 test('without JS the screen offers links to every back page', async ({ browser }) => {

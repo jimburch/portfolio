@@ -38,13 +38,11 @@ function structuredName(name: string): string {
   return `${escapeText(family)};${escapeText(given)};;;`;
 }
 
-/** Splits "City, ST" into the locality and region parts of an ADR property. */
-function cityAddress(city: string): string {
-  const [locality = '', region = ''] = city.split(',').map((part) => part.trim());
-  return `;;;${escapeText(locality)};${escapeText(region)};;`;
-}
-
-/** A vCard 3.0 contact card with CRLF line endings, as phones expect. */
+/**
+ * A vCard 3.0 contact card with CRLF line endings, as phones expect. Contact
+ * is email, LinkedIn and GitHub only: no address (not even the city shown on
+ * the badge), no phone.
+ */
 export function buildVCard(c: Contact): string {
   const lines = [
     'BEGIN:VCARD',
@@ -54,7 +52,6 @@ export function buildVCard(c: Contact): string {
     `EMAIL;TYPE=INTERNET:${c.email}`,
     `URL:${c.linkedin}`,
     `URL:${c.github}`,
-    `ADR:${cityAddress(c.city)}`,
     'END:VCARD',
   ];
   return lines.map((line) => `${line}\r\n`).join('');
