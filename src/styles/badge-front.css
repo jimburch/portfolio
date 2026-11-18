@@ -395,7 +395,125 @@
 }
 
 #lcd-screen {
+  position: relative;
   height: 100%;
+  overflow: hidden;
+}
+
+/* ---- JIM/OS on the LCD (rendered by os/screen.ts) ----------------------- */
+
+.lcd-view {
+  height: 100%;
+}
+
+.lcd-view:focus {
+  outline: none;
+}
+
+.lcd-view p {
+  margin: 0;
+}
+
+.lcd-line {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Boot log: smaller type, newest line at the bottom like a terminal. */
+.lcd-boot {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  font-size: 0.72em;
+  line-height: 1.4;
+}
+
+.lcd-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Launcher: four rows, the ▲/▼ indicators sit at the right edge. */
+.lcd-launcher {
+  position: relative;
+  /* Exactly four rows (the LCD's line-height is 1.6). */
+  height: calc(4 * 1.6em);
+}
+
+.lcd-menu {
+  margin: 0;
+  padding: 0 1.4ch 0 0;
+  list-style: none;
+}
+
+.lcd-item {
+  appearance: none;
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lcd-marker {
+  flex: none;
+  width: 2ch;
+  visibility: hidden;
+}
+
+.lcd-title {
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.lcd-item[aria-current='true'] {
+  color: var(--lcd-hl);
+}
+
+.lcd-item[aria-current='true'] .lcd-marker {
+  visibility: visible;
+}
+
+.lcd-item:focus-visible {
+  outline: 1px dashed var(--lcd-hl);
+  outline-offset: -1px;
+}
+
+.lcd-more {
+  position: absolute;
+  right: 0;
+  font-size: 0.7em;
+  line-height: 1;
+}
+
+.lcd-more-up {
+  top: 0.2em;
+}
+
+.lcd-more-down {
+  bottom: 0.2em;
+}
+
+/* Toast: one inverted line over whatever is on screen. */
+.lcd-toast {
+  position: absolute;
+  inset: auto 0 0;
+  margin: 0;
+  padding: 0 0.4em;
+  background: var(--lcd-fg);
+  color: var(--lcd-bg);
+  text-align: center;
+  white-space: nowrap;
   overflow: hidden;
 }
 

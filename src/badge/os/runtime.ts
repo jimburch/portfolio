@@ -1,0 +1,182 @@
+/* JIM/OS runtime: holds the OS state, feeds events through the pure reducer,
+   runs the effects it asks for (boot, mount/unmount apps, flip) and reflects
+   the state on the screen and on #badge. */
+
+import type { InputBus } from '../input/bus';
+import type { SafeStorage } from '../storage';
+import { initialState, reduce, visibleApps } from './reducer';
+import { BOOT_LINES, clearScreen, renderBoot, renderLauncher, renderMessage } from './screen';
+import type { AppContext, AppEntry, BadgeApp, OsEffect, OsEvent, OsState } from './types';
+
+export interface Runtime {
+  dispatch(e: OsEvent): void;
+  state(): OsState;
+  onFlip(fn: (route: string) => void): void;
+}
+
+const BOOTED_KEY = 'booted';
+const FLIP_LOADING_MS = 300;
+
+/** Stand-in for apps that have nothing on screen yet, or failed to load. */
+function messageApp(entry: AppEntry, message: string): BadgeApp {
+  return {
+    id: entry.id,
+    title: entry.title,
+    mount: (ctx) => renderMessage(ctx.screen, [entry.title, message, 'B: back']),
+    unmount: () => {},
+  };
+}
+
+async function loadApp(entry: AppEntry): Promise<BadgeApp> {
+  if (!entry.load) return messageApp(entry, 'COMING SOON');
+  try {
+    return (await entry.load()).default;
+  } catch {
+    return messageApp(entry, 'LOAD FAILED');
+  }
+}
+
+export function createRuntime(opts: {
+  screen: HTMLElement;
+  apps: readonly AppEntry[];
+  bus: InputBus;
+  ctxBase: Omit<AppContext, 'screen' | 'exit' | 'dispatch'>;
+  reducedMotion: boolean;
+  session: SafeStorage;
+}): Runtime {
+  const { screen, apps, bus, ctxBase, reducedMotion, session } = opts;
+  const badge = screen.closest<HTMLElement>('#badge');
+  const flipListeners = new Set<(route: string) => void>();
+
+  let state = initialState({ skipBoot: session.get(BOOTED_KEY) !== null });
+  let mounted: BadgeApp | null = null;
+  /** Bumped on every mount/unmount so a slow `load()` cannot mount a stale app. */
+  let mountSeq = 0;
+  let boot: AbortController | null = null;
+  let pendingFlip = 0;
+
+  function reflect() {
+    if (!badge) return;
+    badge.dataset.mode = state.mode;
+    badge.dataset.glitch = state.glitch ? 'on' : 'off';
+  }
+
+  function render() {
+    if (state.mode === 'launcher' && !pendingFlip) {
+      renderLauncher(screen, visibleApps(apps, state.devMode), state.selected, (index) =>
+        dispatch({ type: 'SELECT_INDEX', index }),
+      );
+    } else if (state.mode === 'off') {
+      clearScreen(screen);
+    }
+  }
+
+  function startBoot() {
+    boot?.abort();
+    const controller = new AbortController();
+    boot = controller;
+    void renderBoot(screen, BOOT_LINES, { reducedMotion, signal: controller.signal }).then(() => {
+      if (!controller.signal.aborted) dispatch({ type: 'BOOT_DONE' });
+    });
+  }
+
+  async function mountApp(id: string) {
+    const seq = ++mountSeq;
+    const entry = apps.find((a) => a.id === id);
+    if (!entry) return;
+    clearScreen(screen);
+    const app = await loadApp(entry);
+    if (seq !== mountSeq || state.appId !== id) return;
+    mounted = app;
+    const ctx: AppContext = {
+      ...ctxBase,
+      screen,
+      exit: () => {
+        if (mounted === app) dispatch({ type: 'EXIT_APP' });
+      },
+      dispatch,
+    };
+    try {
+      await app.mount(ctx);
+    } catch {
+      if (mounted === app) renderMessage(screen, [entry.title, 'APP CRASHED', 'B: back']);
+    }
+  }
+
+  function unmountApp() {
+    mountSeq++;
+    const app = mounted;
+    mounted = null;
+    app?.unmount();
+  }
+
+  function flip(route: string) {
+    if (pendingFlip) return;
+    renderMessage(screen, ['loading…']);
+    pendingFlip = window.setTimeout(
+      () => {
+        pendingFlip = 0;
+        for (const fn of flipListeners) fn(route);
+        render();
+      },
+      reducedMotion ? 0 : FLIP_LOADING_MS,
+    );
+  }
+
+  function cancelFlip() {
+    window.clearTimeout(pendingFlip);
+    pendingFlip = 0;
+  }
+
+  function run(effect: OsEffect) {
+    switch (effect.type) {
+      case 'startBoot':
+        return startBoot();
+      case 'mountApp':
+        return void mountApp(effect.id);
+      case 'unmountApp':
+        return unmountApp();
+      case 'flip':
+        return flip(effect.route);
+    }
+  }
+
+  function dispatch(event: OsEvent) {
+    const prev = state;
+    const result = reduce(state, event, apps);
+    state = result.state;
+
+    if (prev.mode === 'booting' && state.mode !== 'booting') {
+      boot?.abort();
+      boot = null;
+      session.set(BOOTED_KEY, '1');
+    }
+    if (state.mode !== 'launcher') cancelFlip();
+
+    reflect();
+    for (const effect of result.effects) run(effect);
+    render();
+  }
+
+  bus.subscribe((input) => {
+    if (state.mode === 'app' && mounted?.onInput?.(input)) return;
+    dispatch({ type: 'INPUT', input });
+  });
+
+  // A tap on the screen also skips the boot.
+  screen.addEventListener('click', () => {
+    if (state.mode === 'booting') dispatch({ type: 'BOOT_DONE' });
+  });
+
+  reflect();
+  if (state.mode === 'booting') startBoot();
+  render();
+
+  return {
+    dispatch,
+    state: () => state,
+    onFlip(fn) {
+      flipListeners.add(fn);
+    },
+  };
+}

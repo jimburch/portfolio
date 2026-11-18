@@ -1,16 +1,23 @@
+import { COMBOS, createComboDetector } from './input/combos';
 import { createInputBus } from './input/bus';
 import { wireControls } from './input/controls';
+import { APPS } from './os/registry';
+import { createRuntime } from './os/runtime';
+import { createLcd } from './os/screen';
+import { readPageData } from './page-data';
 import { safeStorage } from './storage';
+import { createThemeController } from './theme/theme';
 import { createTiltSource } from './tilt/tilt-source';
 
 const root = document.getElementById('badge')!;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const session = safeStorage('session');
+const local = safeStorage('local');
 
-const tilt = createTiltSource({
-  root,
-  reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  session: safeStorage('session'),
-});
+const tilt = createTiltSource({ root, reducedMotion, session });
+const theme = createThemeController(document.documentElement, local);
 
+// Raw input from the badge's controls and keys.
 const bus = createInputBus();
 
 // Test hook: every emit rewrites a fresh value so repeated inputs still mutate.
@@ -23,3 +30,35 @@ wireControls(root, bus, {
   onFirstGesture: () => void tilt.requestPermissionFromGesture(),
   isActive: () => root.dataset.side === 'front',
 });
+
+const lcd = createLcd(document.getElementById('lcd-screen')!);
+
+// What the OS sees: raw input minus the inputs that complete a combo.
+const osBus = createInputBus();
+const runtime = createRuntime({
+  screen: lcd.view,
+  apps: APPS,
+  bus: osBus,
+  ctxBase: { tilt, theme, storage: local, data: readPageData },
+  reducedMotion,
+  session,
+});
+
+const cheats: Record<keyof typeof COMBOS, () => void> = {
+  dev: () => {
+    runtime.dispatch({ type: 'UNLOCK_DEV' });
+    lcd.toast('DEV MODE: ON');
+  },
+  konami: () => {
+    theme.unlock('midnight');
+    lcd.toast('CHEAT ENABLED');
+  },
+};
+const completesCombo = createComboDetector(COMBOS, (name) => cheats[name as keyof typeof COMBOS]());
+bus.subscribe((input) => {
+  if (!completesCombo(input)) osBus.emit(input);
+});
+
+root
+  .querySelector('[data-action="reset"]')
+  ?.addEventListener('click', () => runtime.dispatch({ type: 'RESET' }));
