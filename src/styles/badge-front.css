@@ -650,3 +650,18 @@
     box-shadow: 0 3px 0 var(--board-edge);
   }
 }
+
+/* RESKIN app: two rows (label left, value right) and a hint line. */
+.lcd-reskin-row {
+  justify-content: flex-start;
+}
+
+.lcd-reskin-label {
+  flex: 1;
+}
+
+.lcd-reskin-hint {
+  margin-top: 0.8em;
+  font-size: 0.72em;
+  opacity: 0.8;
+}
