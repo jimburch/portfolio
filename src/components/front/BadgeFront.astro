@@ -23,30 +23,8 @@ import StaticMenu from './StaticMenu.astro';
 
     <Avatar />
 
-    <div class="controls" data-part="controls">
-      <div class="ab">
-        <button class="pressable round b" type="button" data-input="b" aria-label="B button">
-          <span class="cap metal"></span><span class="silk">B</span>
-        </button>
-        <button class="pressable round a" type="button" data-input="a" aria-label="A button">
-          <span class="cap metal"></span><span class="silk">A</span>
-        </button>
-      </div>
-      <div class="pills">
-        <button class="pressable pill" type="button" data-input="select">
-          <span class="cap metal"></span><span class="silk">SELECT</span>
-        </button>
-        <button class="pressable pill" type="button" data-input="start">
-          <span class="cap metal"></span><span class="silk">START</span>
-        </button>
-      </div>
-      <div class="dpad">
-        <button class="pressable up" type="button" data-input="up" aria-label="D-pad up"><span class="cap metal"></span></button>
-        <button class="pressable left" type="button" data-input="left" aria-label="D-pad left"><span class="cap metal"></span></button>
-        <button class="pressable right" type="button" data-input="right" aria-label="D-pad right"><span class="cap metal"></span></button>
-        <button class="pressable down" type="button" data-input="down" aria-label="D-pad down"><span class="cap metal"></span></button>
-      </div>
-    </div>
+    <!-- Plain board, kept clear for something Jim will decide on later. -->
+    <div class="reserved" data-part="reserved" aria-hidden="true"></div>
 
     <a class="pressable metal resume-pad" href="/resume" data-flip data-no-permission data-part="resume-pad">RESUME <span aria-hidden="true">↻</span></a>
 
@@ -57,13 +35,13 @@ import StaticMenu from './StaticMenu.astro';
         </div>
       </div>
       <div class="case-side">
-        <button class="pressable key" type="button" data-input="up" data-case aria-label="Case up"><span class="cap key-surface"></span></button>
-        <button class="pressable key" type="button" data-input="down" data-case aria-label="Case down"><span class="cap key-surface"></span></button>
+        <button class="pressable key" type="button" data-input="up" aria-label="Case up"><span class="cap key-surface"></span><span class="silk key-silk" aria-hidden="true">▲</span></button>
+        <button class="pressable key" type="button" data-input="down" aria-label="Case down"><span class="cap key-surface"></span><span class="silk key-silk" aria-hidden="true">▼</span></button>
       </div>
       <div class="case-keys">
-        <button class="pressable key" type="button" data-input="left" data-case aria-label="Case left"><span class="cap key-surface"></span></button>
-        <button class="pressable key" type="button" data-input="a" data-case aria-label="Case A"><span class="cap key-surface"></span></button>
-        <button class="pressable key" type="button" data-input="right" data-case aria-label="Case right"><span class="cap key-surface"></span></button>
+        <button class="pressable key" type="button" data-input="left" aria-label="Case left"><span class="cap key-surface"></span><span class="silk key-silk" aria-hidden="true">◀&#xFE0E;</span></button>
+        <button class="pressable key" type="button" data-input="a" aria-label="Case A"><span class="cap key-surface"></span><span class="silk key-silk" aria-hidden="true">A</span></button>
+        <button class="pressable key" type="button" data-input="right" aria-label="Case right"><span class="cap key-surface"></span><span class="silk key-silk" aria-hidden="true">▶&#xFE0E;</span></button>
       </div>
     </div>
   </main>

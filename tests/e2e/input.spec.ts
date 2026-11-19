@@ -11,19 +11,19 @@ async function countEmits(page: Page) {
 }
 const emits = (page: Page) => page.evaluate(() => (window as unknown as { __n: number }).__n);
 
-test('Enter on a focused A button fires once', async ({ page }) => {
+test('Enter on a focused case A key fires once', async ({ page }) => {
   await page.goto('/');
   await countEmits(page);
-  await page.getByRole('button', { name: 'A button', exact: true }).focus();
+  await page.getByRole('button', { name: 'Case A', exact: true }).focus();
   await page.keyboard.press('Enter');
   await page.waitForTimeout(100);
   expect(await emits(page)).toBe(1);
 });
 
-test('Space on a focused A button fires once', async ({ page }) => {
+test('Space on a focused case A key fires once', async ({ page }) => {
   await page.goto('/');
   await countEmits(page);
-  await page.getByRole('button', { name: 'A button', exact: true }).focus();
+  await page.getByRole('button', { name: 'Case A', exact: true }).focus();
   await page.keyboard.press(' ');
   await page.waitForTimeout(100);
   expect(await emits(page)).toBe(1);
@@ -39,10 +39,38 @@ test('arrow key emits and Ctrl+Arrow does not', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-last-input', /^left:\d+$/);
 });
 
-test('clicking a board button emits its input', async ({ page }) => {
+test('clicking each case key emits its input', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'B button', exact: true }).click();
+  for (const [name, input] of [
+    ['Case up', 'up'],
+    ['Case down', 'down'],
+    ['Case left', 'left'],
+    ['Case A', 'a'],
+    ['Case right', 'right'],
+  ] as const) {
+    await page.getByRole('button', { name, exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-last-input', new RegExp(`^${input}:\\d+$`));
+  }
+});
+
+test('a key press lights the case key it stands for', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Escape');
+  const key = page.getByRole('button', { name: 'Case down', exact: true });
+  await page.keyboard.down('ArrowDown');
+  await expect(key).toHaveAttribute('data-pressed', '');
+  await page.keyboard.up('ArrowDown');
+  await expect(key).not.toHaveAttribute('data-pressed');
+});
+
+test('B, SELECT and START are keyboard-only and still emit', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('x');
   await expect(page.locator('html')).toHaveAttribute('data-last-input', /^b:\d+$/);
+  await page.keyboard.press('s');
+  await expect(page.locator('html')).toHaveAttribute('data-last-input', /^start:\d+$/);
+  await page.keyboard.press('Shift');
+  await expect(page.locator('html')).toHaveAttribute('data-last-input', /^select:\d+$/);
 });
 
 test('lone Shift emits select, Shift+Tab and Shift+z do not', async ({ page }) => {
@@ -81,20 +109,20 @@ function touchTap(page: Page, selector: string) {
   });
 }
 
-test('touch tap on a board button requests tilt permission; Tab does not', async ({ page }) => {
+test('touch tap on a case key requests tilt permission; Tab does not', async ({ page }) => {
   await stubPermission(page);
   await page.goto('/');
   await page.keyboard.press('Tab');
   await page.keyboard.press('Tab');
   expect(await perms(page)).toBe(0);
-  await touchTap(page, '[data-input="b"]:not([data-case])');
+  await touchTap(page, '[data-input="left"]');
   await expect.poll(() => perms(page)).toBe(1);
 });
 
 test('touch pointerdown alone does not request permission', async ({ page }) => {
   await stubPermission(page);
   await page.goto('/');
-  await page.locator('[data-input="b"]:not([data-case])').evaluate((el) =>
+  await page.locator('[data-input="left"]').evaluate((el) =>
     el.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', bubbles: true })),
   );
   await page.waitForTimeout(50);
@@ -131,9 +159,9 @@ test('Shift held across a mouse click emits no select', async ({ page }) => {
   await page.goto('/');
   await countEmits(page);
   await page.keyboard.down('Shift');
-  await page.getByRole('button', { name: 'B button', exact: true }).click();
+  await page.getByRole('button', { name: 'Case left', exact: true }).click();
   await page.keyboard.up('Shift');
   await page.waitForTimeout(50);
-  await expect(page.locator('html')).toHaveAttribute('data-last-input', /^b:\d+$/);
+  await expect(page.locator('html')).toHaveAttribute('data-last-input', /^left:\d+$/);
   expect(await emits(page)).toBe(1);
 });

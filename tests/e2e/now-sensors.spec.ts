@@ -61,10 +61,10 @@ test('the build log link is named without its glyph', async ({ page }) => {
 
 test('opening NOW takes focus only if it was in the LCD', async ({ page }) => {
   await launcher(page);
-  await page.getByRole('button', { name: 'A button', exact: true }).focus();
-  await page.keyboard.press('Enter'); // a native click on the A button
+  await page.getByRole('button', { name: 'Case A', exact: true }).focus();
+  await page.keyboard.press('Enter'); // a native click on the case A key
   await expect(page.locator('#lcd-screen a[data-flip]')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'A button', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Case A', exact: true })).toBeFocused();
 
   await page.keyboard.press('x');
   await page.locator('#lcd-screen button[aria-current="true"]').focus();

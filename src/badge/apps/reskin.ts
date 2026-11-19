@@ -55,10 +55,11 @@ const reskin: BadgeApp = {
       className: 'lcd-reskin',
       rowClass: 'lcd-reskin-row',
       partClasses: ['lcd-reskin-label', 'lcd-reskin-value'],
-      hint: { className: 'lcd-reskin-hint', text: '◀▶ change  B: back' },
+      hint: { className: 'lcd-reskin-hint', text: '◀▶ change' },
       count: ROWS.length,
       view: (i) => view(context, i),
       onPick: (i) => cycle(i, 1),
+      onBack: context.exit,
       announce: context.announce,
     });
     menu.mount(context.screen);
@@ -70,18 +71,10 @@ const reskin: BadgeApp = {
   },
   onInput(input: BadgeInput) {
     if (!menu) return false;
-    switch (input) {
-      case 'up':
-      case 'down':
-        menu.move(input === 'down' ? 1 : -1);
-        return true;
-      case 'left':
-      case 'right':
-        cycle(menu.selected(), input === 'right' ? 1 : -1);
-        return true;
-      default:
-        return false;
-    }
+    if (input !== 'left' && input !== 'right') return menu.input(input);
+    const row = menu.selected();
+    if (row !== null) cycle(row, input === 'right' ? 1 : -1);
+    return true;
   },
 };
 

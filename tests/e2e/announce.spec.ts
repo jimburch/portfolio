@@ -29,7 +29,9 @@ test('opening an app, changing a value and going back are announced', async ({ p
   await page.keyboard.press('ArrowRight');
   await expect(status(page)).toHaveText('Board: black');
   await page.keyboard.press('ArrowDown');
-  await expect(status(page)).toHaveText('Metal: gold, 2 of 2');
+  await expect(status(page)).toHaveText('Metal: gold, 2 of 3');
+  await page.keyboard.press('ArrowDown');
+  await expect(status(page)).toHaveText('Back, 3 of 3');
   await page.keyboard.press('x');
   await expect(status(page)).toHaveText('Menu. Reskin, 6 of 7');
 });

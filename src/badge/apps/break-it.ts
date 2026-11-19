@@ -49,6 +49,7 @@ const breakIt: BadgeApp = {
       count: ITEMS.length,
       view: (i) => ITEMS[i]!.view(context),
       onPick: activate,
+      onBack: context.exit,
       announce: context.announce,
     });
     menu.mount(context.screen);
@@ -59,18 +60,7 @@ const breakIt: BadgeApp = {
     ctx = null;
   },
   onInput(input: BadgeInput) {
-    if (!menu) return false;
-    switch (input) {
-      case 'up':
-      case 'down':
-        menu.move(input === 'down' ? 1 : -1);
-        return true;
-      case 'a':
-        activate(menu.selected());
-        return true;
-      default:
-        return false;
-    }
+    return menu?.input(input) ?? false;
   },
 };
 

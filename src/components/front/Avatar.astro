@@ -2,8 +2,15 @@
 import { AVATAR } from '../../data/avatar';
 
 // Only lit dots become elements; the unlit grid is the avatar's background.
+// --d is the dot's place across the portrait (0 left, 1 right), leaning with
+// the 105° slant of the highlight on the name and RESUME pad, so the tilt
+// highlight (badge-front.css) crosses the dots as one band.
+const SLANT = 0.27; // tan(15°)
+const across = (r: number, c: number) => (c + r * SLANT) / (15 + 15 * SLANT);
 const dots = AVATAR.flatMap((row, r) =>
-  [...row].flatMap((ch, c) => (ch === '#' ? [`grid-area:${r + 1}/${c + 1}`] : [])),
+  [...row].flatMap((ch, c) =>
+    ch === '#' ? [`grid-area:${r + 1}/${c + 1};--d:${across(r, c).toFixed(3)}`] : [],
+  ),
 );
 ---
 

@@ -20,10 +20,14 @@
   --metal: #e6c57c;
   --metal-side: #a8843c;
   --metal-lit: #f6e2ae;
-  /* The metal's color dark enough to print on a light board. */
+  /* The metal's color dark enough to print on a light board, and that ink
+     where the light catches it. */
   --metal-deep: #6b5216;
+  --metal-deep-lit: #9a7a2a;
   /* Printed text (silkscreen, name, role) and focus rings on the board. */
   --ink: var(--metal);
+  /* The brightest the name gets under the moving highlight (still 3:1). */
+  --ink-glint: var(--metal-lit);
   --focus: var(--lcd-hl);
 }
 
@@ -68,6 +72,7 @@
   --case-edge: #3a4048;
   --case-side: #0e1013;
   --ink: var(--metal-deep);
+  --ink-glint: var(--metal-deep-lit);
   --focus: #1b1d20;
 }
 
@@ -85,4 +90,5 @@
   --metal-side: #8b929b;
   --metal-lit: #f1f4f7;
   --metal-deep: #3f454d;
+  --metal-deep-lit: #6a727c;
 }

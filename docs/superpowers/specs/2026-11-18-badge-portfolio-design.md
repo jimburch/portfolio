@@ -91,23 +91,29 @@ The viewport is the badge. Layout, top to bottom (proportions from the mockup
    "BUILDER · TINKERER"; final wording is Jim's).
 3. **Avatar:** a 16×16 dot-matrix pixel portrait of Jim in gold dots on a faint
    dot grid. Placeholder face until Jim's art exists.
-4. **Board controls:** two round buttons (A/B), two pill buttons
-   (SELECT/START), and a D-pad, printed in gold. **They work.**
+4. **Reserved board area** (was the printed A/B, SELECT/START and D-pad,
+   removed after the first phone review; see DECISIONS 2026-11-18): plain
+   board, kept clear for something to be decided later.
    Plus a printed **`RESUME ↻` pad** on the board: one tap flips straight to
    `/resume`, at any time, including while the badge is still booting. This is
    the fast path for hiring managers in a hurry. (Exact placement and label
    styling: builder's call within the printed-board look; it must read as part
    of the board, not a web button pasted on.)
 5. **Clear case** at the bottom holding the **LCD screen**, with two side
-   buttons and three bottom buttons on the case. **They work too.**
+   keys (▲ ▼) and three bottom keys (◀ A ▶) on the case, each with a small
+   printed label. **They work**, and they are the badge's only input keys.
 
 **Look: flat illustration with depth in the edges.** Solid flat colors, drawn
-not photo-real. Raised parts (gold lettering, buttons, D-pad, avatar dots, the
+not photo-real. Raised parts (gold lettering, buttons, avatar dots, the
 case and its buttons) have a solid darker "side face" (a zero-blur offset in a
 darker tone of the part's color). As the phone tilts, that side face shifts by
-at most ~1.5px, like seeing a bit more of one edge. A faint sheen (≤ ~6% white)
-drifts slightly across the board. Nothing translates or rotates. No layer
-parallax. No moving soft shadows.
+at most ~1.6px, like seeing a bit more of one edge. Tilt also moves the light
+(round 2, more noticeable but still believable): a sheen (up to ~12% white)
+travels across the board, a soft highlight slides across the metal (name,
+avatar dots, RESUME pad) whose lit top edge brightens or dims, and a glossy
+glare band drifts across the clear case and LCD glass against the tilt. All of
+it is CSS driven by `--tx`/`--ty` and looks finished at rest (reduced motion).
+Nothing translates or rotates. No layer parallax. No moving soft shadows.
 
 Reference mockup: `.superpowers/brainstorm/64033-1795017766/content/badge-illustrated.html`,
 variant 1 (local only, git-ignored). Key values from it: side-face offset
@@ -144,16 +150,19 @@ Mapping (Claude's call, adjustable):
 
 | Badge control | Keyboard | Meaning in the badge OS |
 |---|---|---|
-| D-pad ↑ ↓ ← → | Arrow keys | Move selection / game input |
-| A | Enter, Z | Confirm |
-| B | Escape, X | Back |
-| START | S | App-specific |
-| SELECT | Shift | App-specific / part of combos |
-| Case buttons (5) | — | Mirror ↑ ↓ on the side; ← → and Enter on the bottom, like the reference badge |
+| Case ▲ ▼ (side), ◀ ▶ (bottom) | Arrow keys | Move selection / game input |
+| Case A (bottom middle) | Enter, Z | Confirm |
+| — (on-screen BACK row) | Escape, X | Back |
+| — | S | START: app-specific |
+| — | Shift (alone) | SELECT: app-specific / part of combos |
 
-Tapping a menu item on the LCD directly also works. Buttons give a pressed
-state (the side face collapses) and a short `navigator.vibrate` where
-supported, never on iOS where it's unsupported.
+B, START and SELECT have no key on the badge (DECISIONS 2026-11-18): every
+screen app shows a BACK row on the LCD instead, and the Konami code is
+keyboard-only. Tapping a menu item on the LCD directly also works. Keys give a
+pressed state (the side face collapses), a key press lights the matching case
+key, and a pointer press on any front control gives a short haptic tick
+(`navigator.vibrate` where it exists, else the iOS 18+ hidden-switch toggle;
+off under reduced motion).
 
 ### 5.4 The badge OS on the screen
 
@@ -164,7 +173,7 @@ The LCD runs a tiny "OS" (working name **JIM/OS**, Claude's call, Jim may rename
   motion), then the launcher. No power-on tap is required. Return visits in
   the same session skip straight to the launcher. The `RESUME ↻` pad works
   during boot.
-- **Launcher.** A menu of apps, navigated with D-pad/A/B, keys or taps.
+- **Launcher.** A menu of apps, navigated with the case keys, keyboard or taps.
 - **Apps** run inside the LCD. "Real" items (About, Resume, Projects, Contact)
   don't run on the screen. They trigger the **flip** (§5.6).
 - **Dev mode hint.** A visible hint on the front (e.g. a small printed
@@ -219,7 +228,7 @@ text alternative.
 | App | What it does |
 |---|---|
 | Draw your avatar | The 16×16 gold dot grid becomes editable. Visitor draws; can reset to Jim's. |
-| Game | A small original game played with D-pad and A/B. Design TBD. |
+| Game | A small original game played with the case keys. Design TBD. |
 | Camera | 1-bit dithered selfie via `getUserMedia`, shown on the LCD; nothing is uploaded. |
 | Dev mode console | A console where visitors type commands to change colors, LEDs, art, etc. Nice-to-have. |
 

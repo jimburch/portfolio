@@ -104,10 +104,10 @@ test('the konami code unlocks midnight and toasts over the launcher', async ({ p
 test('re-rendering the launcher does not steal focus', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'B button', exact: true }).focus();
+  await page.getByRole('button', { name: 'Case A', exact: true }).focus();
   await page.keyboard.press('ArrowDown');
   await expect(page.locator('#lcd-screen button[aria-current="true"]')).toHaveText(/PROJECTS/);
-  await expect(page.getByRole('button', { name: 'B button', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Case A', exact: true })).toBeFocused();
 });
 
 test('focus inside the LCD follows the selection', async ({ page }) => {

@@ -1,6 +1,8 @@
-/* NOW TINKERING: what Jim is building right now, with a link that flips to its build log. */
+/* NOW TINKERING: what Jim is building right now, with a link that flips to its
+   build log, then BACK. Up/down move between the two; A follows the selected one. */
 
 import type { AppContext, BadgeApp, BadgeInput } from '../os/types';
+import { createBackRow, createLcdRow, createLcdSelection, type LcdChoice, type LcdSelection } from './lcd-menu';
 
 interface NowData {
   title: string;
@@ -9,33 +11,21 @@ interface NowData {
 }
 
 let root: HTMLElement | null = null;
-let link: HTMLAnchorElement | null = null;
+let selection: LcdSelection | null = null;
 
-function build(data: NowData | null): HTMLElement {
-  const wrap = document.createElement('div');
-  wrap.className = 'lcd-now';
-  const heading = Object.assign(document.createElement('p'), {
-    className: 'lcd-line lcd-now-kicker',
-    textContent: 'NOW TINKERING ON',
-  });
-  if (!data) {
-    wrap.append(heading, Object.assign(document.createElement('p'), { className: 'lcd-line', textContent: 'NOTHING ON THE BENCH' }));
-    return wrap;
-  }
-  const title = Object.assign(document.createElement('p'), { className: 'lcd-line lcd-now-title', textContent: data.title });
-  const blurb = Object.assign(document.createElement('p'), { className: 'lcd-now-blurb', textContent: data.blurb });
-  link = Object.assign(document.createElement('a'), {
-    className: 'lcd-now-link',
-    href: data.route,
-    textContent: 'READ BUILD LOG ',
-  });
-  // The flip glyph is decoration; the link is named "READ BUILD LOG".
-  const glyph = Object.assign(document.createElement('span'), { textContent: '↻' });
-  glyph.setAttribute('aria-hidden', 'true');
-  link.append(glyph);
+function line(className: string, text: string): HTMLElement {
+  return Object.assign(document.createElement('p'), { className, textContent: text });
+}
+
+/** The build log link, named "READ BUILD LOG" (the flip glyph is decoration). */
+function logLink(route: string): HTMLAnchorElement {
+  const link = createLcdRow('a', 'lcd-now-link');
+  link.href = route;
   link.setAttribute('data-flip', '');
-  wrap.append(heading, title, blurb, link);
-  return wrap;
+  const glyph = Object.assign(document.createElement('span'), { className: 'lcd-now-flip', textContent: '↻' });
+  glyph.setAttribute('aria-hidden', 'true');
+  link.append('READ BUILD LOG', glyph);
+  return link;
 }
 
 const now: BadgeApp = {
@@ -44,19 +34,35 @@ const now: BadgeApp = {
   mount(ctx: AppContext) {
     // Like the launcher: focus moves only if it was already in the LCD.
     const hadFocus = ctx.screen.contains(document.activeElement);
-    root = build(ctx.data<NowData>('now'));
+    const data = ctx.data<NowData>('now');
+    root = document.createElement('div');
+    root.className = 'lcd-now';
+    root.append(line('lcd-line lcd-now-kicker', 'NOW TINKERING ON'));
+
+    const choices: LcdChoice[] = [];
+    if (data) {
+      const link = logLink(data.route);
+      root.append(line('lcd-line lcd-now-title', data.title), line('lcd-now-blurb', data.blurb), link);
+      choices.push({ el: link, name: () => 'Read build log' });
+    } else {
+      root.append(line('lcd-line', 'NOTHING ON THE BENCH'));
+    }
+    const back = createBackRow(ctx.exit);
+    root.append(back);
+    choices.push({ el: back, name: () => 'Back' });
+
+    selection = createLcdSelection(choices, ctx.announce);
     ctx.screen.replaceChildren(root);
-    if (hadFocus) link?.focus({ preventScroll: true });
+    selection.render();
+    if (hadFocus) selection.focus();
   },
   unmount() {
     root?.remove();
     root = null;
-    link = null;
+    selection = null;
   },
   onInput(input: BadgeInput) {
-    if (input !== 'a' || !link) return false;
-    link.click();
-    return true;
+    return selection?.input(input) ?? false;
   },
 };
 

@@ -1,8 +1,11 @@
 import type { BadgeInput } from '../os/types';
 import type { InputBus } from './bus';
+import { haptic } from './haptics';
 import { isIgnoredKeyContext, keyToInput } from './keymap';
 
 const FLASH_MS = 120;
+/** Every control on the front: the case keys, RESET, the RESUME pad and the LCD's rows. */
+const FRONT_CONTROL = '.face-front button, .face-front a';
 
 export function wireControls(
   root: HTMLElement,
@@ -13,14 +16,6 @@ export function wireControls(
   const { signal } = ac;
   const flashTimers = new Map<Element, number>();
   let gestured = false;
-
-  const vibrate = () => {
-    try {
-      navigator.vibrate?.(8);
-    } catch {
-      /* haptics are optional */
-    }
-  };
 
   const inputOf = (el: Element | null) => el?.closest<HTMLElement>('[data-input]') ?? null;
 
@@ -75,22 +70,34 @@ export function wireControls(
     root.addEventListener(type, release, { signal, capture: type === 'pointerleave' });
   }
 
+  // A pointer press on any front control ticks the haptic, from inside the
+  // press's own handler as iOS needs. Capture phase, because the control's own
+  // handler may take it off the screen. Keyboard activation and the apps' own
+  // synthetic clicks (detail 0) get none.
+  root.addEventListener(
+    'click',
+    (e) => {
+      if (e.detail > 0 && e.target instanceof Element && e.target.closest(FRONT_CONTROL)) haptic();
+    },
+    { signal, capture: true },
+  );
+
   root.addEventListener(
     'click',
     (e) => {
       const btn = inputOf(e.target as Element);
       gesture(e.target);
       if (!btn) return;
-      vibrate();
       bus.emit(btn.dataset.input as BadgeInput);
     },
     { signal },
   );
 
+  // A key press lights the badge key it stands for, if the badge has one
+  // (SELECT and START are keyboard-only).
   const emitKey = (input: BadgeInput) => {
-    const board = root.querySelector<HTMLElement>(`[data-input="${input}"]:not([data-case])`);
-    if (board) flash(board);
-    vibrate();
+    const key = root.querySelector<HTMLElement>(`[data-input="${input}"]`);
+    if (key) flash(key);
     bus.emit(input);
   };
 

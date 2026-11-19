@@ -61,10 +61,12 @@ function contrast(a: string, b: string): number {
 
 const combos = BOARDS.flatMap((b) => METALS.map((m) => [b.id, m.id] as const));
 
-test.each(combos)('%s board, %s metal: printed text and focus ring read at 3:1', (board, metal) => {
+test.each(combos)('%s board, %s metal: printed text (lit or not) and focus ring read at 3:1', (board, metal) => {
   const t = tokens(board, metal);
   const on = resolve(t, '--board');
   expect(contrast(resolve(t, '--ink'), on), 'ink on board').toBeGreaterThanOrEqual(3);
+  // The name's tilt highlight sweeps it toward --ink-glint, so that must read too.
+  expect(contrast(resolve(t, '--ink-glint'), on), 'lit ink on board').toBeGreaterThanOrEqual(3);
   expect(contrast(resolve(t, '--focus'), on), 'focus ring on board').toBeGreaterThanOrEqual(3);
   // The LCD's own selection and focus color on its glass.
   expect(contrast(resolve(t, '--lcd-hl'), resolve(t, '--lcd-bg')), 'highlight on LCD').toBeGreaterThanOrEqual(3);

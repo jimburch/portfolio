@@ -3,7 +3,13 @@
    from tokens.css (or is mixed from those tokens) so the reskin app can swap it.
 
    Depth: raised parts have a solid, zero-blur "side face" offset by --sx/--sy.
-   Tilt (Task 5) writes --tx/--ty in [-1, 1] on #badge; nothing else moves. */
+   Tilt (Task 5) writes --tx/--ty in [-1, 1] on #badge; nothing else moves.
+
+   Light: tilting changes only how the light falls. Everything below derives
+   from --tx/--ty, so gyro, finger and mouse all drive it, and at rest
+   (including reduced motion, where tilt is off) it settles on a still,
+   lit-from-the-upper-left look. Only paint properties change per frame
+   (gradient and background positions, colors, shadows): never layout. */
 
 #badge {
   --tx: 0;
@@ -13,6 +19,24 @@
   /* The side-face offset raised parts use; a pressed control zeroes it. */
   --sx: var(--ex);
   --sy: var(--ey);
+
+  /* Where the highlight on metal sits across each part, as a fraction of its
+     width (0 left edge, 1 right edge); it follows the tilt. */
+  --shine: calc(0.35 + var(--tx) * 0.65 + var(--ty) * 0.25);
+  /* Where the glare sits across the clear case: it runs against the tilt. */
+  --glare: calc(0.42 - var(--tx) * 0.55 - var(--ty) * 0.2);
+  /* How squarely the light catches top edges: 0 dim, 0.5 at rest, 1 bright. */
+  --lit: clamp(0, 0.5 - var(--ty) * 0.5, 1);
+  /* The metal's lit top edge: plain metal when dim, --metal-lit at rest,
+     toward white when bright. */
+  --metal-edge: color-mix(
+    in srgb,
+    white calc(clamp(0, var(--lit) * 2 - 1, 1) * 55%),
+    color-mix(in srgb, var(--metal-lit) calc(clamp(0, var(--lit) * 2, 1) * 100%), var(--metal))
+  );
+  /* A highlight band for a part's background: a 300%-wide image whose
+     middle lands at --shine across the part. */
+  --shine-at: calc((1.5 - var(--shine)) * 50%) 0;
 
   /* Clear case plastic, tinted from the board so every board reskins coherently. */
   --plastic-tint: color-mix(in srgb, var(--board-dot) 13%, white);
@@ -55,10 +79,12 @@
   overflow: hidden;
   color: var(--ink);
   background:
+    /* Sheen: a broad pool of light that travels across the board with tilt. */
     radial-gradient(
-      circle at calc(50% + var(--tx, 0) * 14%) calc(28% + var(--ty, 0) * 14%),
-      rgb(255 255 255 / 0.06),
-      transparent 55%
+      circle at calc(50% + var(--tx) * 36%) calc(26% + var(--ty) * 30%),
+      rgb(255 255 255 / 0.12),
+      rgb(255 255 255 / 0.05) 32%,
+      transparent 62%
     ),
     radial-gradient(var(--board-dot) 1.2px, transparent 1.5px) 0 0 / 8px 8px,
     var(--board);
@@ -102,10 +128,15 @@
 
 /* ---- Shared surfaces ---------------------------------------------------- */
 
+/* Plated metal: a soft highlight slides across it with tilt, and its lit top
+   edge brightens or dims. */
 .metal {
-  background: var(--metal);
+  background:
+    linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.45) 50%, transparent 60%)
+      var(--shine-at) / 300% 100% no-repeat,
+    var(--metal);
   box-shadow:
-    inset 0 1.5px 0 var(--metal-lit),
+    inset 0 1.5px 0 var(--metal-edge),
     var(--sx) var(--sy) 0 var(--metal-side);
 }
 
@@ -183,6 +214,29 @@
   text-shadow: var(--sx) var(--sy) 0 var(--metal-side);
 }
 
+/* The highlight slides through the lettering: the letters are filled with an
+   ink gradient that peaks at --ink-glint (3:1 on every board, like --ink), and
+   the side face moves to a drop-shadow so it stays behind that fill. */
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .name {
+    background: linear-gradient(105deg, var(--ink) 40%, var(--ink-glint) 50%, var(--ink) 60%)
+      var(--shine-at) / 300% 100% no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(var(--sx) var(--sy) 0 var(--metal-side));
+  }
+}
+
+@media (forced-colors: active) {
+  .name {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    filter: none;
+  }
+}
+
 .role {
   padding-left: 0.22em;
   font: 700 min(3.3cqw, 1.8cqh) / 1 var(--mono);
@@ -205,136 +259,29 @@
     6.25% 6.25%;
 }
 
+/* Each lit dot is flat metal. The highlight passes over the portrait as a
+   band: a dot lights by how near its place across the portrait (--d, 0–1,
+   set per dot in Avatar.astro) is to --shine. */
 .avatar i {
+  --glow: clamp(0, 1 - max(var(--d, 0) - var(--shine), var(--shine) - var(--d, 0)) * 4, 1);
   width: 82%;
   aspect-ratio: 1;
   margin: auto;
   border-radius: 50%;
-  background: var(--metal);
-  box-shadow: calc(var(--sx) * 0.6) calc(var(--sy) * 0.6) 0 var(--metal-side);
+  background: color-mix(in srgb, var(--metal-lit) calc(var(--glow) * 100%), var(--metal));
+  box-shadow:
+    inset 0 1px 0 var(--metal-edge),
+    calc(var(--sx) * 0.6) calc(var(--sy) * 0.6) 0 var(--metal-side);
 }
 
-/* ---- Board controls ----------------------------------------------------- */
+/* ---- Reserved board area ---------------------------------------------- */
 
-/* Laid out on a 60-unit-tall grid (the mockup's), scaled by --k. */
-.controls {
-  --k: calc(min(21.7cqw, 11cqh) / 60);
+/* Plain board where the printed controls were, held at their old size so the
+   layout keeps its balance until Jim decides what goes here. */
+.reserved {
   flex: none;
-  display: flex;
-  justify-content: space-between;
   width: 75.4cqw;
-  height: calc(60 * var(--k));
-}
-
-.controls .silk {
-  font-size: calc(6 * var(--k));
-}
-
-.ab,
-.pills,
-.dpad {
-  position: relative;
-  height: 100%;
-}
-
-.ab {
-  width: calc(64 * var(--k));
-}
-
-.round {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(2 * var(--k));
-}
-
-.round .cap {
-  width: calc(28 * var(--k));
-  aspect-ratio: 1;
-  border-radius: 50%;
-}
-
-.round .silk {
-  font-size: calc(7 * var(--k));
-}
-
-.round.b {
-  left: 0;
-  top: calc(22 * var(--k));
-}
-
-.round.a {
-  left: calc(36 * var(--k));
-  top: calc(4 * var(--k));
-}
-
-.pills {
-  width: calc(56 * var(--k));
-}
-
-.pill {
-  position: absolute;
-  top: calc(26 * var(--k));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(3 * var(--k));
-  width: calc(28 * var(--k));
-  padding-block: calc(4 * var(--k));
-  transform: rotate(-35deg);
-}
-
-.pill:first-child {
-  left: 0;
-}
-
-.pill:last-child {
-  left: calc(28 * var(--k));
-}
-
-.pill .cap {
-  width: calc(22 * var(--k));
-  height: calc(8 * var(--k));
-  border-radius: calc(5 * var(--k));
-}
-
-.dpad {
-  width: calc(60 * var(--k));
-}
-
-.dpad .pressable {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  width: calc(20 * var(--k));
-  height: calc(20 * var(--k));
-}
-
-.dpad .cap {
-  width: calc(19 * var(--k));
-  height: calc(19 * var(--k));
-  border-radius: calc(3 * var(--k));
-}
-
-.dpad .up {
-  left: calc(20 * var(--k));
-  top: 0;
-}
-
-.dpad .left {
-  left: 0;
-  top: calc(20 * var(--k));
-}
-
-.dpad .right {
-  left: calc(40 * var(--k));
-  top: calc(20 * var(--k));
-}
-
-.dpad .down {
-  left: calc(20 * var(--k));
-  top: calc(40 * var(--k));
+  height: min(21.7cqw, 11cqh);
 }
 
 /* ---- RESUME pad: a plated contact pad with its label engraved ---------- */
@@ -368,17 +315,25 @@
   box-shadow: calc(var(--sx) * 1.4) calc(var(--sy) * 1.4) 0 var(--plastic-side);
 }
 
-/* A flat glint on the top of the plastic. */
-.case::before {
+/* Glare: a glossy band (and a thin echo) on the clear plastic, over the LCD
+   glass too, drifting against the tilt. It takes no taps. */
+.case::after {
   content: '';
   position: absolute;
-  left: 5cqw;
-  top: 2.4cqw;
-  width: 21.7cqw;
-  height: 1.4cqw;
-  border-radius: 1cqw;
-  background: rgb(255 255 255 / 0.35);
-  transform: rotate(-8deg);
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+      112deg,
+      transparent 41%,
+      rgb(255 255 255 / 0.14) 46%,
+      rgb(255 255 255 / 0.06) 50.5%,
+      transparent 51%,
+      transparent 52.5%,
+      rgb(255 255 255 / 0.1) 53%,
+      transparent 54.5%
+    )
+    calc((1.5 - var(--glare)) * 50%) 0 / 300% 100% no-repeat;
 }
 
 #lcd {
@@ -474,6 +429,7 @@
   color: inherit;
   font: inherit;
   text-align: left;
+  text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -560,10 +516,19 @@
 }
 
 .key {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7cqw;
   width: 9cqw;
   height: 9cqw;
+}
+
+/* What each key does, printed on the case under its cap. */
+.key-silk {
+  font-size: 2.1cqw;
+  letter-spacing: 0;
 }
 
 .key .cap {
@@ -689,9 +654,11 @@
   opacity: 0.8;
 }
 
-/* NOW TINKERING and SENSORS */
+/* NOW TINKERING: kicker, title, blurb, then the build log link and BACK rows.
+   It fills the LCD, so the small lines are set tight. */
 .lcd-now-kicker {
   font-size: 0.72em;
+  line-height: 1.3;
   opacity: 0.8;
 }
 
@@ -710,14 +677,17 @@
   line-height: 1.25;
 }
 
-.lcd-now-link {
-  color: var(--lcd-hl);
-  text-decoration: none;
+/* The flip glyph after READ BUILD LOG (flex items drop edge spaces). */
+.lcd-now-flip {
+  margin-left: 1ch;
 }
 
-.lcd-now-link:focus-visible {
-  outline: 1px dashed var(--lcd-hl);
-  outline-offset: 1px;
+/* A short badge (e.g. 375×667) has room for two lines of blurb beside both rows. */
+@container (max-height: 720px) {
+  .lcd-now-blurb {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
 }
 
 /* BREAK IT app */
