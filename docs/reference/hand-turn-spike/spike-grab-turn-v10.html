@@ -1,0 +1,1043 @@
+<h2>Spike v10: grab, turn, present (the wrist)</h2>
+<p class="subtitle">Same motion, timing, fingers, thumb and lanyard as v9. Only the wrist changed: v9's waist is gone and the heel tapers smoothly into a solid wrist, the bend is spread over a longer stretch so it reads as an arc, the forearm lines up more with the hand (the elbow sits a little further out), and the wrist now has its outline where it goes into the sleeve. Play, then Reverse (that's HOME), or drag the scrubber.</p>
+
+<style>
+  .sp-ctl { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 4px 0 12px; font-size: 14px; }
+  .sp-ctl button { font: 600 14px system-ui; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border, #ccc); background: var(--bg-secondary, #f4f4f4); color: var(--text-primary, #222); cursor: pointer; }
+  .sp-ctl button:disabled { opacity: .5; cursor: progress; }
+  .sp-ctl input[type=range] { flex: 1; min-width: 200px; }
+  .sp-frame { position: relative; width: 100%; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 34px rgba(0,0,0,.25); background: #1f1b18; }
+  .sp-stage { position: absolute; left: 0; top: 0; width: 1280px; height: 800px; transform-origin: 0 0; overflow: hidden; }
+  .sp-stage > * { position: absolute; }
+
+  .sp-room { inset: 0; background:
+      radial-gradient(circle at 7% 16%, rgba(255,186,110,.65) 0 4.5%, transparent 5.5%),
+      radial-gradient(circle at 94% 10%, rgba(255,214,150,.55) 0 3.5%, transparent 4.5%),
+      radial-gradient(circle at 90% 86%, rgba(130,170,255,.35) 0 5%, transparent 6%),
+      linear-gradient(170deg, #5a4a3e, #221d1a); filter: blur(16px); transform: scale(1.06); }
+  .sp-person { inset: 0; }
+  .sp-person svg { width: 100%; height: 100%; display: block; }
+  .sp-p1 { filter: blur(9px) brightness(.72); }
+  .sp-p2 { filter: blur(20px) brightness(.6); opacity: 0; transform: scale(1.02); }
+  .sp-layer { left: 0; top: 0; width: 1280px; height: 800px; pointer-events: none; overflow: visible; }
+  .sp-strapsS { filter: blur(7px); }
+  /* the lanyard's two strap layers carry their own SVG blurs (sharp at the clip, soft toward the neck) */
+  .sp-collar { inset: 0; filter: blur(9px) brightness(.72); pointer-events: none; }
+  .sp-shadow { left: 505px; top: 156px; width: 270px; height: 510px; border-radius: 26px; background: #000; transform-origin: 50% 40%; will-change: transform, opacity; }
+  .sp-shA { filter: blur(14px); opacity: .5; }
+  .sp-shB { filter: blur(42px); opacity: 0; }
+  /* the hand: two WebGL canvases, one under the badge (far side of its plane), one over it (near side) */
+  .sp-hcv { left: 0; top: 0; width: 1280px; height: 800px; pointer-events: none; }
+  .sp-hsh { opacity: .3; }
+
+  .sp-badge { left: 524.5px; top: 150px; width: 231px; height: 500px; transform-style: preserve-3d; }
+  .sp-face { position: absolute; inset: 0; border-radius: 14px; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; container-type: size; }
+  .sp-front { transform: translateZ(5px); background: radial-gradient(#2a7d5e 1px, transparent 1.3px) 0 0 / 6px 6px, #1b6b4e; }
+  .sp-back { transform: rotateY(180deg) translateZ(5px); background: radial-gradient(#2a7d5e 1px, transparent 1.3px) 0 0 / 6px 6px, #1b6b4e; }
+  .sp-edge { position: absolute; }
+  .sp-edge.l, .sp-edge.r { top: 10px; width: 10px; height: 480px; background: linear-gradient(90deg, #072519, #1d6d50 30%, #4fae88 50%, #1d6d50 70%, #072519); }
+  .sp-edge.l { left: -5px; transform: rotateY(90deg); }
+  .sp-edge.r { right: -5px; transform: rotateY(90deg); }
+  .sp-edge.t, .sp-edge.b { left: 10px; height: 10px; width: 211px; background: linear-gradient(180deg, #0a3022, #24775a 50%, #0a3022); }
+  .sp-edge.t { top: -5px; transform: rotateX(90deg); }
+  .sp-edge.b { bottom: -5px; transform: rotateX(90deg); }
+  .sp-shade { position: absolute; inset: 0; background: #04110c; opacity: 0; pointer-events: none; }
+  .sp-sheen { position: absolute; inset: -2px; pointer-events: none; mix-blend-mode: screen;
+    background: linear-gradient(104deg, transparent 38%, rgba(255,255,255,.10) 44%, rgba(255,255,255,.34) 49%, rgba(255,255,255,.42) 50%, rgba(255,255,255,.30) 51.5%, rgba(255,255,255,.08) 56%, transparent 62%);
+    background-size: 320% 100%; background-repeat: no-repeat; opacity: 0; }
+  .sp-slot { position: absolute; left: 50%; top: 3%; width: 30%; height: 1.6%; transform: translateX(-50%); background: #0e3a2b; border-radius: 99px; }
+  .sp-name { position: absolute; top: 9%; width: 100%; text-align: center; font: 800 7.2cqw/1 ui-monospace, Menlo, monospace; letter-spacing: .12em; color: #e6c57c; text-shadow: 0 .25cqw 0 #a8843c; }
+  .sp-role { position: absolute; top: 14.3%; width: 100%; text-align: center; font: 700 2.6cqw/1 ui-monospace, Menlo, monospace; letter-spacing: .25em; color: #e6c57c; }
+  .sp-av { position: absolute; left: 50%; top: 19%; width: 50%; aspect-ratio: 1; transform: translateX(-50%); display: grid; grid-template-columns: repeat(16, 1fr); }
+  .sp-av i { display: block; width: 72%; aspect-ratio: 1; margin: auto; border-radius: 50%; }
+  .sp-av i.on { background: #e6c57c; box-shadow: 0 .3cqw 0 #a8843c; }
+  .sp-pad { position: absolute; left: 50%; top: 61%; width: 36%; height: 4.6%; transform: translateX(-50%); background: #e6c57c; border-radius: 1.2cqw; box-shadow: 0 .5cqw 0 #a8843c; font: 800 3cqw/4.6cqh ui-monospace, Menlo, monospace; letter-spacing: .2em; color: #3b2d10; text-align: center; }
+  .sp-case { position: absolute; left: 5%; right: 5%; bottom: 3%; height: 30%; border-radius: 4cqw; background: rgba(220,245,236,.2); border: .5cqw solid rgba(225,248,240,.55); }
+  .sp-lcd { position: absolute; left: 6%; right: 18%; top: 7%; height: 70%; border-radius: 1.5cqw; background: #12201b; padding: 5cqw; font: 700 4.4cqw/1.6 ui-monospace, Menlo, monospace; color: #d9f7e9; }
+  .sp-lcd b { color: #ffd84d; }
+  .sp-key { position: absolute; width: 7%; aspect-ratio: 1; background: #2a2f35; border-radius: 1.4cqw; box-shadow: 0 .6cqw 0 #111417; }
+  .sp-bhead { position: absolute; left: 0; right: 0; top: 0; height: 15%; text-align: center; padding-top: 4%; }
+  .sp-bhead .n { font: 800 5.8cqw/1 ui-monospace, Menlo, monospace; letter-spacing: .12em; color: #e6c57c; }
+  .sp-bhead .h { margin-top: 1.4cqh; font: 700 2.4cqw/1 ui-monospace, Menlo, monospace; letter-spacing: .2em; color: #e6c57c; opacity: .85; }
+  .sp-card { position: absolute; left: 5%; right: 5%; top: 15%; bottom: 4%; background: #eef1ec; border-radius: 2.4cqw; padding: 6cqw 6cqw; color: #1a2420; font: 400 3.3cqw/1.5 system-ui; }
+  .sp-card h3 { margin: 0 0 2cqh; font: 800 7cqw/1.1 system-ui; }
+  .sp-card .r { height: 1.1cqh; background: #cfd6d1; border-radius: 4px; margin: 1.6cqh 0; }
+  .sp-card .r.s { width: 62%; }
+  .sp-notes { font-size: 13.5px; line-height: 1.55; margin-top: 12px; }
+  .sp-err { color: #c0392b; font-weight: 600; }
+</style>
+
+<div class="sp-ctl">
+  <button id="sp-play" disabled>▶ Play (flip to resume)</button>
+  <button id="sp-rev" disabled>◀ Reverse (HOME)</button>
+  <input id="sp-t" type="range" min="0" max="1000" value="0" aria-label="Scrub">
+  <label>Speed <select id="sp-speed"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25">0.25×</option></select></label>
+</div>
+
+<div class="sp-frame" id="sp-frame">
+  <div class="sp-stage" id="sp-stage">
+    <div class="sp-room"></div>
+    <div class="sp-person sp-p1" id="sp-p1"></div>
+    <div class="sp-person sp-p2" id="sp-p2"></div>
+    <svg class="sp-layer sp-strapsS" id="sp-strapsS" viewBox="0 0 1280 800"></svg>
+    <!-- the lanyard goes round the neck: the whole strap is drawn BEHIND the neck (its far end hooks round the
+         neck's side and is hidden by it), then the part from the clip to the neck's side is drawn again over
+         the neck and the lapels, so the front run is never cut -->
+    <svg class="sp-layer" id="sp-strapsB" viewBox="0 0 1280 800"></svg>
+    <div class="sp-person sp-p1" id="sp-n1"></div>
+    <div class="sp-person sp-p2" id="sp-n2"></div>
+    <div class="sp-collar" id="sp-collar"></div>
+    <svg class="sp-layer" id="sp-strapsF" viewBox="0 0 1280 800"></svg>
+    <div class="sp-shadow sp-shA" id="sp-shA"></div>
+    <div class="sp-shadow sp-shB" id="sp-shB"></div>
+    <canvas class="sp-hcv" id="sp-hand-under"></canvas>
+    <svg class="sp-layer" id="sp-near" viewBox="0 0 1280 800"></svg>
+    <div class="sp-badge" id="sp-badge">
+      <div class="sp-edge l"></div><div class="sp-edge r"></div><div class="sp-edge t"></div><div class="sp-edge b"></div>
+      <div class="sp-face sp-front" id="sp-front"></div>
+      <div class="sp-face sp-back" id="sp-back"></div>
+    </div>
+    <canvas class="sp-hcv sp-hsh" id="sp-hand-shadow"></canvas>
+    <canvas class="sp-hcv" id="sp-hand-over"></canvas>
+  </div>
+</div>
+
+<div class="sp-notes" id="sp-notes">
+  <b>What's moving:</b> the wearer's right hand comes up from below, closes into a fist on the badge's bottom-right corner (thumb on the front beside the bottom keys, fingertips hooked round the edge, the screen left clear) and lifts. While the front faces away it slides into a phone grip: palm behind the card, all four fingertips curled over one long edge onto the face (index highest and a little apart, little finger lowest and shortest), the thumb pad pressing the face at the other edge, the heel and a short bare wrist below the card, then the cuff and the sleeve going back toward the body (wrist 10° ulnar, 17° extension).<br>
+  <b>Judge:</b> the wrist between the card's bottom edge and the cuff: its width against the fingers, whether both contours run smoothly from the heel to the cuff, and whether the hand and forearm read as one limb, in the held pose and mid-turn.
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// hand-v10.glb: the WebXR generic-hand right.glb (MIT, (c) 2019 Amazon) rebuilt in Blender with a short forearm,
+// a forearm bone, one level of subdivision, restored finger volume and the wearer's jacket sleeve (build_hand.py).
+// v9 rebuild: a slimmer thumb (about the index's width), a thenar that flows into the palm, a slimmer ulnar heel and a
+// wrist waist (the heel narrows into the wrist, the forearm widens again toward the cuff).
+// v10 rebuild: the waist and the heel slimming are replaced by a measured taper (each side of the wrist follows a
+// monotone curve from the heel's own width down to the cuff: no pinch, no corner where the heel meets the wrist), and
+// the bend weights spread over the heel-to-cuff stretch (an arc, not a hinge). Fingers and thumb are unchanged.
+// The mockup server serves content/ files
+// flat under /files/; the file:// harness keeps a copy next to the page.
+const HAND_URL = window.SPIKE_HAND_URL || (location.protocol === 'file:' ? 'hand-v10.glb' : '/files/hand-v10.glb');
+
+const W = 1280, H = 800;
+const SPIKE = window.SPIKE = window.SPIKE || {};
+
+// ==================================================================== small math
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp01 = (t) => Math.max(0, Math.min(1, t));
+const seg = (t, a, b) => clamp01((t - a) / (b - a));
+const smooth = (t) => t * t * (3 - 2 * t);
+const D = Math.PI / 180;
+const f1 = (n) => (Math.round(n * 10) / 10).toString();
+
+// monotone cubic keyframe track (Fritsch–Carlson); flat tangents at the ends
+function track(keys) {
+  const n = keys.length, d = [], m = [];
+  for (let i = 0; i < n - 1; i++) d[i] = (keys[i + 1][1] - keys[i][1]) / (keys[i + 1][0] - keys[i][0]);
+  m[0] = 0; m[n - 1] = 0;
+  for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (d[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; }
+    const a = m[i] / d[i], b = m[i + 1] / d[i], s = a * a + b * b;
+    if (s > 9) { const k = 3 / Math.sqrt(s); m[i] = k * a * d[i]; m[i + 1] = k * b * d[i]; }
+  }
+  return (t) => {
+    if (t <= keys[0][0]) return keys[0][1];
+    if (t >= keys[n - 1][0]) return keys[n - 1][1];
+    let j = 0; while (t > keys[j + 1][0]) j++;
+    const h = keys[j + 1][0] - keys[j][0], u = (t - keys[j][0]) / h, u2 = u * u, u3 = u2 * u;
+    return (2 * u3 - 3 * u2 + 1) * keys[j][1] + (u3 - 2 * u2 + u) * h * m[j] + (-2 * u3 + 3 * u2) * keys[j + 1][1] + (u3 - u2) * h * m[j + 1];
+  };
+}
+
+// ==================================================================== choreography (v4, unchanged; t in 0..1 over DUR)
+// reach 0-.19 (fingers closing .12-.19) · lift starts .19 · turn .21-.66 rides the lift (edge-on ≈ .43) · overshoot and settle .62-1
+const DUR = 1800;
+const TH = track([[0, 0], [.21, 0], [.27, 7], [.37, 52], [.45, 104], [.55, 160], [.655, 192], [.78, 175.5], [.9, 181], [1, 180]]);
+const TZ = track([[0, 0], [.19, 0], [.27, 30], [.43, 168], [.56, 228], [.655, 244], [.8, 212], [.92, 220], [1, 218]]);
+const TY = track([[0, 0], [.19, 0], [.27, -14], [.43, -44], [.58, -30], [.7, -2], [.84, -10], [1, -6]]);
+const TX = track([[0, 0], [.24, 0], [.42, -12], [.6, 5], [.8, -1.5], [1, 0]]);
+const ROLL = track([[0, 0], [.2, 0], [.28, -2.5], [.43, -6.5], [.6, 3.4], [.77, -1.4], [.9, .4], [1, 0]]);
+const HAND_IN = track([[0, 0], [.03, .1], [.135, .84], [.19, 1]]);   // hand rising into the grip
+const TZ_END = 218;
+
+// ==================================================================== the badge pose: ONE matrix per t
+// World units are stage px. Three.js frame: origin at the stage centre, x right, y UP, z toward the camera.
+// The CSS frame is the same with y DOWN, so css = S·three·S with S = diag(1,-1,1,1).
+// The camera is the CSS perspective: eye at z = P over the stage centre, so screen = centre + xy · P/(P - z).
+const P = 1400, CX = 640, CY = 400, BW2 = 115.5, BH2 = 250, HZ = 5;
+const FLIP_Y = new THREE.Matrix4().makeScale(1, -1, 1);
+function badgeState(t) {
+  const st = { th: TH(t) * D, tz: TZ(t), ty: TY(t), tx: TX(t), roll: ROLL(t) * D };
+  st.k0 = P / (P - st.tz);
+  return st;
+}
+// css-space composition, same order as v4's CSS: move, then roll, then the turn about the card's long axis.
+// v4 translated after the perspective (a screen offset); dividing by k0 puts the same screen offset in 3D.
+const _mR = new THREE.Matrix4(), _mY = new THREE.Matrix4();
+function badgeMatrixCss(st, out) {
+  out.makeTranslation(st.tx / st.k0, st.ty / st.k0, st.tz);
+  out.multiply(_mR.makeRotationZ(st.roll)).multiply(_mY.makeRotationY(st.th));
+  return out;
+}
+function cssToThree(mCss, out) { return out.copy(FLIP_Y).multiply(mCss).multiply(FLIP_Y); }
+function cssTransform(mCss) {
+  return 'perspective(' + P + 'px) matrix3d(' + mCss.elements.map((v) => +v.toFixed(6)).join(',') + ')';
+}
+
+// ==================================================================== DOM scene art (v4)
+const AV = ["................", ".....######.....", "...##########...", "..############..", "..##........##..", ".##..........##.", ".#..##....##..#.", ".#..##....##..#.", ".#............#.", ".#............#.", ".#...#....#...#.", "..#...####...#..", "..##........##..", "...##......##...", "....########....", "................"];
+// v9: the body and the NECK are separate layers, so the lanyard can pass behind the neck. The jacket's neckline
+// now meets the neck's sides inside the frame (the collar stand rises behind the neck there), and the neck is a
+// column with shaded sides, so there is a contour for the strap to go round.
+const NECK = { l: 492, r: 788, baseY: 50 };   // the neck's side contours (stage px) and where they meet the collar
+function personSVG() {
+  return '<svg viewBox="0 0 1280 800" preserveAspectRatio="none" aria-hidden="true">' +
+    // jacket: shoulders slope up to the collar, which rises behind the neck
+    '<path d="M-80 880 L-80 130 Q170 44 452 40 L476 -40 L804 -40 L828 40 Q1110 44 1360 130 L1360 880 Z" fill="#2b3442"/>' +
+    // the collar stand, darker, wrapping the base of the neck (its back half is behind the neck)
+    '<path d="M392 66 Q446 50 470 22 L482 -40 L520 -40 L500 40 Q470 74 420 84 Z" fill="#1d242f"/>' +
+    '<path d="M888 66 Q834 50 810 22 L798 -40 L760 -40 L780 40 Q810 74 860 84 Z" fill="#1d242f"/>' +
+    // the open neck of the shirt: skin from the base of the neck down to the V
+    '<path d="M486 44 Q522 230 640 350 Q758 230 794 44 Q640 100 486 44 Z" fill="#b98a6c" opacity=".9"/>' +
+    '<path d="M240 60 Q400 380 416 880 L864 880 Q880 380 1040 60 Q800 220 640 350 Q480 220 240 60 Z" fill="#3a4658" opacity=".45"/>' +
+    '<path d="M120 520 Q300 470 380 600 L360 880 L80 880 Z" fill="#343f50" opacity=".55"/>' +
+    '<path d="M1160 520 Q980 470 900 600 L920 880 L1200 880 Z" fill="#343f50" opacity=".55"/>' +
+    '</svg>';
+}
+function neckSVG() {   // the neck column, in front of the strap's far end; same blur and palette as the body
+  const l = NECK.l, r = NECK.r, y = NECK.baseY;
+  return '<svg viewBox="0 0 1280 800" preserveAspectRatio="none" aria-hidden="true">' +
+    '<path d="M' + l + ' -40 C' + l + ' 10 ' + (l - 1) + ' 30 ' + (l - 6) + ' ' + y + ' Q640 ' + (y + 58) + ' ' + (r + 6) + ' ' + y + ' C' + (r + 1) + ' 30 ' + r + ' 10 ' + r + ' -40 Z" fill="#b98a6c"/>' +
+    // the sides of the neck turn away from the lamp: a darker band inside each contour
+    '<path d="M' + l + ' -40 C' + l + ' 10 ' + (l - 1) + ' 30 ' + (l - 6) + ' ' + y + ' Q' + (l + 14) + ' ' + (y + 8) + ' ' + (l + 30) + ' ' + (y + 10) + ' C' + (l + 26) + ' 20 ' + (l + 26) + ' 0 ' + (l + 28) + ' -40 Z" fill="#94684f"/>' +
+    '<path d="M' + r + ' -40 C' + r + ' 10 ' + (r + 1) + ' 30 ' + (r + 6) + ' ' + y + ' Q' + (r - 14) + ' ' + (y + 8) + ' ' + (r - 30) + ' ' + (y + 10) + ' C' + (r - 26) + ' 20 ' + (r - 26) + ' 0 ' + (r - 28) + ' -40 Z" fill="#a1735a"/>' +
+    '</svg>';
+}
+function collarSVG() {   // the lapels, from the base of the neck down the V (over the neck, under the strap's front run)
+  return '<svg viewBox="0 0 1280 800" preserveAspectRatio="none" aria-hidden="true">' +
+    '<path d="M486 44 Q522 230 640 350 Q566 228 530 74 Z" fill="#1d242f"/>' +
+    '<path d="M794 44 Q758 230 640 350 Q714 228 750 74 Z" fill="#1d242f"/>' +
+    '</svg>';
+}
+{
+  let av = '';
+  AV.forEach((r) => { for (let i = 0; i < 16; i++) av += '<i class="' + (r[i] === '#' ? 'on' : '') + '"></i>'; });
+  document.getElementById('sp-front').innerHTML = '<div class="sp-slot"></div><div class="sp-name">JIM BURCH</div><div class="sp-role">BUILDER · TINKERER</div>' +
+    '<div class="sp-av">' + av + '</div><div class="sp-pad">RESUME ↻</div>' +
+    '<div class="sp-case"><div class="sp-lcd"><b>▶ NOW TINKERING</b><br>&nbsp; PROJECTS<br>&nbsp; RESUME<br>&nbsp; ABOUT</div>' +
+    '<span class="sp-key" style="right:5%;top:22%"></span><span class="sp-key" style="right:5%;top:48%"></span>' +
+    '<span class="sp-key" style="left:22%;bottom:5%"></span><span class="sp-key" style="left:46.5%;bottom:5%"></span><span class="sp-key" style="left:71%;bottom:5%"></span></div>' +
+    '<div class="sp-sheen"></div><div class="sp-shade"></div>';
+  document.getElementById('sp-back').innerHTML =
+    '<div class="sp-slot"></div><div class="sp-bhead"><div class="n">JIM BURCH</div><div class="h">HOME · PROJECTS · RESUME · ABOUT</div></div>' +
+    '<div class="sp-card"><h3>Resume</h3><div class="r"></div><div class="r"></div><div class="r s"></div><br><b>Showit</b><div class="r"></div><div class="r"></div><div class="r s"></div><br><b>FanPower</b><div class="r"></div><div class="r s"></div></div>' +
+    '<div class="sp-sheen"></div><div class="sp-shade"></div>';
+  document.getElementById('sp-p1').innerHTML = personSVG();
+  document.getElementById('sp-p2').innerHTML = personSVG();
+  document.getElementById('sp-n1').innerHTML = neckSVG();
+  document.getElementById('sp-n2').innerHTML = neckSVG();
+  document.getElementById('sp-collar').innerHTML = collarSVG();
+}
+
+// ---- lanyard (v9): worn round the neck
+// Each strap is two quadratic runs:
+//   FRONT: from the clip end to a wrap point W just outside the neck's side contour (its inner edge brushing the
+//          contour), arriving there moving upward, as a strap that rises from the badge and turns round the neck;
+//   BACK:  from W on up and in, behind the neck, ending inside the neck's outline (hidden by it), narrowing as the
+//          ribbon turns edge-on round the side of the neck.
+// While the badge lifts, the front run goes slack (it sags) and then pulls nearly straight as the badge comes up
+// toward the camera; W and the back run stay put (they lie on the wearer).
+const STRAP_W = 22;
+const WRAP = [-1, 1].map((sd) => {
+  const cx = sd < 0 ? NECK.l - 6 : NECK.r + 6;            // the contour at the collar line
+  const w = { x: cx + sd * (STRAP_W / 2 + 1), y: NECK.baseY - 6 };
+  return { sd, w, back: { c: { x: w.x - sd * 4, y: w.y - 16 }, e: { x: cx - sd * 62, y: w.y - 30 } } };
+});
+const qpt = (a, c, b, u) => { const iu = 1 - u; return { x: iu * iu * a.x + 2 * iu * u * c.x + u * u * b.x, y: iu * iu * a.y + 2 * iu * u * c.y + u * u * b.y }; };
+// a ribbon along a polyline with a width per point
+function ribbonPts(pts, ws) {
+  const L = [], R = [], n = pts.length;
+  for (let i = 0; i < n; i++) {
+    const p = pts[i], q0 = pts[Math.max(0, i - 1)], q1 = pts[Math.min(n - 1, i + 1)];
+    const tx = q1.x - q0.x, ty = q1.y - q0.y, tl = Math.hypot(tx, ty) || 1, w = ws[i] / 2;
+    const nx = -ty / tl * w, ny = tx / tl * w;
+    L.push(f1(p.x + nx) + ' ' + f1(p.y + ny)); R.unshift(f1(p.x - nx) + ' ' + f1(p.y - ny));
+  }
+  return 'M' + L.join('L') + 'L' + R.join('L') + 'Z';
+}
+const N_FRONT = 26, N_BACK = 14;
+// one strap: the front run's points (from W to the clip end), the back run's points (from its hidden end to W)
+function strapRuns(q, clip, k, lift) {
+  const end = { x: clip.x + q.sd * 10 * k, y: clip.y };
+  const w = q.w;
+  // control: below and a little inside W, so the run arrives at W moving up; it sags in mid-lift (slack) and is
+  // nearly straight once the badge is up (taut)
+  const taut = smooth(seg(lift, .55, 1));
+  const sag = 46 * Math.sin(Math.PI * smooth(seg(lift, .03, .8)));
+  const cRest = { x: w.x - q.sd * 24, y: w.y + 52 }, cUp = { x: w.x - q.sd * 46, y: w.y + 22 };
+  const c = { x: lerp(cRest.x, cUp.x, taut), y: lerp(cRest.y, cUp.y, taut) + sag };
+  const front = [], fw = [], back = [], bw = [];
+  for (let i = 0; i <= N_FRONT; i++) { const u = i / N_FRONT; front.push(qpt(w, c, end, u)); fw.push(lerp(STRAP_W, STRAP_W * k, u * u)); }
+  for (let i = 0; i <= N_BACK; i++) { const u = i / N_BACK; back.push(qpt(q.back.e, q.back.c, w, u)); bw.push(lerp(STRAP_W * .5, STRAP_W, smooth(u))); }
+  return { front, fw, back, bw, c, end };
+}
+function backShadePaths(runs) {   // the back run only: it is in the neck's shadow as it goes behind
+  return runs.map((r) => ribbonPts(r.back, r.bw.map((x) => x + 1))).join('');
+}
+function strapPaths(runs, which, width) {
+  return runs.map((r) => which === 'front' ? ribbonPts(r.front, r.fw.map((x) => x * width)) :
+    ribbonPts(r.back.concat(r.front.slice(1)), r.bw.concat(r.fw.slice(1)).map((x) => x * width))).join('');
+}
+// a strap layer: a soft copy (out of focus, toward the neck) under a sharp copy that fades out from the clip
+function strapLayerSVG(id, runs, which, clip, k, soft) {
+  const R = Math.hypot(runs[0].end.x - WRAP[0].w.x, runs[0].end.y - WRAP[0].w.y);
+  const body = (fill, wd) => '<path d="' + strapPaths(runs, which, wd) + '" fill="' + fill + '"/>';
+  const both = body('#1d2a24', 1) + (body('#2c4036', 7 / STRAP_W).replace('/>', ' opacity=".8"/>'));
+  // the front-only layer fades out over the last stretch before each wrap point, so its end never shows as a cut
+  // (the behind-the-neck layer carries the strap on from there, softened by the neck's blur)
+  const fade = which === 'front' ? WRAP.map((q) => '<circle cx="' + f1(q.w.x) + '" cy="' + f1(q.w.y) + '" r="46" fill="url(#' + id + 'w)"/>').join('') : '';
+  const shade = which === 'front' ? '' : '<path d="' + backShadePaths(runs) + '" fill="#000" opacity=".4"/>';
+  return '<defs><filter id="' + id + 'fs" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="' + f1(soft) + '"/></filter>' +
+    '<radialGradient id="' + id + 'w"><stop offset=".25" stop-color="#000"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>' +
+    '<mask id="' + id + 'e" maskUnits="userSpaceOnUse" x="-100" y="-200" width="1480" height="1100"><rect x="-100" y="-200" width="1480" height="1100" fill="#fff"/>' + fade + '</mask>' +
+    '<filter id="' + id + 'fh" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="1.8"/></filter>' +
+    '<radialGradient id="' + id + 'g" gradientUnits="userSpaceOnUse" cx="' + f1(clip.x) + '" cy="' + f1(clip.y) + '" r="' + f1(R) + '">' +
+    '<stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>' +
+    '<mask id="' + id + 'm" maskUnits="userSpaceOnUse" x="-100" y="-200" width="1480" height="1100"><rect x="-100" y="-200" width="1480" height="1100" fill="url(#' + id + 'g)"/></mask></defs>' +
+    '<g mask="url(#' + id + 'e)"><g filter="url(#' + id + 'fs)">' + both + shade + '</g>' +
+    '<g mask="url(#' + id + 'm)"><g filter="url(#' + id + 'fh)">' + both + shade + '</g></g></g>';
+}
+// the strap's shadow on the wearer: the front run's shape, pushed down and out as the strap leaves the body,
+// still meeting the strap at W (where it lies on the collar)
+function strapShadowSVG(runs, restRuns, lift) {
+  return runs.map((r, i) => {
+    const rr = restRuns[i], off = (p, s) => ({ x: p.x + (3 + 16 * lift) * s, y: p.y + (5 + 34 * lift) * s });
+    const pts = r.front.map((p, j) => { const u = j / N_FRONT; const m = { x: lerp(p.x, rr.front[j].x, .55 * u), y: lerp(p.y, rr.front[j].y, .55 * u) }; return off(m, u); });
+    return '<path d="' + ribbonPts(pts, r.fw.map((w, j) => lerp(STRAP_W, w, j / N_FRONT))) + '" fill="#000"/>';
+  }).join('');
+}
+
+// ==================================================================== three.js: camera, two renderers, light
+const camera = new THREE.PerspectiveCamera(2 * Math.atan((H / 2) / P) / D, W / H, 10, 6000);
+camera.position.set(0, 0, P);
+camera.lookAt(0, 0, 0);
+camera.updateMatrixWorld(true);
+
+const cvUnder = document.getElementById('sp-hand-under'), cvOver = document.getElementById('sp-hand-over');
+const cvShadow = document.getElementById('sp-hand-shadow'), shCtx = cvShadow.getContext('2d');
+function makeRenderer(canvas) {
+  const r = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, premultipliedAlpha: true });
+  r.setClearColor(0x000000, 0);
+  r.localClippingEnabled = false;
+  r.outputColorSpace = THREE.SRGBColorSpace;
+  return r;
+}
+const rUnder = makeRenderer(cvUnder), rOver = makeRenderer(cvOver);
+
+const scene = new THREE.Scene();
+// key light from the warm lamp at the upper left of the room, a little in front of the wearer
+const sun = new THREE.DirectionalLight(0xffffff, Math.PI);
+sun.position.set(-0.55, 0.75, 0.62).multiplyScalar(1000);
+scene.add(sun);
+
+// ---- toon look. The gradient map holds the actual palette (sRGB), and the material colour is white, so
+// each band lands on an exact flat-illustration tone (shadow bands are warmer and more saturated).
+function ramp(stops, n) { // stops: [[upTo 0..1, '#hex'], ...] over dotNL*0.5+0.5
+  const data = new Uint8Array(n * 4), c = new THREE.Color();
+  for (let i = 0; i < n; i++) {
+    const u = (i + .5) / n, hex = stops.find((s) => u <= s[0])[1];
+    c.set(hex); // THREE.Color stores linear; write sRGB bytes since the texture is tagged sRGB
+    const s = c.clone().convertLinearToSRGB();
+    data.set([Math.round(s.r * 255), Math.round(s.g * 255), Math.round(s.b * 255), 255], i * 4);
+  }
+  const tex = new THREE.DataTexture(data, n, 1, THREE.RGBAFormat);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = tex.magFilter = THREE.NearestFilter;
+  tex.generateMipmaps = false;
+  tex.needsUpdate = true;
+  return tex;
+}
+const RGB_GRADIENT = THREE.ShaderChunk.gradientmap_pars_fragment.replace('vec3( texture2D( gradientMap, coord ).r )', 'texture2D( gradientMap, coord ).rgb');
+function toon(stops) {
+  const m = new THREE.MeshToonMaterial({ color: 0xffffff, gradientMap: ramp(stops, 20) });
+  m.onBeforeCompile = (sh) => { sh.fragmentShader = sh.fragmentShader.replace('#include <gradientmap_pars_fragment>', RGB_GRADIENT); };
+  return m;
+}
+// skin: a warm, slightly saturated mid tone that covers most of the hand, a reddish-brown shadow band and a
+// small soft highlight (v6's light band covered most of the hand and read pale). Same hue family as the
+// scene's neck (#b98a6c), a touch more saturated because the hand is lit and in focus. The GLB's vertex
+// colours warm the fingertips and knuckles a little (they multiply these bands).
+const SKIN = { shade: '#ad5d41', base: '#d8926b', light: '#eeae86', line: '#5a2a1b' };
+const matSkin = toon([[.44, SKIN.shade], [.91, SKIN.base], [1, SKIN.light]]);
+matSkin.vertexColors = true; matSkin.fog = false;
+// the sleeve: the jacket's navy (#2b3442 in the scene) in three bands; fog toward the jacket colour makes it
+// recede (darker and lower-contrast toward the elbow), and its vertex colours carry the cuff band, the seam,
+// the dark inside of the sleeve and a slight darkening along its length
+const JACKET = { shade: '#1b212c', base: '#29323f', light: '#3a465b', line: '#0d1016' };
+const matSleeve = toon([[.44, JACKET.shade], [.84, JACKET.base], [1, JACKET.light]]);
+matSleeve.vertexColors = true;
+
+// inverted hull outline, constant width in screen px. Pushes along a smoothed normal (no cracks at UV seams).
+// Two hulls per mesh: a SILHOUETTE hull (wide, drawn first with no depth test, so the mesh itself covers all of
+// it except what sticks out past the outer silhouette) and an INNER hull (thin, depth-tested: the lines where a
+// finger crosses the palm or another finger). So the outer outline is bold and the inner lines stay light.
+const LINE = { outer: 2.3, inner: 1.0, clothOuter: 1.7, clothInner: .9 };   // stage px
+const outlineUniforms = { uRes: { value: new THREE.Vector2(W, H) }, uPr: { value: 1 } };
+// masked (v10): a depth-tested hull at full width whose width is scaled per vertex by the `hullMask` attribute
+// (the wrist line: see dress)
+function outlineMat(hex, width, silhouette, fog, masked) {
+  const m = new THREE.MeshBasicMaterial({ color: hex, side: THREE.BackSide, fog: !!fog });
+  if (silhouette) { m.depthTest = false; m.depthWrite = false; }
+  const uWidth = { value: width };
+  m.onBeforeCompile = (sh) => {
+    sh.uniforms.uWidth = uWidth;
+    sh.uniforms.uPr = outlineUniforms.uPr;
+    sh.uniforms.uRes = outlineUniforms.uRes;
+    const head = 'attribute vec3 hullNormal;\nuniform float uWidth;\nuniform float uPr;\nuniform vec2 uRes;\n' + (masked ? 'attribute float hullMask;\n#define HULL_W (uWidth * hullMask)\n' : '#define HULL_W uWidth\n');
+    sh.vertexShader = head + sh.vertexShader.replace('#include <project_vertex>', `#include <project_vertex>
+      vec3 hN = hullNormal;
+      #ifdef USE_SKINNING
+        hN = ( skinMatrix * vec4( hN, 0.0 ) ).xyz;
+      #endif
+      vec3 vN = normalize( normalMatrix * hN );
+      vec4 c1 = projectionMatrix * ( mvPosition + vec4( vN, 0.0 ) );
+      vec2 dir = c1.xy / c1.w - gl_Position.xy / gl_Position.w;
+      dir = dir / max( length( dir ), 1e-6 );
+      gl_Position.xy += dir * HULL_W * uPr * 2.0 / uRes * gl_Position.w;
+      gl_Position.z += 0.0004 * gl_Position.w;`);
+  };
+  return m;
+}
+scene.fog = null;   // set after FOG is defined
+const matSkinSil = outlineMat(SKIN.line, LINE.outer, true), matSkinLine = outlineMat(SKIN.line, LINE.inner, false);
+const matClothSil = outlineMat(JACKET.line, LINE.clothOuter, true, true), matClothLine = outlineMat(JACKET.line, LINE.clothInner, false, true);
+// v10: the wrist's outline where it goes into the sleeve. The silhouette hull above draws first with no depth test,
+// so the sleeve's inner wall (behind the wrist) painted over it and the wrist's sides had no line there. This hull is
+// depth-tested (so the cuff's front lip still covers it, like the arm), full outer width, and only on the forearm
+// part of the skin (hullMask = the forearm bone's weight), so no wide lines appear across the palm or fingers.
+const matSkinWristLine = outlineMat(SKIN.line, LINE.outer, false, false, true);
+// the sleeve recedes toward the wearer's body: fog (view depth, px from the camera at z = P) toward the jacket
+const FOG = new THREE.Fog(0x1d232d, P - 100, P + 1500);
+scene.fog = FOG;
+function addHullNormals(geom) { // average normals of vertices that share a position
+  const pos = geom.attributes.position, nrm = geom.attributes.normal, map = new Map(), out = new Float32Array(pos.count * 3);
+  const key = (i) => [pos.getX(i), pos.getY(i), pos.getZ(i)].map((v) => Math.round(v * 1e5)).join(',');
+  for (let i = 0; i < pos.count; i++) {
+    const k = key(i), a = map.get(k) || [0, 0, 0];
+    a[0] += nrm.getX(i); a[1] += nrm.getY(i); a[2] += nrm.getZ(i); map.set(k, a);
+  }
+  for (let i = 0; i < pos.count; i++) {
+    const a = map.get(key(i)), l = Math.hypot(a[0], a[1], a[2]) || 1;
+    out.set([a[0] / l, a[1] / l, a[2] / l], i * 3);
+  }
+  geom.setAttribute('hullNormal', new THREE.BufferAttribute(out, 3));
+}
+
+// ==================================================================== scene graph
+// badgeFrame carries the badge matrix. Everything that touches the card lives under it, in badge-local px.
+const badgeFrame = new THREE.Object3D();
+badgeFrame.matrixAutoUpdate = false;
+scene.add(badgeFrame);
+
+// debug: the card's outline at both faces, to check the canvases line up with the DOM badge
+const debugOutline = new THREE.Group();
+for (const z of [HZ + .5, -HZ - .5]) {
+  const g = new THREE.BufferGeometry().setFromPoints([[-BW2, -BH2], [BW2, -BH2], [BW2, BH2], [-BW2, BH2]].map((p) => new THREE.Vector3(p[0], p[1], z)));
+  debugOutline.add(new THREE.LineLoop(g, new THREE.LineBasicMaterial({ color: z > 0 ? 0xff2d55 : 0x00c8ff })));
+  // the LCD on the front face, which the grip must not cover
+  if (z > 0) debugOutline.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([[-91.5, -95.5], [66.6, -95.5], [66.6, -200.5], [-91.5, -200.5]].map((p) => new THREE.Vector3(p[0], p[1], z))), new THREE.LineBasicMaterial({ color: 0xffd400 })));
+}
+debugOutline.visible = false;
+badgeFrame.add(debugOutline);
+
+// hand placement: origin = the wrist joint, axes = the wrist joint's (WebXR convention: -Z toward the fingers,
+// +Y out of the back of the hand, +X toward the little finger)
+const handPlace = new THREE.Object3D();
+badgeFrame.add(handPlace);
+
+// ==================================================================== hand rig
+// metres → stage px. v5 used 2700, v6 2300 (×0.852); v7 and v8 2430 (×0.9 of v5): with the fingers' volume restored
+// the hand needed a little more reach to wrap both long edges, and it still reads as a badge, not a phone.
+const HAND_SCALE = SPIKE.handScale || +(new URLSearchParams(location.search).get('scale')) || 2430;   // ?scale= is a dev aid
+const FINGERS = ['index', 'middle', 'ring', 'pinky'];
+const CHAIN = {
+  thumb: ['thumb-metacarpal', 'thumb-phalanx-proximal', 'thumb-phalanx-distal', 'thumb-tip'],
+};
+FINGERS.forEach((f) => { CHAIN[f] = ['metacarpal', 'phalanx-proximal', 'phalanx-intermediate', 'phalanx-distal', 'tip'].map((b) => f + '-finger-' + b); });
+const rig = { bones: {}, rest: {}, mesh: null, hull: null, digitVerts: {} };
+
+async function loadHand() {
+  const loader = new GLTFLoader();
+  let gltf;
+  gltf = await loader.loadAsync(HAND_URL);
+  const model = gltf.scene;
+  model.updateMatrixWorld(true);
+  // two skinned meshes share one skeleton: `hand` (skin, with the short forearm) and `sleeve` (the jacket)
+  model.traverse((o) => { if (o.isSkinnedMesh) { if (o.name.startsWith('sleeve')) rig.sleeve = o; else rig.mesh = o; } });
+  rig.mesh.skeleton.bones.forEach((b) => { rig.bones[b.name] = b; });
+  if (!SPIKE.loggedSkeleton) {
+    SPIKE.loggedSkeleton = true;
+    console.info('[v10] hand-v10.glb: hand ' + rig.mesh.geometry.attributes.position.count + ' verts, sleeve ' + rig.sleeve.geometry.attributes.position.count + ' verts, ' + rig.mesh.skeleton.bones.length + ' joints (forearm > wrist > metacarpals > phalanges)');
+  }
+  // The GLB is a real hierarchy: forearm > wrist > each digit's chain, all joints in WebXR frames
+  // (-Z distal, +Y dorsal). The page places the hand directly and aims the forearm at the elbow, so the
+  // wrist is lifted out from under the forearm: the forearm bone then IS the wrist bend (its pivot is the
+  // wrist joint), and the skin weights in the GLB spread that bend over the wrist.
+  const wrist = rig.bones.wrist, forearm = rig.bones.forearm;
+  forearm.parent.attach(wrist);
+  for (const n in rig.bones) rig.rest[n] = rig.bones[n].quaternion.clone();
+
+  // place the model so the wrist joint is the origin of handPlace, scaled to px
+  const wristW = wrist.matrixWorld.clone();
+  model.matrixAutoUpdate = false;
+  model.matrix.makeScale(HAND_SCALE, HAND_SCALE, HAND_SCALE).multiply(wristW.invert());
+  handPlace.add(model);
+
+  // materials: toon skin / sleeve, each with a silhouette hull and an inner hull sharing the skeleton
+  const dress = (mesh, mat, sil, line) => {
+    addHullNormals(mesh.geometry);
+    mesh.material = mat; mesh.frustumCulled = false;
+    for (const [hm, order] of [[sil, -1], [line, 0]]) {
+      const h = new THREE.SkinnedMesh(mesh.geometry, hm);
+      h.frustumCulled = false; h.renderOrder = order;
+      h.bind(mesh.skeleton, mesh.bindMatrix);
+      mesh.parent.add(h);
+    }
+  };
+  dress(rig.mesh, matSkin, matSkinSil, matSkinLine);
+  { // the wrist line (v10): hullMask from the forearm bone's skin weight, eased so it fades in past the heel
+    const g = rig.mesh.geometry, si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
+    const fi = rig.mesh.skeleton.bones.indexOf(rig.bones.forearm), mask = new Float32Array(si.count);
+    for (let i = 0; i < si.count; i++) { let w = 0; for (let k = 0; k < 4; k++) if (si.getComponent(i, k) === fi) w += sw.getComponent(i, k); mask[i] = smooth(seg(w, .35, .8)); }
+    g.setAttribute('hullMask', new THREE.BufferAttribute(mask, 1));
+    const h = new THREE.SkinnedMesh(g, matSkinWristLine);
+    h.frustumCulled = false; h.renderOrder = 1;
+    h.bind(rig.mesh.skeleton, rig.mesh.bindMatrix);
+    rig.mesh.parent.add(h);
+  }
+  dress(rig.sleeve, matSleeve, matClothSil, matClothLine);
+
+  // which vertices belong to each digit's last segment (pad contact checks)
+  const si = rig.mesh.geometry.attributes.skinIndex, sw = rig.mesh.geometry.attributes.skinWeight;
+  const boneIdx = {}; rig.mesh.skeleton.bones.forEach((b, i) => { boneIdx[b.name] = i; });
+  for (const dname in CHAIN) {
+    const c = CHAIN[dname], distal = [boneIdx[c[c.length - 2]], boneIdx[c[c.length - 1]]];
+    const whole = c.slice(1).map((b) => boneIdx[b]);
+    const pads = [], all = [];
+    for (let i = 0; i < si.count; i++) {
+      let best = -1, bw = 0;
+      for (let k = 0; k < 4; k++) { const w = sw.getComponent(i, k); if (w > bw) { bw = w; best = si.getComponent(i, k); } }
+      if (distal.includes(best)) pads.push(i);
+      if (whole.includes(best)) all.push(i);
+    }
+    rig.digitVerts[dname] = { pads, all };
+  }
+  { // the palm: the four finger metacarpals (the anchor rests these on a face)
+    const palmBones = FINGERS.map((f) => CHAIN[f][0]).map((b) => boneIdx[b]), all = [];
+    for (let i = 0; i < si.count; i++) {
+      let best = -1, bw = 0;
+      for (let k = 0; k < 4; k++) { const w = sw.getComponent(i, k); if (w > bw) { bw = w; best = si.getComponent(i, k); } }
+      if (palmBones.includes(best)) all.push(i);
+    }
+    rig.digitVerts.palm = { pads: all, all };
+  }
+}
+
+// ---- posing
+// A pose: place = wrist position + hand direction (wrist→knuckles) + palm normal, all badge-local px;
+// fingers = [spread, mcp, pip, dip] degrees (flex > 0 curls toward the palm);
+// thumb = { cmc: [x, y, z] deg on the metacarpal, mcp: flex, ip: flex };
+// The forearm is not part of a pose: it aims at the wearer's elbow (see aimArm).
+const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _m = new THREE.Matrix4();
+const _x = new THREE.Vector3(), _y = new THREE.Vector3(), _z = new THREE.Vector3();
+function placeQuat(F, N) { // F: distal direction, N: palm normal (out of the palm)
+  _z.set(-F[0], -F[1], -F[2]).normalize();                   // +Z proximal
+  _y.set(-N[0], -N[1], -N[2]);                               // +Y back of the hand
+  _y.addScaledVector(_z, -_y.dot(_z)).normalize();
+  _x.crossVectors(_y, _z);                                   // +X little-finger side
+  return new THREE.Quaternion().setFromRotationMatrix(_m.makeBasis(_x, _y, _z));
+}
+function boneDelta(x, y, z) { return new THREE.Quaternion().setFromEuler(_e.set(x * D, y * D, z * D, 'XYZ')); }
+// a pose compiled to per-bone local quaternions
+// a key can carry the contact solver's curl for a digit (fingers[f][5], thumb.curl), applied exactly as the
+// solver applies it, so a key that is reached unsolved (the reach, a contact switching) looks solved
+function bakeCurl(q, chain, kind, c) {
+  if (!c) return;
+  for (const [i, k, ax] of CURL[kind]) q[chain[i]].multiply(new THREE.Quaternion().setFromAxisAngle(ax, c * k * D));
+}
+function compilePose(p) {
+  const q = {};
+  FINGERS.forEach((f) => {
+    const a = p.fingers[f], c = CHAIN[f];
+    q[c[0]] = boneDelta(-(a[4] || 0), 0, 0);                // metacarpal cup (ring, little)
+    q[c[1]] = boneDelta(-a[1], a[0], 0);
+    q[c[2]] = boneDelta(-a[2], 0, 0);
+    q[c[3]] = boneDelta(-a[3], 0, 0);
+    bakeCurl(q, c, 'finger', a[5] || 0);
+  });
+  const t = p.thumb, c = CHAIN.thumb;
+  q[c[0]] = boneDelta(t.cmc[0], t.cmc[1], t.cmc[2]);
+  q[c[1]] = boneDelta(-t.mcp, 0, 0);
+  q[c[2]] = boneDelta(-t.ip, 0, 0);
+  bakeCurl(q, c, 'thumb', t.curl || 0);
+  return {
+    pos: new THREE.Vector3().fromArray(p.place.p),
+    quat: placeQuat(p.place.F, p.place.N),
+    bones: q,
+    contacts: p.contacts || {},
+    anchor: p.anchor || null,
+    src: p,
+  };
+}
+
+// ==================================================================== key poses
+// badge-local px, three.js axes: x right (as seen at rest), y up, z out of the FRONT face (LCD side).
+// The card is ±115.5 × ±250 with faces at z = ±5. LCD on the front: x −91.5..66.6, y −95.5..−200.5.
+const KEY = {};
+// The grip never lets go: the hand stays on the front side of the card (palm toward it), the fingers stay
+// hooked round the +x long edge onto the back, and the thumb stays on the front face. Between the keys the
+// hand only slides and rolls, and it does that while the front faces away. (Keys from gsearch / psearch /
+// fsearch / tsearch in the v6 scratch dir; v7 re-solved them with psearch / tloc / floc / msearch / m1thumb in the v7
+// scratch dir; v8 re-solved M, M1, M2 and P with p8search / frefine / trefine / m8search / m12thumb in the v8 scratch
+// dir: every contact solved except the pinky tucked in the fist, no triangles through the card at any t.)
+// A — open hand rising into G: G's placement, fingers loose, thumb out
+KEY.A = {
+  place: { p: [72.7, -450.8, 80], F: [.342, .94, .3], N: [0, 0, -1] },
+  fingers: { index: [0, 12, 18, 8], middle: [0, 14, 20, 8], ring: [0, 18, 24, 10, 3], pinky: [0, 22, 26, 12, 6] },
+  thumb: { cmc: [10, -20, 30], mcp: 5, ip: 5 },
+};
+// G — the grab at the bottom-right corner: the fist closes on the corner from in front, the fingertips
+// hooked round the +x edge onto the back, the thumb pad pressing the front beside the bottom keys,
+// clear of the screen
+KEY.G = {
+  place: { p: [72.7, -450.8, 80], F: [.342, .94, .3], N: [0, 0, -1] },
+  fingers: { index: [-15, 60, 40, 24, 0, 36.5], middle: [5, 70, 95, 57, 0, -37.5], ring: [20, 60, 95, 57, 4, -45.6], pinky: [20, 40, 40, 24, 8] },
+  thumb: { cmc: [20, -30, 60], mcp: 25, ip: 10, curl: 58 }, contacts: { thumb: 1, index: -1, middle: -1, ring: -1, pinky: -1 },
+};
+// M — mid-slide, front facing away: all four fingers stay hooked on the +x edge (the index too, so nothing has to
+// swing round the edge later), the thumb tucked close behind the card instead of opening wide
+KEY.M = {
+  place: { p: [59.9, -400.1, 171], F: [0.3561, 0.9276, -0.1128], N: [-0.0477, -0.0569, -0.9972] },
+  fingers: { index: [-21, 25, 37.5, 49, 0, 28.3], middle: [-0.9, 56, 91, 51.1, 0, -23.5], ring: [12.6, 49.9, 92.7, 57.7, 4, -33.5], pinky: [11.7, 31.3, 45, 32.6, 8, 35] },
+  thumb: { cmc: [40.2, -17.4, -2.4], mcp: 52.7, ip: 82.4 },
+  contacts: { index: -1, middle: -1, ring: -1, pinky: -1 },
+};
+// M1 — P's hand, the thumb still behind the card but already past the -x edge, so M1 -> M2 brings it round
+// the edge instead of through the card
+KEY.M1 = {
+  place: { p: [-80, -265, 141.3], F: [0.6179, 0.7364, -0.2756], N: [-0.1772, -0.2112, -0.9613] },
+  fingers: { index: [-27, -10, 35, 74, 0, 12.1], middle: [-33, -10, 65, 15.5, 0, 53.9], ring: [-25, 8, 75, 71.5, 4, 25.9], pinky: [-27.5, -2, 62.5, 89.5, 8, 25] },
+  thumb: { cmc: [69.5, 6.7, 9.8], mcp: 65, ip: 99.5 },
+  contacts: { index: -1, middle: -1, ring: -1, pinky: -1 },
+};
+// M2 — P's hand, the thumb waiting just outside the -x edge (off both faces); P then presses it onto the face
+KEY.M2 = {
+  place: { p: [-80, -265, 141.3], F: [0.6179, 0.7364, -0.2756], N: [-0.1772, -0.2112, -0.9613] },
+  fingers: { index: [-27, -10, 35, 74, 0, 12.1], middle: [-33, -10, 65, 15.5, 0, 53.9], ring: [-25, 8, 75, 71.5, 4, 25.9], pinky: [-27.5, -2, 62.5, 89.5, 8, 25] },
+  thumb: { cmc: [69.3, 7.4, -3.1], mcp: 61.4, ip: 96.5 },
+  contacts: { index: -1, middle: -1, ring: -1, pinky: -1 },
+};
+// P — presenting: palm behind the card, the hand leaning a little toward it (the forearm recedes to the elbow
+// at the wearer's side, wrist 10° ulnar / 17° extension; v8/v9 14° / 19°). v8: v7's hand angle, moved 45 px up and 45 px across the
+// card so the index can reach; all four fingertips curl over the +x long edge onto the visible face (deep hooks:
+// the middle phalanges beside the edge, the pads on the face), index highest and a little apart, little finger
+// lowest and shortest; the thumb pad presses the visible face just inside the -x edge
+KEY.P = {
+  place: { p: [-80, -265, 141.3], F: [0.6179, 0.7364, -0.2756], N: [-0.1772, -0.2112, -0.9613] },
+  fingers: { index: [-27, -10, 35, 74, 0, 12.1], middle: [-33, -10, 65, 15.5, 0, 53.9], ring: [-25, 8, 75, 71.5, 4, 25.9], pinky: [-27.5, -2, 62.5, 89.5, 8, 25] },
+  thumb: { cmc: [36.8, 31.2, 37.5], mcp: 58, ip: 75.4, curl: -3.4 },   // v9: curl baked for the slimmer thumb (pad 1.5 px off the face)
+  contacts: { index: -1, middle: -1, ring: -1, pinky: -1, thumb: -1 },
+};
+// key schedule over the turn angle |θ| (degrees): hold the grab while the front faces you, slide and roll
+// once it faces away, settle into P
+const TURN_KEYS = [[0, 'G'], [80, 'G'], [132, 'M'], [153, 'M1'], [165, 'M2'], [175, 'P']];
+const K = {};
+
+function slerpPose(a, b, u, out) {
+  // a digit stays solved onto the card only while both ends agree on which face it is on
+  out.contacts = {};
+  out.anchor = a.anchor && b.anchor && a.anchor.digit === b.anchor.digit ? a.anchor : (u <= 0 ? a.anchor : u >= 1 ? b.anchor : null);
+  for (const d in a.contacts) if (b.contacts[d] === a.contacts[d]) out.contacts[d] = a.contacts[d];
+  if (u <= 0) Object.assign(out.contacts, a.contacts);
+  if (u >= 1) Object.assign(out.contacts, b.contacts);
+  out.pos.lerpVectors(a.pos, b.pos, u);
+  out.quat.slerpQuaternions(a.quat, b.quat, u);
+  for (const n in a.bones) (out.bones[n] || (out.bones[n] = new THREE.Quaternion())).slerpQuaternions(a.bones[n], b.bones[n], u);
+  return out;
+}
+const curPose = { contacts: {}, pos: new THREE.Vector3(), quat: new THREE.Quaternion(), bones: {} };
+function applyPose(p) {
+  handPlace.position.copy(p.pos);
+  handPlace.quaternion.copy(p.quat);
+  for (const n in p.bones) rig.bones[n].quaternion.copy(rig.rest[n]).multiply(p.bones[n]);
+}
+
+// the pose for time t: rise in A, close to G, then G → P as the card turns (driven by the turn angle)
+function poseAt(t, thDeg) {
+  if (SPIKE.force) return K[SPIKE.force];
+  const rise = HAND_IN(t), close = smooth(seg(t, .04, .125));   // the fist closes while still under the card
+  if (t < .19) {
+    slerpPose(K.A, K.G, close, curPose);
+    // offset the whole hand down and out to the right while it rises: the closed fist slides up onto the
+    // corner, the card's edge going into the gap between the thumb and the hooked fingertips
+    const r1 = 1 - rise;
+    curPose.pos.y -= 420 * Math.pow(r1, 1.1);
+    curPose.pos.x += 40 * r1;
+    if (rise < .995) curPose.contacts = {};   // solve only once the hand has arrived
+    return curPose;
+  }
+  const a = Math.abs(thDeg);
+  let i = 0; while (i < TURN_KEYS.length - 2 && a > TURN_KEYS[i + 1][0]) i++;
+  const k0 = TURN_KEYS[i], k1 = TURN_KEYS[i + 1];
+  return slerpPose(K[k0[1]], K[k1[1]], smooth(seg(a, k0[0], k1[0])), curPose);
+}
+
+
+// ==================================================================== contact solver
+// For each digit that should rest on a face, bisect a curl offset until the pad's lowest point sits
+// GAP px off that face (side +1 = front, −1 = back). Only pad vertices over the card count, so a pad
+// beside the card can't "touch" the infinite plane.
+const GAP = 1.5;
+const _inv = new THREE.Matrix4(), _p = new THREE.Vector3();
+// How a unit of curl is spread over a digit's joints: [chain index, weight, local axis]. A finger curls by
+// flexing (-X). Flexing the thumb only sweeps it across the palm, so its pad is brought down onto a face
+// by palmar abduction at the base (+Y on the metacarpal), with a little IP flex so the pad lands, not the tip.
+const _xa = new THREE.Vector3(-1, 0, 0), _ya = new THREE.Vector3(0, 1, 0);
+const CURL = {
+  finger: [[1, .2, _xa], [2, .6, _xa], [3, 1, _xa]],
+  thumb: [[0, 1, _ya], [2, .35, _xa]],
+};
+const _flex = new THREE.Quaternion();
+function setCurl(d, c, base) {
+  const chain = CHAIN[d], w = CURL[d === 'thumb' ? 'thumb' : 'finger'];
+  for (const [i, k, ax] of w) rig.bones[chain[i]].quaternion.copy(base[i]).multiply(_flex.setFromAxisAngle(ax, c * k * D));
+  rig.bones[chain[0]].updateMatrixWorld(true);
+}
+// lowest point of a digit's vertices over the card, measured off the face on `side` (whole digit, or pad only)
+function digitGap(d, side, padOnly) {
+  _inv.copy(badgeFrame.matrixWorld).invert();
+  let g = Infinity;
+  for (const i of rig.digitVerts[d][padOnly ? 'pads' : 'all']) {
+    const v = rig.mesh.getVertexPosition(i, _p).applyMatrix4(rig.mesh.matrixWorld).applyMatrix4(_inv);
+    if (Math.abs(v.x) < BW2 - 2 && Math.abs(v.y) < BH2 - 2) g = Math.min(g, side * v.z - HZ);
+  }
+  return g;
+}
+// slide the whole hand along the card normal until the anchor digit rests on its face
+function solveAnchor(anchor) {
+  for (let it = 0; it < 3; it++) {
+    const g = digitGap(anchor.digit, anchor.side, false);
+    if (!isFinite(g)) { SPIKE.solveLog.anchor = 'anchor digit not over the card'; return; }
+    handPlace.position.z += anchor.side * ((anchor.gap || GAP) - g);
+    handPlace.updateMatrixWorld(true);
+  }
+  SPIKE.solveLog.anchor = 'z ' + handPlace.position.z.toFixed(1);
+}
+// side: +1 front face, −1 back face, 'L' / 'R' the left / right edge (x = ∓BW2), as seen at rest, 'B' the bottom edge
+function padGap(d, side) {
+  _inv.copy(badgeFrame.matrixWorld).invert();
+  let g = Infinity;
+  for (const i of rig.digitVerts[d].pads) {
+    const v = rig.mesh.getVertexPosition(i, _p).applyMatrix4(rig.mesh.matrixWorld).applyMatrix4(_inv);
+    if (side === 'L' || side === 'R') {
+      if (Math.abs(v.y) < BH2 - 2 && Math.abs(v.z) < HZ + 14) g = Math.min(g, (side === 'L' ? -v.x : v.x) - BW2);
+    } else if (side === 'B') {
+      if (Math.abs(v.x) < BW2 - 2 && Math.abs(v.z) < HZ + 14) g = Math.min(g, -v.y - BH2);
+    } else if (Math.abs(v.x) < BW2 - 2 && Math.abs(v.y) < BH2 - 2) g = Math.min(g, side * v.z - HZ);
+  }
+  return g;
+}
+SPIKE.solveLog = {};
+function solveContacts(contacts) {
+  for (const d in contacts) {
+    if (d === 'palm') continue;
+    const side = contacts[d], chain = CHAIN[d], base = chain.map((n) => rig.bones[n].quaternion.clone());
+    // scan outward from the authored curl for the first step where the pad reaches the face, then bisect
+    let lo = null, hi = null;
+    const g0 = (setCurl(d, 0, base), padGap(d, side));
+    if (isFinite(g0) && Math.abs(g0 - GAP) < .25) { setCurl(d, 0, base); SPIKE.solveLog[d] = 'curl 0.0'; continue; }   // already resting on it
+    const dirn = isFinite(g0) && g0 < GAP ? -1 : 1;           // already pressing in: uncurl; else curl
+    let prev = 0, gp = g0;
+    for (let c = 5 * dirn; Math.abs(c) <= 60; c += 5 * dirn) {
+      setCurl(d, c, base); const g = padGap(d, side);
+      if (isFinite(g) && isFinite(gp) && (gp - GAP) * (g - GAP) <= 0) { lo = prev; hi = c; break; }
+      prev = c; gp = g;
+    }
+    if (lo === null) { setCurl(d, 0, base); SPIKE.solveLog[d] = 'unsolved g0=' + g0.toFixed(1); continue; }
+    for (let it = 0; it < 12; it++) {
+      const mid = (lo + hi) / 2; setCurl(d, mid, base);
+      const g = padGap(d, side);
+      if ((g > GAP) === (dirn > 0)) lo = mid; else hi = mid;
+    }
+    lo = dirn > 0 ? lo : hi;   // the side that is clear of the face
+    setCurl(d, lo, base);
+    SPIKE.solveLog[d] = 'curl ' + lo.toFixed(1);
+  }
+}
+
+// ==================================================================== render(t): DOM + both canvases, synchronously
+const badge = document.getElementById('sp-badge');
+const shades = badge.querySelectorAll('.sp-shade'), sheens = badge.querySelectorAll('.sp-sheen');
+const shA = document.getElementById('sp-shA'), shB = document.getElementById('sp-shB'), p2 = document.getElementById('sp-p2');
+const strapsS = document.getElementById('sp-strapsS'), strapsB = document.getElementById('sp-strapsB'), strapsF = document.getElementById('sp-strapsF'), near = document.getElementById('sp-near');
+const n2 = document.getElementById('sp-n2');
+const mCss = new THREE.Matrix4(), mThree = new THREE.Matrix4(), _v = new THREE.Vector3();
+// badge-local CSS point (y down) → stage px, through the same matrix and camera as everything else
+function project(p) {
+  _v.set(p[0], -p[1], p[2]).applyMatrix4(mThree);
+  const k = P / (P - _v.z);
+  return { x: CX + _v.x * k, y: CY - _v.y * k, z: _v.z, k };
+}
+const planeN = new THREE.Vector3(), planeC = new THREE.Vector3(), nearPlane = new THREE.Plane(), farPlane = new THREE.Plane();
+rUnder.clippingPlanes = [farPlane];
+rOver.clippingPlanes = [nearPlane];
+
+// pose the hand for t in the badge frame (no drawing): authored pose, then the forearm, then the contact solve.
+// THE FOREARM BELONGS TO THE WEARER'S BODY: it aims at an elbow point in world space (stage px, y up, z toward
+// the camera), below the frame and back toward the wearer's chest, so it always recedes into the body,
+// foreshortened, instead of reaching in from the edge of the frame. The elbow rises and comes forward a
+// little as the badge is lifted (the upper arm follows the hand). The wrist angles that result are measured
+// every frame. The grip, lift and final keys are authored so they stay inside a natural range there.
+// MID-TURN the hand turns 180° with the card (a forearm twist): a forearm pinned to the elbow would need extreme
+// wrist angles, so there the forearm direction blends toward the hand's own natural line (ARM_NAT: slight ulnar
+// deviation and extension), as if the elbow swings out with the turn, and back to the elbow by the end
+// (armFollow, a bump over the turn angle). A SOFT limit (deviation +-20, extension 30, flexion 35; easing in over
+// the last 30% of each range) is the safety net. SPIKE.wristAngles reports the raw and the drawn angles.
+// v8: ELBOW_UP tucked from v7's (260, -600, -200) to 15 px nearer the wearer's centreline and 40 px lower; with the
+// v8 grip that keeps raw ulnar deviation <= ~20 over the whole settle (any further in breaks it)
+// v10: ELBOW_UP moved 50 px out and 15 px down, (245, -640, -205) -> (295, -655, -205), so the forearm lines up more
+// with the hand: final 14.4° -> 10.1° ulnar, 19.3° -> 16.6° extension (peaks 17.9° / 25.3°). The forearm recedes
+// steeply, so the cuff moves only ~8 px on screen and still sits under the badge.
+const ELBOW_REST = new THREE.Vector3(0, -1100, 20), ELBOW_UP = new THREE.Vector3(295, -655, -205);
+const WRIST_LIM = { dev: [-20, 20], ext: [-35, 30] };
+const elbowW = new THREE.Vector3();
+// identity in the middle 70% of [lo, hi], then eases into the limit (C1, never exceeds it)
+function softLimit(x, lo, hi) {
+  const k = .7;
+  if (x > hi * k) return hi * k + hi * (1 - k) * Math.tanh((x - hi * k) / (hi * (1 - k)));
+  if (x < lo * k) return lo * k + lo * (1 - k) * Math.tanh((x - lo * k) / (lo * (1 - k)));
+  return x;
+}
+const _wq = new THREE.Quaternion(), _wp = new THREE.Vector3(), _ad = new THREE.Vector3(), _zAxis = new THREE.Vector3(0, 0, 1);
+const wristAngles = { dev: 0, ext: 0, rawDev: 0, rawExt: 0, clamped: false, elbowDir: [0, 0, 0] };
+// the hand's natural forearm line (wrist deviation, extension), by turn angle: slight flexion while the fist
+// grips with the back of the hand to the camera (so the forearm still recedes toward the body), easing to P's
+// extension as the palm comes round (the forearm recedes into depth, foreshortened)
+const natArm = (a) => { const u = smooth(seg(a, 90, 150)); return [lerp(10, 16, u), lerp(-8, 24, u)]; };
+const armFollow = (thDeg) => { const a = Math.abs(thDeg); return smooth(seg(a, 15, 60)) * (1 - smooth(seg(a, 155, 177))); };
+const _an = new THREE.Vector3();
+function aimArm(lift, thDeg) {
+  elbowW.lerpVectors(ELBOW_REST, ELBOW_UP, smooth(clamp01(lift)));
+  handPlace.getWorldQuaternion(_wq); handPlace.getWorldPosition(_wp);
+  _ad.copy(elbowW).sub(_wp).applyQuaternion(_wq.clone().invert());     // forearm direction in the hand frame
+  // hand frame: +Z proximal, +X little-finger side, +Y back of the hand. dev > 0 ulnar, ext > 0 extension.
+  _ad.normalize();
+  const k = armFollow(thDeg);
+  if (k > 0) { const n = natArm(Math.abs(thDeg)); _an.set(Math.tan(n[0] * D), Math.tan(n[1] * D), 1).normalize(); _ad.lerp(_an, k).normalize(); }
+  const rawDev = Math.atan2(_ad.x, _ad.z) / D, rawExt = Math.atan2(_ad.y, _ad.z) / D;
+  const dev = softLimit(rawDev, WRIST_LIM.dev[0], WRIST_LIM.dev[1]);
+  const ext = softLimit(rawExt, WRIST_LIM.ext[0], WRIST_LIM.ext[1]);
+  _ad.set(Math.tan(dev * D), Math.tan(ext * D), 1).normalize();
+  rig.bones.forearm.quaternion.copy(rig.rest.forearm).multiply(_q.setFromUnitVectors(_zAxis, _ad));
+  rig.bones.forearm.updateMatrixWorld(true);
+  Object.assign(wristAngles, { dev: +dev.toFixed(1), ext: +ext.toFixed(1), rawDev: +rawDev.toFixed(1), rawExt: +rawExt.toFixed(1),
+    clamped: Math.abs(dev - rawDev) > .5 || Math.abs(ext - rawExt) > .5 });
+  wristAngles.elbowDir = _ad.applyQuaternion(_wq).toArray().map((v) => +v.toFixed(2));
+}
+SPIKE.wristAngles = wristAngles;
+SPIKE.elbows = { rest: ELBOW_REST, up: ELBOW_UP };
+function poseHand(t, m, thDeg) {
+  badgeFrame.matrix.copy(m);
+  const pose = poseAt(t, thDeg);
+  applyPose(pose);
+  scene.updateMatrixWorld(true);
+  aimArm(clamp01(badgeState(t).tz / TZ_END), thDeg);
+  SPIKE.solveLog = {};
+  if (!SPIKE.noSolve) { if (pose.anchor) solveAnchor(pose.anchor); solveContacts(pose.contacts); }
+}
+
+function render(t) {
+  const st = badgeState(t), thDeg = st.th / D, cth = Math.cos(st.th);
+  const lift = clamp01(st.tz / TZ_END);
+  badgeMatrixCss(st, mCss);
+  cssToThree(mCss, mThree);
+  badge.style.transform = cssTransform(mCss);
+
+  const sh = f1(.5 * Math.pow(1 - Math.abs(cth), 1.3));
+  shades[0].style.opacity = sh; shades[1].style.opacity = sh;
+  const pf = clamp01(thDeg / 92), pb = clamp01((thDeg - 88) / 92);
+  sheens[0].style.opacity = '1'; sheens[1].style.opacity = '1';
+  sheens[0].style.backgroundPosition = f1(lerp(92, 8, pf)) + '% 0';
+  sheens[1].style.backgroundPosition = f1(lerp(92, 8, pb)) + '% 0';
+
+  shA.style.opacity = f1(.5 * Math.pow(1 - lift, 1.6));
+  shB.style.opacity = (.3 * smooth(seg(lift, 0, .3)) * (1 - .6 * lift)).toFixed(3);
+  const shT = 'translate(' + f1(st.tx * .3) + 'px,' + f1(st.ty * .2 + lift * 40) + 'px) scale(' + (1 + lift * .4).toFixed(3) + ')';
+  shA.style.transform = shT; shB.style.transform = shT;
+  p2.style.opacity = f1(smooth(lift));
+
+  // ---- lanyard (v9): round the neck. The strap's soft copy gets softer as the person goes out of focus.
+  const clipP = project([0, -BH2 - 13, 0]), k = clipP.k, slack = smooth(seg(lift, .04, .75));
+  const clip = { x: clipP.x, y: clipP.y - 6 * k };
+  const runs = WRAP.map((q) => strapRuns(q, clip, k, lift));
+  const soft = lerp(4, 6.5, smooth(lift));
+  strapsB.innerHTML = strapLayerSVG('sb', runs, 'all', clip, k, soft);
+  strapsF.innerHTML = strapLayerSVG('sf', runs, 'front', clip, k, soft);
+  const sv = '<path d="' + strapPaths(runs, 'front', 1) + '" fill="#1d2a24"/><path d="' + strapPaths(runs, 'front', 7 / STRAP_W) + '" fill="#2c4036" opacity=".8"/>';
+  n2.style.opacity = p2.style.opacity;
+  const restRuns = WRAP.map((q) => strapRuns(q, clip, k, 0));
+  strapsS.innerHTML = strapShadowSVG(runs, restRuns, lift);
+  strapsS.style.opacity = (.15 + .5 * smooth(seg(lift, .05, .6))).toFixed(3);
+  const cw = Math.max(.3, Math.abs(cth));
+  // the strap's ends at the clip, over the hand's far-side canvas: only near the clip (v9: radial, since the straps
+  // now leave the clip sideways as well as upward)
+  near.innerHTML = '<defs><radialGradient id="sp-nearg" gradientUnits="userSpaceOnUse" cx="' + f1(clipP.x) + '" cy="' + f1(clipP.y) + '" r="' + f1(110 * k) + '"><stop offset=".3" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>' +
+    '<mask id="sp-nearm" maskUnits="userSpaceOnUse" x="0" y="-200" width="1280" height="1100"><rect x="0" y="-200" width="1280" height="1100" fill="url(#sp-nearg)"/></mask></defs>' +
+    '<g mask="url(#sp-nearm)" opacity="' + f1(slack) + '">' + sv + '</g>' +
+    '<g transform="translate(' + f1(clipP.x) + ' ' + f1(clipP.y) + ') rotate(' + f1(st.roll / D) + ') scale(' + f1(k * cw) + ' ' + f1(k) + ')">' +
+    '<rect x="-21" y="-16" width="42" height="26" rx="5" fill="#9aa1a9"/><rect x="-21" y="-16" width="42" height="12" rx="5" fill="#c9cfd5"/>' +
+    '<rect x="-9" y="-10" width="18" height="6" rx="3" fill="#5e656d"/><rect x="-6" y="8" width="12" height="16" rx="2" fill="#7c838b"/></g>';
+
+  // ---- hand
+  poseHand(t, mThree, thDeg);
+  // the badge plane in world space; "near" is whichever side the camera is on
+  planeN.set(0, 0, 1).transformDirection(mThree);
+  planeC.setFromMatrixPosition(mThree);
+  const side = planeN.dot(_v.copy(camera.position).sub(planeC)) >= 0 ? 1 : -1;
+  nearPlane.setFromNormalAndCoplanarPoint(_v.copy(planeN).multiplyScalar(side), planeC);
+  farPlane.copy(nearPlane).negate();
+  rUnder.render(scene, camera);
+  rOver.render(scene, camera);
+
+  // the hand's soft shadow on the card: the near-side render, blacked out, offset, clipped to the card face
+  const pr = rOver.getPixelRatio();
+  shCtx.setTransform(1, 0, 0, 1, 0, 0);
+  shCtx.clearRect(0, 0, cvShadow.width, cvShadow.height);
+  shCtx.filter = 'brightness(0) blur(' + (5 * pr).toFixed(1) + 'px)';
+  shCtx.drawImage(cvOver, 6 * pr * st.k0, 12 * pr * st.k0);
+  shCtx.filter = 'none';
+  const cs = [[-BW2, -BH2], [BW2, -BH2], [BW2, BH2], [-BW2, BH2]].map((c) => { const q = project([c[0], c[1], cth >= 0 ? HZ : -HZ]); return f1(q.x) + 'px ' + f1(q.y) + 'px'; });
+  cvShadow.style.clipPath = 'polygon(' + cs.join(',') + ')';
+  SPIKE.t = t;
+}
+
+// ==================================================================== checks (dev aid): contacts and penetration in badge-local px
+function localVerts(list) {
+  _inv.copy(badgeFrame.matrixWorld).invert();
+  return list.map((i) => rig.mesh.getVertexPosition(i, _p).applyMatrix4(rig.mesh.matrixWorld).applyMatrix4(_inv).toArray());
+}
+// exact pass-through test: mesh triangles whose edges cross the card's mid-plane inside its outline
+// (low-poly triangles can span the 10px slab without a vertex inside it). Counted per digit / palm.
+function crossings(margin) {
+  const g = rig.mesh.geometry, idx = g.index, n = g.attributes.position.count, P3 = new Float32Array(n * 3);
+  _inv.copy(badgeFrame.matrixWorld).invert();
+  for (let i = 0; i < n; i++) { rig.mesh.getVertexPosition(i, _p).applyMatrix4(rig.mesh.matrixWorld).applyMatrix4(_inv); P3[i * 3] = _p.x; P3[i * 3 + 1] = _p.y; P3[i * 3 + 2] = _p.z; }
+  if (!rig.vertDigit) {
+    rig.vertDigit = new Array(n).fill('palm');
+    for (const d in rig.digitVerts) if (d !== 'palm') for (const i of rig.digitVerts[d].all) rig.vertDigit[i] = d;
+  }
+  const out = {}, m = margin || 0;
+  const hit = (a, b) => {
+    const za = P3[a * 3 + 2], zb = P3[b * 3 + 2];
+    if ((za > 0) === (zb > 0)) return false;
+    const u = za / (za - zb), x = P3[a * 3] + (P3[b * 3] - P3[a * 3]) * u, y = P3[a * 3 + 1] + (P3[b * 3 + 1] - P3[a * 3 + 1]) * u;
+    return Math.abs(x) < BW2 + m && Math.abs(y) < BH2 + m;
+  };
+  for (let k = 0; k < idx.count; k += 3) {
+    const a = idx.getX(k), b = idx.getX(k + 1), c = idx.getX(k + 2);
+    if (hit(a, b) || hit(b, c) || hit(c, a)) { const d = rig.vertDigit[a]; out[d] = (out[d] || 0) + 1; }
+  }
+  return out;
+}
+SPIKE.crossings = crossings;
+// dev aid: skin vertices in front of the LCD (front side, inside its rectangle), the grip must leave it clear
+SPIKE.lcdCover = () => {
+  _inv.copy(badgeFrame.matrixWorld).invert();
+  let n = 0;
+  const pos = rig.mesh.geometry.attributes.position;
+  for (let i = 0; i < pos.count; i += 3) {
+    const v = rig.mesh.getVertexPosition(i, _p).applyMatrix4(rig.mesh.matrixWorld).applyMatrix4(_inv);
+    if (v.z > HZ && v.x > -91.5 && v.x < 66.6 && v.y > -200.5 && v.y < -95.5) n++;
+  }
+  return n;
+};
+SPIKE.check = (t, draw) => {
+  if (draw === false) { const st = badgeState(t); badgeMatrixCss(st, mCss); cssToThree(mCss, mThree); poseHand(t, mThree, st.th / D); }
+  else render(t);
+  const inCard = (v) => Math.abs(v[0]) < BW2 && Math.abs(v[1]) < BH2;
+  const res = { t: +t.toFixed(3), th: +TH(t).toFixed(1), solve: SPIKE.solveLog, cross: crossings(), digits: {} };
+  for (const d in rig.digitVerts) {
+    const all = localVerts(rig.digitVerts[d].all), pads = localVerts(rig.digitVerts[d].pads);
+    const inside = all.filter((v) => inCard(v) && Math.abs(v[2]) < HZ).length;   // inside the slab = passing through
+    const padIn = pads.filter(inCard);
+    const gapF = padIn.length ? Math.min(...padIn.map((v) => v[2] - HZ)) : null;  // pad over the front face
+    const gapB = padIn.length ? Math.min(...padIn.map((v) => -v[2] - HZ)) : null; // pad over the back face
+    const tip = pads.reduce((a, v) => a.map((x, i) => x + v[i] / pads.length), [0, 0, 0]).map((x) => Math.round(x));
+    res.digits[d] = { through: inside, padOverCard: padIn.length + '/' + pads.length, gapFront: gapF && +gapF.toFixed(1), gapBack: gapB && +gapB.toFixed(1), padCentre: tip };
+  }
+  return res;
+};
+SPIKE.setDebug = (on) => { debugOutline.visible = !!on; render(SPIKE.t || 0); };
+SPIKE.render = render;
+SPIKE.tOfTh = (th) => { let lo = .21, hi = .655; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (TH(m) < th) lo = m; else hi = m; } return lo; };
+SPIKE.rig = rig;
+SPIKE.three = { THREE, scene, badgeFrame, handPlace, camera };   // dev probes (side views)
+SPIKE.xray = (on) => { badge.style.opacity = on ? '.35' : ''; };
+SPIKE.boneLocal = (name) => { _inv.copy(badgeFrame.matrixWorld).invert(); return rig.bones[name].getWorldPosition(new THREE.Vector3()).applyMatrix4(_inv).toArray().map(Math.round); };
+SPIKE.K = K; SPIKE.KEY = KEY; SPIKE.compile = () => { for (const k in KEY) K[k] = compilePose(KEY[k]); };
+SPIKE.poseOnly = (t) => { const st = badgeState(t); badgeMatrixCss(st, mCss); cssToThree(mCss, mThree); poseHand(t, mThree, st.th / D); };
+
+// ==================================================================== playback
+let t = 0, dir = 0, last = 0;
+const slider = document.getElementById('sp-t'), speedSel = document.getElementById('sp-speed');
+function frame(now) {
+  if (!dir) return;
+  const dt = (now - last) / (DUR / parseFloat(speedSel.value));
+  last = now;
+  t = clamp01(t + dir * dt);
+  slider.value = String(Math.round(t * 1000));
+  render(t);
+  if ((dir > 0 && t >= 1) || (dir < 0 && t <= 0)) { dir = 0; return; }
+  requestAnimationFrame(frame);
+}
+function go(d) { const was = dir; dir = d; last = performance.now(); if (!was) requestAnimationFrame(frame); }
+
+const stage = document.getElementById('sp-stage'), fr = document.getElementById('sp-frame');
+function fit() {
+  const sc = fr.clientWidth / W;
+  stage.style.transform = 'scale(' + sc + ')';
+  const pr = sc * (window.devicePixelRatio || 1);
+  for (const r of [rUnder, rOver]) { r.setPixelRatio(pr); r.setSize(W, H, false); }
+  cvShadow.width = Math.round(W * pr); cvShadow.height = Math.round(H * pr);
+  outlineUniforms.uRes.value.set(W * pr, H * pr);
+  outlineUniforms.uPr.value = pr;
+  if (window.__ready) render(t);
+}
+
+try {
+  await loadHand();
+  for (const k in KEY) K[k] = compilePose(KEY[k]);
+  fit();
+  window.addEventListener('resize', fit);
+  document.getElementById('sp-play').addEventListener('click', () => go(1));
+  document.getElementById('sp-rev').addEventListener('click', () => go(-1));
+  slider.addEventListener('input', () => { dir = 0; t = slider.value / 1000; render(t); });
+  render(0);
+  document.getElementById('sp-play').disabled = false;
+  document.getElementById('sp-rev').disabled = false;
+  window.__ready = true;
+} catch (e) {
+  console.error(e);
+  document.getElementById('sp-notes').insertAdjacentHTML('afterbegin', '<p class="sp-err">The hand model failed to load: ' + e.message + '</p>');
+}
+</script>

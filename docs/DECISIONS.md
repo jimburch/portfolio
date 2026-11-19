@@ -88,3 +88,42 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   control. Power off lives in the break it / RESET app.
 - **Projects read like build logs** with photos: what he wanted, how he built
   it, what broke, how it turned out.
+
+## 2026-11-18 (after first phone review)
+
+- **No printed controls on the board.** The A/B buttons, SELECT/START and the
+  D-pad are gone; the black case keys around the screen already do that job
+  (▲ ▼ on the side, ◀ A ▶ along the bottom, with small printed labels). The
+  freed-up board area is reserved for something to be decided later.
+- **Back is an on-screen BACK row.** With no B key on the badge, every screen
+  app shows a BACK item on the LCD. Keyboard B (X / Esc) still works.
+  SELECT, START and the Konami code are keyboard-only.
+- **Stronger reflections when the badge tilts.** The light, sheen, metal
+  highlights and glass glare respond more noticeably to tilt. Parts still don't
+  move or float.
+- **Haptic tick on every badge press.** A pointer press on any front control
+  (case keys, RESET, RESUME, LCD rows) gives a short haptic: `vibrate` on
+  Android, the hidden `switch` toggle on iOS 18+ Safari. Keyboard presses and
+  reduced motion get none.
+- **Testing real tilt on a phone:** a private Tailscale https link
+  (`tailscale serve`, tailnet-only, port 8443, since Docker holds 443 locally).
+- **Desktop scene: the badge, worn (direction A).** On desktop, the badge hangs
+  on a lanyard on a person's chest. The person is a flat, vector illustration
+  (not a photo) that's heavily out of focus (warm, depth-of-field blur), so
+  the crisp badge is front and center.
+  Phones are unchanged: the phone is the badge. The mockup didn't yet read as
+  "worn"; that needs a tight chest crop, a lanyard that disappears under the
+  collar, and a contact shadow.
+- **Desktop flip: the wearer's hand turns the badge (MVP motion locked at
+  spike v10, 2026-11-19).** One hand reaches up, grips the badge like a phone
+  (four fingertips over the left edge, thumb on the face), turns it 180° and
+  holds it up toward the camera to show the back; reverse returns it. Built as
+  a toon-shaded, rigged 3D hand (three.js, WebXR generic-hand asset, MIT) over
+  the DOM badge, with both driven by one transform per frame. Reference:
+  `docs/reference/hand-turn-spike/` (spike page, hand model, Blender build,
+  round-by-round report). Known MVP
+  leftovers: the index fingertip reads as a knob, a soft bend on the wrist's
+  little-finger side, and testing so far in headless Chromium only. Phones keep
+  the plain flip; reduced motion on desktop fades into the held view. Design:
+  `docs/superpowers/specs/2026-11-19-desktop-hand-turn-design.md`. Background research:
+  `docs/research/2026-11-18-hand-grab-animation.md`.
