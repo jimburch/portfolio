@@ -47,3 +47,17 @@ part lanyard ID card, part tiny programmable gadget with a screen and buttons.
   gestures (keyboard, screen readers, `prefers-reduced-motion`).
 - Don't push, deploy, or change DNS without Jim's OK. Domains are managed
   in Cloudflare.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `jimburch/portfolio` (public), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five defaults: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context. Until a `GLOSSARY.md` or `docs/adr/` exists, decisions live in `docs/DECISIONS.md` and context in `docs/CONTEXT.md`. See `docs/agents/domain.md`.
