@@ -539,6 +539,202 @@
   }
 }
 
+/* ---- Held close-up: read through the held badge's window ----------------
+   On a qualifying desktop a back page follows a held view (HeldView.astro,
+   held-view.css), which frames the badge and covers everything but its
+   window. The same markup is laid out for it here: a column the window's
+   width, in the page's flow, so the page's own scroll moves it under the
+   window (wheel, trackpad and keys, no script). Framing tokens: held-view.css.
+
+   - The pinned strip: JIM BURCH, then HOME and the page links. Sticky, above
+     the board, where the board shows between the slot and the window.
+   - Today's header (vCard QR, role, credits) at the top of the content, the
+     footer at its end.
+   - Extra room on the sides and at the bottom, so nothing that matters rests
+     under the hand's fingers or thumb.
+
+   The header's wrappers give way (display: contents) so its parts can sit in
+   the strip or the content; the reading order is unchanged. */
+
+@media (--worn-desktop) {
+  .held-view ~ .back-face {
+    --gutter: 0px;
+    /* Clear of the hand, from the window's edges. */
+    --clear-left: calc(var(--held-finger-left) - var(--held-rim));
+    --clear-right: calc(var(--held-thumb-right) - var(--held-rim));
+    --label-inset: calc(5 * var(--held-u));
+
+    display: grid;
+    grid-template-columns: [full-start] minmax(0, 1fr) [home] auto [nav] auto minmax(0, 1fr) [full-end];
+    grid-template-rows:
+      [name] var(--held-strip-row) [links] var(--held-strip-row) [qr] auto [role] auto
+      [credits] auto [main] 1fr [footer] auto [end];
+    justify-items: center;
+    width: var(--held-window-w);
+    min-height: 100dvh;
+    margin: 0 auto;
+    padding: var(--held-strip-top) 0 calc(100dvh - var(--held-window-bottom) + var(--held-hand-bottom));
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .held-view ~ .back-face :is(.back-header, .back-topline, .back-id) {
+    display: contents;
+  }
+
+  /* The board's edge traces belong to the badge's edges; the window is inside them. */
+  .held-view ~ .back-face::before,
+  .held-view ~ .back-face::after {
+    content: none;
+  }
+
+  /* The lanyard slot is drawn on the held badge's board, under the clip. */
+  .held-view ~ .back-face .back-slot {
+    display: none;
+  }
+
+  /* -- The pinned strip -- */
+
+  .held-view ~ .back-face :is(.back-name, .back-home, .back-nav) {
+    position: sticky;
+    z-index: var(--held-z-strip);
+    display: flex;
+    align-items: center;
+    height: var(--held-strip-row);
+  }
+
+  .held-view ~ .back-face .back-name {
+    grid-row: name / end;
+    grid-column: full-start / full-end;
+    top: var(--held-strip-top);
+    align-self: start;
+    font-size: calc(1.55 * var(--held-strip-type));
+  }
+
+  .held-view ~ .back-face :is(.back-home, .back-nav) {
+    grid-row: links / end;
+    top: calc(var(--held-strip-top) + var(--held-strip-row));
+    align-self: start;
+  }
+
+  .held-view ~ .back-face .back-home {
+    grid-column: home;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .held-view ~ .back-face .back-nav {
+    grid-column: nav;
+  }
+
+  .held-view ~ .back-face .back-switch {
+    display: none;
+  }
+
+  .held-view ~ .back-face .back-nav ul {
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+
+  .held-view ~ .back-face .back-nav li {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  /* HOME and the page links read as one line of silkscreen: HOME · PROJECTS · … */
+  .held-view ~ .back-face .back-nav li::before {
+    content: '·' / '';
+    padding-inline: 0.22em;
+    color: var(--ink);
+    font: 700 var(--held-strip-type) / 1 var(--mono);
+  }
+
+  .held-view ~ .back-face :is(.back-home .back-silk, .back-nav .back-pad) {
+    font: 700 var(--held-strip-type) / 1 var(--mono);
+    letter-spacing: 0.05em;
+  }
+
+  .held-view ~ .back-face .back-nav .back-pad {
+    min-height: 24px;
+    padding: 0 0 0 0.1em;
+    border-radius: 2px;
+    background: none;
+    box-shadow: none;
+    color: var(--ink);
+  }
+
+  .held-view ~ .back-face .back-home {
+    min-height: 24px;
+  }
+
+  /* The page you're on is underlined, like a selected tab. */
+  .held-view ~ .back-face .back-nav .back-pad[aria-current] {
+    text-decoration: underline 1.5px;
+    text-underline-offset: 0.35em;
+  }
+
+  /* -- The content: the header's details, the label, the footer -- */
+
+  /* Everything that scrolls is centred in the part of the window clear of the hand. */
+  .held-view ~ .back-face :is(.back-qr, .back-role, .back-credits) {
+    grid-column: full-start / full-end;
+    justify-self: center;
+    margin-inline: var(--clear-left) var(--clear-right);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .held-view ~ .back-face .back-role {
+    line-height: 1.5;
+  }
+
+  .held-view ~ .back-face .back-qr {
+    grid-row: qr;
+    margin-top: 18px;
+  }
+
+  .held-view ~ .back-face .back-role {
+    grid-row: role;
+    margin-top: 14px;
+  }
+
+  .held-view ~ .back-face .back-credits {
+    grid-row: credits;
+    margin-top: 10px;
+  }
+
+  .held-view ~ .back-face #back-main {
+    grid-row: main;
+    grid-column: full-start / full-end;
+    justify-self: stretch;
+    width: auto;
+    max-width: none;
+    margin: 20px var(--label-inset) 22px;
+    padding: 22px max(14px, var(--clear-right) - var(--label-inset)) 26px
+      max(14px, var(--clear-left) - var(--label-inset));
+    font-size: 1rem;
+  }
+
+  .held-view ~ .back-face #back-main h1 {
+    font-size: 1.5rem;
+  }
+
+  .held-view ~ .back-face #back-main h2 {
+    font-size: 1.15rem;
+  }
+
+  .held-view ~ .back-face .back-footer {
+    grid-row: footer;
+    grid-column: full-start / full-end;
+    justify-self: stretch;
+  }
+
+  .held-view ~ .back-face :is(.back-pads, .back-colophon) {
+    padding-inline: var(--clear-left) var(--clear-right);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .back-pad,
   .back-switch span {

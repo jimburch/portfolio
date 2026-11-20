@@ -3,6 +3,7 @@ import '../styles/badge-back.css';
 import Base from './Base.astro';
 import BackHeader from '../components/back/BackHeader.astro';
 import BackFooter from '../components/back/BackFooter.astro';
+import HeldView from '../components/scene/HeldView.astro';
 import { SITE } from '../data/site';
 
 interface Props {
@@ -16,6 +17,9 @@ const { title, heading } = Astro.props;
 ---
 
 <Base title={`${title} · ${SITE.name}`}>
+  <!-- On a qualifying desktop the badge is held up in the worn scene, and the
+       back face below is read through its window. Hidden everywhere else. -->
+  <HeldView />
   <!-- The flip (front → back) lifts exactly this element into the front page,
        so everything visible on a back page lives inside it. -->
   <div data-back-face class="back-face">

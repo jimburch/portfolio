@@ -1,0 +1,190 @@
+/* The held close-up (components/scene/HeldView.astro): the worn scene with
+   the camera pushed in, and the badge turned and held up in front of it. Only
+   on a qualifying desktop (`--worn-desktop`, scene/gate.ts); elsewhere it is
+   display: none and none of the scene's art is fetched.
+
+   The back page's content stays in the document's flow and scrolls with the
+   page's own scroll, laid out under the badge's window (badge-back.css,
+   "Held close-up"). These fixed layers cover everything but the window, so
+   the content shows only through it. Nothing here is transformed, so the
+   content is laid out at its real on-screen size and its text stays crisp. */
+
+.held-view {
+  display: none;
+}
+
+@media (--worn-desktop) {
+  /* ---- Framing tokens (shared with badge-back.css) ----------------------- */
+
+  :root {
+    /* The held badge is the resting badge (worn-scene.css) with the camera
+       pushed in by --held-zoom: about 91% of the window tall. Its top sits
+       38 units below the window's top, room for the lanyard's clip. */
+    --held-badge-h: calc(var(--worn-badge-h) * var(--held-zoom));
+    --held-u: calc(var(--held-badge-h) / 500);
+    --held-badge-w: calc(var(--held-badge-h) * 390 / 844);
+    --held-badge-top: calc(38 * var(--held-u));
+
+    /* The camera that frames it: zoom about the resting badge's centre, then
+       move that centre to the held badge's. The scene's depth of field blurs
+       a little more than at rest (stage units, before the zoom). */
+    --held-camera: translateY(
+        calc(var(--held-badge-top) + 250 * var(--held-u) - var(--worn-badge-top) - 250 * var(--worn-u))
+      )
+      scale(var(--held-zoom));
+    --held-blur: 4;
+
+    /* The board around the window: a rim on the sides and the bottom, and at
+       the top the lanyard slot above the pinned strip. */
+    --held-rim: calc(9 * var(--held-u));
+    --held-head: calc(34 * var(--held-u));
+    /* The pinned strip: JIM BURCH on one row, HOME and the page links below,
+       then a little board before the window. The strip's type follows the
+       window's width (the links' row is about 24em long and keeps a margin
+       either side), from 0.58rem on a small badge to 0.9rem on a big one;
+       its rows follow the type. */
+    --held-strip-type: clamp(0.58rem, var(--held-window-w) / 26.5, 0.9rem);
+    --held-strip-row: calc(2.6 * var(--held-strip-type));
+    --held-strip-h: calc(2 * var(--held-strip-row) + 0.5rem);
+    --held-strip-top: calc(var(--held-badge-top) + var(--held-head));
+
+    /* The window the back is read through, in viewport coordinates (top and
+       bottom from the viewport's top edge). Its corner radius must match the
+       rx of the mask in .held-view__badge. */
+    --held-window-top: calc(var(--held-strip-top) + var(--held-strip-h));
+    --held-window-bottom: calc(var(--held-badge-top) + var(--held-badge-h) - var(--held-rim));
+    --held-window-w: calc(var(--held-badge-w) - 2 * var(--held-rim));
+    --held-window-r: 12px;
+
+    /* Where the hand rests on the held badge (spike v10's final grip, in
+       units of this badge): the four fingertips reach 21% of its width in
+       over the left edge, the thumb 10% over the right, the lowest fingertip
+       to 93% of its height. The back keeps what matters clear of them. */
+    --held-finger-left: calc(51 * var(--held-u));
+    --held-thumb-right: calc(25 * var(--held-u));
+    --held-hand-bottom: calc(30 * var(--held-u));
+
+    /* Layers over the back content, back to front. */
+    --held-z-surround: 1;
+    --held-z-badge: 2;
+    --held-z-strip: 3;
+    --held-z-hand-front: 4;
+  }
+
+  /* Keyboard focus and in-page links bring things into the window, not
+     under the strip or behind the scene. */
+  :root:has(> body > .held-view) {
+    scroll-padding-top: calc(var(--held-window-top) + 8px);
+    scroll-padding-bottom: calc(100dvh - var(--held-window-bottom) + var(--held-hand-bottom));
+  }
+
+  .held-view {
+    display: block;
+  }
+
+  /* ---- Surround: the scene around the window ----------------------------- */
+
+  /* Everything but the window. It hides the back content scrolled out of the
+     window, and catches the clicks on it, so nothing hidden is clickable.
+     The page still scrolls with the wheel over it. */
+  .held-view__surround {
+    --window-l: calc(50% - var(--held-window-w) / 2);
+    --window-r: calc(50% + var(--held-window-w) / 2);
+
+    position: fixed;
+    inset: 0;
+    z-index: var(--held-z-surround);
+    clip-path: polygon(
+      evenodd,
+      0 0,
+      100% 0,
+      100% 100%,
+      0 100%,
+      0 0,
+      var(--window-l) var(--held-window-top),
+      var(--window-l) var(--held-window-bottom),
+      var(--window-r) var(--held-window-bottom),
+      var(--window-r) var(--held-window-top),
+      var(--window-l) var(--held-window-top)
+    );
+  }
+
+  /* The camera pushes in on the scene; the badge has left the chest, so it
+     no longer rests on its contact shadow. */
+  .held-view .worn-scene {
+    --scene-camera: var(--held-camera);
+    --scene-blur: var(--held-blur);
+  }
+
+  .held-view .worn-scene__contact-shadow {
+    display: none;
+  }
+
+  /* The held badge's own shadow, on the scene behind it. */
+  .held-view__surround::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: var(--held-badge-top);
+    width: var(--held-badge-w);
+    height: var(--held-badge-h);
+    margin-left: calc(var(--held-badge-w) / -2);
+    border-radius: calc(var(--held-badge-w) * 0.045);
+    box-shadow: 0 calc(10 * var(--held-u)) calc(28 * var(--held-u)) rgb(0 0 0 / 0.45);
+  }
+
+  /* ---- The badge: the board around the window ---------------------------- */
+
+  .held-view__badge {
+    position: fixed;
+    left: 50%;
+    top: var(--held-badge-top);
+    z-index: var(--held-z-badge);
+    width: var(--held-badge-w);
+    height: var(--held-badge-h);
+    margin-left: calc(var(--held-badge-w) / -2);
+    border-bottom: calc(2 * var(--held-u)) solid var(--board-edge);
+    border-radius: calc(var(--held-badge-w) * 0.045);
+    pointer-events: none;
+    background:
+      radial-gradient(var(--board-dot) 1.2px, transparent 1.5px) 0 0 / 8px 8px,
+      var(--board);
+    /* The window: a rounded hole the size of the window (rx = --held-window-r). */
+    --window-hole: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' rx='12'/%3E%3C/svg%3E")
+      var(--held-rim) calc(var(--held-head) + var(--held-strip-h)) / var(--held-window-w)
+      calc(var(--held-window-bottom) - var(--held-window-top)) no-repeat;
+    -webkit-mask: linear-gradient(#000 0 0), var(--window-hole);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) exclude, var(--window-hole);
+  }
+
+  /* The lanyard slot, through the board under the clip. */
+  .held-view__badge::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: calc(14 * var(--held-u));
+    width: calc(64 * var(--held-u));
+    height: calc(10 * var(--held-u));
+    margin-left: calc(-32 * var(--held-u));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--board-edge) 72%, black);
+    box-shadow: inset 0 2px 0 color-mix(in srgb, var(--board-edge) 45%, black);
+  }
+
+  /* The window's edge: a fine lip, and a little shade where the board stands over it. */
+  .held-view__window {
+    position: fixed;
+    left: 50%;
+    top: var(--held-window-top);
+    z-index: var(--held-z-badge);
+    width: var(--held-window-w);
+    height: calc(var(--held-window-bottom) - var(--held-window-top));
+    margin-left: calc(var(--held-window-w) / -2);
+    border-radius: var(--held-window-r);
+    pointer-events: none;
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--board-edge) 70%, black),
+      inset 0 calc(2 * var(--held-u)) calc(5 * var(--held-u)) rgb(0 0 0 / 0.35);
+  }
+}

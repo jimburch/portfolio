@@ -24,9 +24,14 @@
   /* Framing at rest, shared with the badge (badge-front.css): the badge is
      77% of the window tall (unless the window is too narrow for that), and
      its top sits 126 units below the window's top edge, so the collar and
-     the lanyard's turn round the neck sit at the top edge. */
+     the lanyard's turn round the neck sit at the top edge.
+
+     The held close-up (held-view.css) is this framing with the camera pushed
+     in by `--held-zoom`, so the badge is about 91% of the window tall there. The
+     width cap leaves room for that: the held badge still fits a narrow window. */
   :root {
-    --worn-badge-h: min(77dvh, (100vw - 64px) * 844 / 390);
+    --held-zoom: 1.18;
+    --worn-badge-h: min(77dvh, (100vw - 64px) * 844 / 390 / var(--held-zoom));
     --worn-u: calc(var(--worn-badge-h) / 500);
     --worn-badge-top: calc(126 * var(--worn-u));
   }

@@ -1,0 +1,32 @@
+---
+/* The held close-up: the worn scene with the camera pushed in, and the badge
+   turned and held up, nearly filling the window. A back page's content is read
+   through the badge's window and scrolls with the page's own scroll; these
+   fixed layers sit over it and hide whatever has scrolled out of the window.
+
+   Only on a qualifying desktop (scene/gate.ts); elsewhere it is display: none,
+   so phones, touch screens and short windows keep today's back page. CSS and
+   markup only: back pages ship no scripts.
+
+   Layers, back to front (z-index tokens in held-view.css):
+     the back content (in the page's flow)
+     < surround: the scene (and the hand behind the badge) around the window
+     < badge: the board around the window, and the window's edge
+     < the pinned strip (part of the back content, badge-back.css)
+     < the hand in front of the badge
+   The badge's content follows this element (`.held-view ~ .back-face`). */
+import '../../styles/held-view.css';
+import WornScene from './WornScene.astro';
+---
+
+<div class="held-view">
+  <!-- Not purely decorative: it hides the content scrolled out of the window
+       and takes the clicks meant for what it hides. Never focusable. -->
+  <div class="held-view__surround" aria-hidden="true">
+    <WornScene />
+    <!-- The hand behind the badge (static art) goes here, above the scene. -->
+  </div>
+  <div class="held-view__badge" aria-hidden="true"></div>
+  <div class="held-view__window" aria-hidden="true"></div>
+  <!-- The hand in front of the badge (static art) goes here, last. -->
+</div>
