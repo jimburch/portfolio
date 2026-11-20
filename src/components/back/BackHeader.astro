@@ -3,7 +3,12 @@ import { BACK_ROUTES, SITE } from '../../data/site';
 import { CONTACT } from '../../data/contact';
 import ContactQr from './ContactQr.astro';
 
-/** Top of the back: HOME switch, lanyard slot, contact QR, ID block, page pads. */
+/**
+ * Top of the back: HOME switch, lanyard slot, contact QR, ID block, page pads.
+ * Links to other back pages carry `data-flip`: once the flip has lifted this
+ * face onto the front page, the badge swaps them in place (flip/flipper.ts);
+ * on a back page's own load they are ordinary links.
+ */
 const here = Astro.url.pathname.replace(/\/$/, '') || '/';
 const current = (route: string) =>
   here === route ? 'page' : here.startsWith(`${route}/`) ? 'true' : undefined;
@@ -36,7 +41,7 @@ const current = (route: string) =>
       {
         BACK_ROUTES.map(({ title, route }) => (
           <li>
-            <a class="back-pad" href={route} aria-current={current(route)}>
+            <a class="back-pad" href={route} aria-current={current(route)} data-flip>
               {title}
             </a>
           </li>

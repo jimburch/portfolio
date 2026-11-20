@@ -1,8 +1,10 @@
 /* The CSS 3D turn: both faces back to back while the badge rotates 180° and
    grows or shrinks between the two sides' on-screen boxes (FLIP), e.g. from
    the phone-sized badge to the reading column on desktop. Styles live under
-   "The flip" in badge-front.css. */
+   "The flip" in badge-front.css. From one back page to another the badge
+   doesn't turn: the page crossfades in place (back-swap.ts). */
 
+import { crossfadeBack } from './back-swap';
 import { oppositeSide, type BadgeFaces, type Side } from './faces';
 import type { RunningTurn, TurnPresentation } from './presentation';
 
@@ -89,5 +91,5 @@ export function createCssTurn(faces: BadgeFaces): TurnPresentation {
     };
   }
 
-  return { run };
+  return { run, swapBack: (content) => crossfadeBack(faces, content) };
 }

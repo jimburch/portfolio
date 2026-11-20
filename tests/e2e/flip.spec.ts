@@ -62,7 +62,8 @@ test('a second flip before landing still leaves HOME pointing at the front', asy
   await expect.poll(() => new URL(page.url()).pathname).toMatch(/^\/projects\/?$/);
   await expect(page.locator('#back-slot [data-back-face] h1')).toHaveText(/Projects/);
   await expect(page.locator('#badge')).not.toHaveAttribute('data-flipping');
-  await page.locator('#back-slot a[data-home]').click();
+  // The page it shows (the one it swapped from may still be fading out).
+  await page.locator('#back-slot [data-back-face] a[data-home]').click();
   await expect.poll(() => new URL(page.url()).pathname).toBe('/');
   await expect(page.locator('#badge')).toHaveAttribute('data-side', 'front');
   await page.goBack();

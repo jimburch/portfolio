@@ -154,3 +154,15 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   motion. Reduced motion keeps the existing fade, which lands in the held
   close-up as a unit. Phones, touch screens and short windows keep the CSS
   turn.
+- **Swapping back pages in place (#31).** Once a back page shows in session,
+  its links to other back pages (the strip's page links, project cards, "All
+  projects", marked `data-flip` in the markup) swap the page in place with a
+  200 ms crossfade instead of turning by way of the front: the old page stays
+  pinned where it was showing and fades out over the new one, which starts at
+  its top. A swap replaces the history entry (like a second flip before the
+  first lands), so one Back or HOME always returns to the front; focus moves
+  to the new h1. Held on a desktop, the badge stays held and the hand stays
+  put. It is shared by every presentation (`flip/back-swap.ts`), so phones get
+  it too (reduced motion: the fade's 150 ms crossfade). External links, the
+  PDF and the vCard stay ordinary links, and a direct-loaded back page still
+  ships no script, so its links are ordinary page loads.

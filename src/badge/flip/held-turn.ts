@@ -16,9 +16,14 @@
      view's own scene, pushed in by the same camera, frames it as on a direct
      load, and the resting hand comes in.
    Once it settles nothing is left transformed, so the back is laid out at its
-   real on-screen size and its text is crisp. */
+   real on-screen size and its text is crisp.
+
+   Held, the back's links to other back pages swap the page in the window with
+   a quick crossfade (back-swap.ts); the badge stays held and the hand stays
+   put. */
 
 import { frameScene, releaseScene } from '../../scene/camera';
+import { crossfadeBack } from './back-swap';
 import type { BadgeFaces, Side } from './faces';
 import { faceTransform, frameAt, type HeldFraming, type ScreenBox, type TurnFrame } from './held-turn-motion';
 import type { RunningTurn, TurnPresentation } from './presentation';
@@ -137,5 +142,5 @@ export function createHeldTurn(faces: BadgeFaces, { scene, heldView }: HeldStage
     };
   }
 
-  return { run };
+  return { run, swapBack: (content) => crossfadeBack(faces, content) };
 }

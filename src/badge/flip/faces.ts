@@ -20,6 +20,13 @@ export interface BadgeFaces {
   laidOutAs(): Side;
   /** Puts a back page's face in the back slot, or takes it out. */
   setBack(content: HTMLElement | null): void;
+  /**
+   * Puts a back page's face in the back slot in place of the one there, and
+   * hands back that old face, if any: still in the slot, after the new one
+   * (so drawn over it), but no longer the back's face. It is inert and hidden
+   * from assistive tech; the caller takes it out.
+   */
+  replaceBack(content: HTMLElement): HTMLElement | null;
   /** The back page's face in the back slot, if any. */
   backFace(): HTMLElement | null;
 }
@@ -42,6 +49,18 @@ export function createBadgeFaces(badge: HTMLElement, backSlot: HTMLElement): Bad
     setBack(content) {
       backFace()?.remove();
       if (content) backSlot.append(content);
+    },
+    replaceBack(content) {
+      const old = backFace();
+      if (!old) {
+        backSlot.append(content);
+        return null;
+      }
+      old.removeAttribute('data-back-face');
+      old.inert = true;
+      old.setAttribute('aria-hidden', 'true');
+      old.before(content);
+      return old;
     },
     backFace,
   };

@@ -9,9 +9,16 @@
    turns back from where it is rather than finishing first. If a back page cannot be fetched, the visitor gets it by normal
    navigation instead, and the badge is never left half-turned.
 
-   Focus: landing on a back moves it to the page's h1; landing on the front
-   gives it back to the front control that had it when the badge turned over
-   (the RESUME pad, a launcher entry), if that control is still there.
+   From one back page to another (the back's own links, marked data-flip) the
+   badge swaps the page in place, if the presentation can, rather than turning
+   by way of the front. A swap takes over the back's history entry rather than
+   adding one, as a second flip before the first lands does, so Back and HOME
+   always return to the front however many swaps there were.
+
+   Focus: landing on a back, or swapping one in, moves it to the page's h1;
+   landing on the front gives it back to the front control that had it when the
+   badge turned over (the RESUME pad, a launcher entry), if that control is
+   still there.
 
    This is the flip's controller: it decides when the badge turns and to which
    side. How a turn looks is a turn presentation's job (presentation.ts), picked
@@ -48,6 +55,9 @@ interface BackPage {
   face: HTMLElement;
   title: string;
 }
+
+/** A presentation's in-place swap of the back page (TurnPresentation.swapBack). */
+type Swap = (content: HTMLElement) => Promise<void>;
 
 /** The back page's `[data-back-face]` and title, or null if it cannot be had. */
 async function loadBackPage(route: string): Promise<BackPage | null> {
@@ -125,6 +135,13 @@ export function createFlipper(opts: {
     else if (want === to.route) turn.steer(to.side);
   }
 
+  /** The badge now shows back page `route`: title and focus follow. */
+  function shownBack(route: string, page: BackPage) {
+    shown = route;
+    document.title = page.title;
+    page.face.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
+  }
+
   async function showBack(route: string, page: BackPage) {
     if (shown === null) {
       const active = document.activeElement;
@@ -135,10 +152,14 @@ export function createFlipper(opts: {
       faces.setBack(null);
       return;
     }
-    shown = route;
-    document.title = page.title;
-    page.face.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
+    shownBack(route, page);
     onSideChange('back');
+  }
+
+  /** Swaps the back page on the badge for `route`'s, in place. */
+  async function swapBack(route: string, page: BackPage, swap: Swap) {
+    await swap(page.face);
+    shownBack(route, page);
   }
 
   async function showFront() {
@@ -151,29 +172,38 @@ export function createFlipper(opts: {
     onSideChange('front');
   }
 
-  /** Turns the badge, one turn at a time, until it shows what the URL names. */
+  /** Swaps the back page in place with the presentation, if it can. */
+  function swapper(): Swap | null {
+    const p = presentation();
+    return p.swapBack ? (content) => p.swapBack!(content) : null;
+  }
+
+  /** Turns or swaps the badge, one at a time, until it shows what the URL names. */
   async function reconcile() {
     for (;;) {
       const want = backRouteOf(location.pathname);
       if (want === shown) return;
-      // Back to back goes by way of the front.
-      if (want === null || shown !== null) {
+      const swap = shown !== null ? swapper() : null;
+      // Back to back goes by way of the front when it can't swap in place.
+      if (want === null || (shown !== null && !swap)) {
         await showFront();
         continue;
       }
       const page = await loadBackPage(want);
       if (backRouteOf(location.pathname) !== want) continue; // the URL moved on meanwhile
       if (!page) return navigateInstead(want);
-      await showBack(want, page);
+      if (swap) await swapBack(want, page, swap);
+      else await showBack(want, page);
     }
   }
 
   /**
    * Loads back page `route` by normal navigation, in place of the current
-   * history entry, which is the front's and already shows `route`. Navigating
-   * to the URL an entry already shows would leave the front's other entries
-   * pointing at the new document (Back would show `/` with the back page on
-   * it), so the entry is pointed at the front first.
+   * history entry, which is the front's (one the flip pushed or took over)
+   * and already shows `route`. Navigating to the URL an entry already shows
+   * would leave the front's other entries pointing at the new document (Back
+   * would show `/` with the back page on it), so the entry is pointed at the
+   * front first.
    */
   function navigateInstead(route: string) {
     history.replaceState(null, '', FRONT_PATH);
@@ -247,11 +277,14 @@ export function createFlipper(opts: {
   const isPlainClick = (e: MouseEvent) =>
     !e.defaultPrevented && e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
+  /** Whether a back link clicked now can swap the page in place; if not, the browser follows it. */
+  const swapsInPlace = () => shown !== null && swapper() !== null;
+
   badge.addEventListener('click', (e) => {
     if (!isPlainClick(e) || !(e.target instanceof Element)) return;
     const link = e.target.closest<HTMLAnchorElement>('a[data-flip], a[data-home]');
     if (!link || link.origin !== location.origin) return;
-    if (link.hasAttribute('data-flip') && front.contains(link)) {
+    if (link.hasAttribute('data-flip') && (front.contains(link) || (backSlot.contains(link) && swapsInPlace()))) {
       e.preventDefault();
       void flipTo(link.pathname);
     } else if (link.hasAttribute('data-home') && backSlot.contains(link)) {
