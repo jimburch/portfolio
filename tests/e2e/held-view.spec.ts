@@ -295,6 +295,39 @@ test.describe('the held close-up on a qualifying desktop', () => {
     }
   });
 
+  /** How many lines the element's text wraps onto. */
+  const lineCount = (page: Page, selector: string) =>
+    page.locator(selector).evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return new Set([...range.getClientRects()].map((r) => Math.round(r.top + r.height / 2))).size;
+    });
+
+  for (const size of [
+    { width: 1440, height: 900 },
+    { width: 800, height: 620 },
+  ])
+    test(`${size.width}×${size.height}: the resume's pads sit on two rows, Download PDF alone, then LinkedIn and GitHub`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(size);
+      await page.goto('/resume');
+      const links = page.getByRole('list', { name: 'Resume links' });
+      const middle = async (name: string) => {
+        const b = (await links.getByRole('link', { name }).boundingBox())!;
+        return Math.round(b.y + b.height / 2);
+      };
+      const [pdf, linkedIn, gitHub] = [await middle('Download PDF'), await middle('LinkedIn'), await middle('GitHub')];
+      expect(linkedIn).toBeGreaterThan(pdf);
+      expect(gitHub).toBe(linkedIn);
+    });
+
+  test('800×620: the credits keep their two lines', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 620 });
+    await page.goto('/resume');
+    expect(await lineCount(page, '.back-credits')).toBe(2);
+  });
+
   test('content scrolled out of the window is hidden and cannot be clicked', async ({ page }) => {
     await page.goto('/resume');
     const pdf = page.getByRole('link', { name: 'Download PDF' });
@@ -415,6 +448,9 @@ test.describe('the held close-up on a qualifying desktop', () => {
   for (const size of [
     { width: 1440, height: 900 },
     { width: 800, height: 620 },
+    { width: 1280, height: 720 },
+    { width: 1920, height: 1080 },
+    { width: 2560, height: 1440 },
   ])
     test(`${size.width}×${size.height}: at the top, part-way and at the end, no text sits under the hand or its shadow`, async ({ page }) => {
       await page.setViewportSize(size);

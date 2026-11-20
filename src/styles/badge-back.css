@@ -679,14 +679,17 @@
 
   /* -- The content: the header's details, the label, the footer -- */
 
-  /* The header's details sit above the fingers at rest, so they are centred
-     on the badge, with the thumb's clearance on both sides; they pass behind
-     the fingers only mid-scroll. The reading content below stays in the part
-     of the window clear of the hand. */
+  /* The hand is fixed in the window and the content scrolls under it, so a
+     line of the reading content passes every row of the window, the fingers'
+     and the thumb's included: the label keeps the hand's clearance for its
+     whole height. The header's details are the exception. They sit above the
+     hand at the top of the page, and scrolling only ever moves them up, away
+     from it, so they take the window's full width (with the label's inset)
+     and sit a little tighter, to bring the label up toward the clear rows. */
   .held-view ~ .back-face :is(.back-qr, .back-role, .back-credits) {
     grid-column: full-start / full-end;
     justify-self: center;
-    margin-inline: var(--clear-right);
+    margin-inline: var(--label-inset);
     text-align: center;
     text-wrap: balance;
   }
@@ -697,17 +700,21 @@
 
   .held-view ~ .back-face .back-qr {
     grid-row: qr;
-    margin-top: 18px;
+    margin-top: 12px;
   }
 
   .held-view ~ .back-face .back-role {
     grid-row: role;
-    margin-top: 14px;
+    margin-top: 10px;
   }
 
+  /* Its two lines stay two: the first (33 characters of mono) fits the
+     window, at 0.68rem on a big badge and a touch smaller on a small one, as
+     the strip's type follows the window. */
   .held-view ~ .back-face .back-credits {
     grid-row: credits;
-    margin-top: 10px;
+    margin-top: 6px;
+    font-size: min(0.68rem, var(--held-window-w) / 24.5);
   }
 
   .held-view ~ .back-face #back-main {
@@ -716,7 +723,7 @@
     justify-self: stretch;
     width: auto;
     max-width: none;
-    margin: 20px var(--label-inset) 22px;
+    margin: 14px var(--label-inset) 22px;
     padding: 22px max(14px, var(--clear-right) - var(--label-inset)) 26px
       max(14px, var(--clear-left) - var(--label-inset));
     font-size: 1rem;
@@ -728,6 +735,28 @@
 
   .held-view ~ .back-face #back-main h2 {
     font-size: 1.15rem;
+  }
+
+  /* The resume's pads in the narrow column: Download PDF on a row of its
+     own, LinkedIn and GitHub sharing the next, each row filled, so the three
+     never wrap one by one. */
+  .held-view ~ .back-face #back-main .resume-links {
+    gap: 0.5rem;
+  }
+
+  .held-view ~ .back-face #back-main .resume-links li {
+    display: flex;
+    flex: 1 1 auto;
+  }
+
+  .held-view ~ .back-face #back-main .resume-links li:first-child {
+    flex-basis: 100%;
+  }
+
+  .held-view ~ .back-face #back-main .resume-links .back-pad {
+    flex: 1;
+    padding-inline: 0.7em 0.6em;
+    letter-spacing: 0.1em;
   }
 
   .held-view ~ .back-face .back-footer {

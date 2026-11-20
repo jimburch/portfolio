@@ -232,6 +232,26 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   `badge/tilt/tilt-source.ts`. *(Jim asked for the mouse; dropping the finger
   drag too was the build's call, for Jim to overturn.)*
 
+## 2026-11-20 (the held view's reading column)
+
+- **The held view keeps the hand's clearance for the whole reading column.**
+  The resting hand is fixed in the badge's window while the back's content
+  scrolls under it, so every line of the label passes the fingers' and the
+  thumb's rows: a line can only be as wide as the narrowest rows it passes.
+  Full width above the hand and narrow beside it would need the text to
+  re-wrap as it scrolls (script, or layout every frame), and hiding text
+  beside the fingers cut the start off every line there. Both were tried and
+  dropped (`.superpowers/sdd/2026-11-20-hand-turn-impl/next/held-column-report.md`).
+  The finger clearance stays at 60 units (the fingers' shadow included).
+- **What is above the hand uses the window's width.** The header's details
+  (vCard QR, role, credits) sit above the hand at the top of the page and only
+  ever scroll up, away from it, so they drop the thumb's margin and sit a little
+  tighter; the credits' type follows the window's width, so they keep their two
+  lines on a small badge. The label starts higher (41 px at 800×620).
+- **The resume's pads sit on two rows by design** in the held view: Download
+  PDF alone, then LinkedIn and GitHub sharing a row, each row filled.
+  `badge-back.css` (held close-up). Phones and other back pages are unchanged.
+
 ## 2026-11-20 (the hand turn's card: thickness, sheen, clip)
 
 - **The card has an edge while the hand turns it.** v10's 10-unit-thick edge
