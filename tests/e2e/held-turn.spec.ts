@@ -8,6 +8,12 @@ import { expect, test, type Page } from '@playwright/test';
 
 test.skip(({ isMobile }) => isMobile, 'desktop projects only');
 
+// The held turn is the hand turn's stand-in: with the hand model unavailable it is what every desktop flip runs
+// (hand-turn.spec.ts covers the hand turn, and this fallback's other causes).
+test.beforeEach(async ({ page }) => {
+  await page.route(/\.glb$/, (route) => route.abort());
+});
+
 /** The held badge's width in the close-up at 1440×900: 91% of the window tall, 390:844. */
 const HELD_WIDTH_1440X900 = ((900 * 500) / 550) * (390 / 844);
 

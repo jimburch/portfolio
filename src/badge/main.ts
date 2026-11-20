@@ -2,6 +2,7 @@ import { BACK_ROUTES } from '../data/site';
 import { createPresentationChooser } from './flip/choose-presentation';
 import { createBadgeFaces } from './flip/faces';
 import { createFlipper, prefetchBackPages } from './flip/flipper';
+import { loadHandTurnWhenIdle } from './flip/hand-turn-loader';
 import { COMBOS, createComboDetector } from './input/combos';
 import { createInputBus } from './input/bus';
 import { wireControls } from './input/controls';
@@ -13,6 +14,7 @@ import { safeStorage } from './storage';
 import { createThemeController } from './theme/theme';
 import { createTiltSource } from './tilt/tilt-source';
 import { letSceneFollowTilt } from '../scene/worn-scene';
+import { wornDesktopQuery } from '../scene/gate';
 
 const root = document.getElementById('badge')!;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,11 +61,27 @@ const backSlot = document.getElementById('back-slot')!;
 const faces = createBadgeFaces(root, backSlot);
 // On a qualifying desktop the back lands in the held close-up the back slot holds.
 const heldView = backSlot.querySelector<HTMLElement>(':scope > .held-view');
+const held = scene && heldView ? { scene, heldView } : null;
+// There, once the front has booted and the browser is idle, the hand turn loads in the background.
+const handTurn =
+  held &&
+  loadHandTurnWhenIdle({
+    faces,
+    stage: held,
+    gate: wornDesktopQuery(),
+    reducedMotion,
+    whenBooted: (fn) => runtime.onReady(fn),
+    // Marked for tests and tooling: 'ready' (the hand turns the badge from the next flip on) or 'unavailable'.
+    onLoaded: (outcome) => {
+      root.dataset.handTurn = outcome;
+    },
+  });
 const flipper = createFlipper({
   faces,
   presentation: createPresentationChooser(faces, {
     reducedMotion,
-    held: scene && heldView ? { scene, heldView } : null,
+    held,
+    handTurn: () => handTurn?.ready() ?? null,
   }),
   onSideChange: (side) => {
     // Tilt only means something while the front faces the visitor.

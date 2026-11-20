@@ -2,13 +2,15 @@
 //
 //   pnpm hand:images        (after `pnpm hand:model`: it renders the shipped model)
 //
-// Headless Chromium (Playwright's) opens render/held-hand.html, which renders v10's final pose with three.js (a dev
-// dependency, used only here) and returns two layers split at the card's plane, on transparent backgrounds:
+// Headless Chromium (Playwright's) opens render/held-hand.html, which renders v10's final pose with the page's own hand
+// code (src/scene/hand/, TypeScript served type-stripped by node:module) and three.js, and returns two layers split at
+// the card's plane, on transparent backgrounds:
 //   src/scene/hand/held-hand-behind.webp   under the badge (the whole hand; the badge covers what's behind it)
 //   src/scene/hand/held-hand-front.webp    over the badge (the hand's near side, and its soft shadow on the face)
 //   src/scene/hand/held-hand.json          where they sit on the held badge (the framing contract: README.md)
 // Both are lossless WebP at PX_PER_UNIT px per badge unit: 2× density for a held badge up to 1000 CSS px tall.
 import { readFileSync, statSync, writeFileSync } from 'node:fs';
+import { stripTypeScriptTypes } from 'node:module';
 import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
@@ -27,10 +29,17 @@ const BOTTOM = 600;
 const ORIGIN = 'http://hand.render';
 const FILES = {
   '/render/': join(HERE, 'render'),
+  '/src/': join(ROOT, 'src'),
   '/three/': join(ROOT, 'node_modules', 'three'),
-  '/hand.glb': join(ROOT, 'public', 'hand', 'hand.glb'),
+  '/hand.glb': join(ROOT, 'src', 'scene', 'hand', 'hand.glb'),
 };
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.glb': 'model/gltf-binary' };
+const TYPES = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.ts': 'text/javascript',
+  '.json': 'application/json',
+  '.glb': 'model/gltf-binary',
+};
 
 /** Serves the page, three.js and the model from disk; nothing else is fetched. */
 async function serveFiles(page) {
@@ -39,7 +48,8 @@ async function serveFiles(page) {
     const prefix = Object.keys(FILES).find((p) => path === p || (p.endsWith('/') && path.startsWith(p)));
     if (!prefix) return route.fulfill({ status: 404 });
     const file = prefix.endsWith('/') ? join(FILES[prefix], path.slice(prefix.length)) : FILES[prefix];
-    return route.fulfill({ body: readFileSync(file), contentType: TYPES[extname(file)] ?? 'application/octet-stream' });
+    const body = extname(file) === '.ts' ? stripTypeScriptTypes(readFileSync(file, 'utf8')) : readFileSync(file);
+    return route.fulfill({ body, contentType: TYPES[extname(file)] ?? 'application/octet-stream' });
   });
 }
 

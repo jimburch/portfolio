@@ -64,11 +64,11 @@
 
     /* Where the back keeps its content clear of the resting hand (spike
        v10's final grip, in units of this badge; scene/hand/held-hand.json
-       `reach` has the measured hand). The four fingertips reach 48.5 units in
+       `reach` has the measured hand). The four fingertips reach 48.3 units in
        over the left edge, and their soft shadow on the face fades out by
-       about 60, so text starts at 60. The thumb reaches 22 units in over the
+       about 60, so text starts at 60. The thumb reaches 21.5 units in over the
        right edge (its shadow falls away from the text): 28 leaves a margin
-       like the fingers'. The lowest fingertip is at 463 of 500. */
+       like the fingers'. The lowest fingertip is at 463.8 of 500. */
     --held-finger-left: calc(60 * var(--held-u));
     --held-thumb-right: calc(28 * var(--held-u));
     --held-hand-bottom: calc(30 * var(--held-u));

@@ -166,3 +166,22 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   it too (reduced motion: the fade's 150 ms crossfade). External links, the
   PDF and the vCard stay ordinary links, and a direct-loaded back page still
   ships no script, so its links are ordinary page loads.
+- **The hand turn (#32).** On a qualifying desktop, once the front has booted
+  and the browser is idle, the hand turn loads in the background (one lazy
+  chunk: three.js, tree-shaken, about 167 KB gz; the meshopt model, 62 KB gz,
+  content-hashed). From the next flip on it plays v10's locked motion: the
+  hand reaches up, grips, turns and lifts the badge while the camera pushes
+  in, and lands in the held close-up, where the static resting-hand images
+  take over from its two canvases. Until it is ready, without WebGL, if the
+  model fails, or if the WebGL context is lost, the held turn (#30) runs and
+  nothing waits. Phones, touch screens, short windows and reduced motion never
+  load it. One time value drives the badge's placement (DOM faces, the page
+  scene's camera, the 3D eye) and the hand's pose (`flip/hand-turn-motion.ts`,
+  `scene/hand/timeline.ts`). Re-tuned for the 77% rest framing, not
+  re-choreographed: v10's world units scaled to the worn badge, its eye
+  distance kept, its lift re-scaled to end exactly at the held zoom, and the
+  camera push following the lift (so the wearer, the clip and the badge move
+  together; the clip and a lifted-badge shadow turn with the badge's roll).
+  Finger contacts are baked at build time (`pnpm hand:contacts`, 0 crossings
+  over 2001 t). The hand's look, rig, keys, pose and scene are one TypeScript
+  source shared by the page and the resting-image render.

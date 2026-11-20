@@ -650,12 +650,13 @@
     margin-top: var(--worn-badge-top);
   }
 
-  /* The held turn (flip/held-turn.ts): the front turns over where it hangs,
-     and the back slot is laid out as the held close-up it lands in (the held
-     view and the back face, held-view.css and badge-back.css), over the
-     whole window. The script turns and scales each as one piece, so the back
-     is laid out at its final size and only ever scaled down on the way. */
-  #badge[data-flipping='held-turn'] {
+  /* The held turn and the hand turn (flip/held-stage.ts): the front turns
+     over where it hangs, and the back slot is laid out as the held close-up
+     it lands in (the held view and the back face, held-view.css and
+     badge-back.css), over the whole window. The script turns and scales each
+     as one piece, so the back is laid out at its final size and only ever
+     scaled down on the way. */
+  #badge:is([data-flipping='held-turn'], [data-flipping='hand-turn']) {
     width: var(--badge-w);
     height: var(--badge-h);
     margin: var(--worn-badge-top) auto 0;
@@ -667,7 +668,7 @@
      there the held view's scene meets the page's (#worn-scene), pushed in as
      far, and nothing of the back page running on below the window shows past
      it. Once the slot fills the window again there is no edge to hide. */
-  #badge[data-flipping='held-turn'] > #back-slot {
+  #badge:is([data-flipping='held-turn'], [data-flipping='hand-turn']) > #back-slot {
     position: fixed;
     inset: 0;
     /* It turns about the held badge's upright centre line. */
@@ -680,11 +681,24 @@
      around it. The slot is no wider than the badge then (everything in it is
      placed from its centre line, so nothing moves): WebKit draws a
      perspective turn of a window-wide box squashed nearly edge-on. */
-  #badge[data-flipping='held-turn'] > #back-slot[data-turning] {
+  #badge:is([data-flipping='held-turn'], [data-flipping='hand-turn']) > #back-slot[data-turning] {
     right: auto;
     left: calc(50% - var(--held-badge-w) / 2);
     width: var(--held-badge-w);
     clip-path: var(--held-badge-outline);
+  }
+
+  /* The hand turn's 3D hand (flip/hand-turn.ts): two canvases over the
+     window, one just before #badge (behind its faces) and one just after it
+     (in front of them), only while the badge turns. Decorative: aria-hidden,
+     never focused, and clicks go through them. */
+  .hand-layer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
 }
 

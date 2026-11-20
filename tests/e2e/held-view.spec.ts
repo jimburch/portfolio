@@ -15,7 +15,7 @@ const BACK_ROUTES = [
 ] as const;
 
 /** The 3D hand: three.js and the hand model must never load on a back page. */
-const HAND_CODE = /three|\.glb$/i;
+const HAND_CODE = /three|hand-turn|\.glb$/i;
 /** The resting hand's two static images (behind and in front of the badge). */
 const HAND_IMAGE = /held-hand-(behind|front)\b/;
 

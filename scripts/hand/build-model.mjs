@@ -1,4 +1,5 @@
-// Builds the shipped hand model: public/hand/hand.glb, with the source asset's MIT licence next to it.
+// Builds the shipped hand model: src/scene/hand/hand.glb (the page imports it, so it ships under a content-hashed
+// name), and publishes the source asset's MIT licence at public/hand/ (the model's own asset.copyright carries it too).
 //
 //   pnpm hand:model
 //
@@ -27,8 +28,8 @@ const ROOT = join(HERE, '..', '..');
 const BLENDER = process.env.BLENDER || '/Applications/Blender.app/Contents/MacOS/Blender';
 const SOURCE = join(HERE, 'source', 'webxr-generic-hand-right.glb');
 const LICENCE = join(HERE, 'source', 'LICENSE-webxr-input-profiles.md');
-const OUT_DIR = join(ROOT, 'public', 'hand');
-const OUT = join(OUT_DIR, 'hand.glb');
+const OUT = join(ROOT, 'src', 'scene', 'hand', 'hand.glb');
+const LICENCE_DIR = join(ROOT, 'public', 'hand');
 
 /** Runs the Blender build into a temporary file; returns its bytes. */
 function blenderBuild() {
@@ -106,7 +107,7 @@ const shipped = await io.writeBinary(doc);
 
 assertSameModel(before, content(await io.readBinary(shipped)));
 
-mkdirSync(OUT_DIR, { recursive: true });
 writeFileSync(OUT, shipped);
-copyFileSync(LICENCE, join(OUT_DIR, 'LICENSE-webxr-input-profiles.md'));
+mkdirSync(LICENCE_DIR, { recursive: true });
+copyFileSync(LICENCE, join(LICENCE_DIR, 'LICENSE-webxr-input-profiles.md'));
 console.log(`[model] built ${raw.byteLength} B -> shipped ${statSync(OUT).size} B (meshopt, lossless; checked): ${OUT}`);

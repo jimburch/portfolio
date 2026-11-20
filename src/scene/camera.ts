@@ -1,4 +1,4 @@
-/* The worn scene's camera, for whatever moves it (the held turn): the custom
+/* The worn scene's camera, for whatever moves it (the desktop turns): the custom
    properties worn-scene.css frames the scene with, set on one scene element.
    Releasing them hands the scene back to the stylesheet's framing (at rest on
    the front, pushed in for the held close-up). */
@@ -17,6 +17,10 @@ export interface SceneView {
   blur?: number;
   /** How much the badge rests on the chest, 0 to 1 (`--scene-contact`). */
   contact?: number;
+  /** How far the badge is lifted off the chest, 0 to 1: its drop shadow on the wearer (`--scene-lift`). */
+  lift?: number;
+  /** The badge's roll, degrees clockwise: the clip and the lifted badge's shadow turn with it (`--scene-roll`). */
+  roll?: number;
 }
 
 export const cameraTransform = ({ x, y, scale }: CameraMove): string =>
@@ -27,9 +31,12 @@ export function frameScene(scene: HTMLElement, view: SceneView): void {
   if (view.camera) scene.style.setProperty('--scene-camera', cameraTransform(view.camera));
   if (view.blur !== undefined) scene.style.setProperty('--scene-blur', view.blur.toFixed(4));
   if (view.contact !== undefined) scene.style.setProperty('--scene-contact', view.contact.toFixed(4));
+  if (view.lift !== undefined) scene.style.setProperty('--scene-lift', view.lift.toFixed(4));
+  if (view.roll !== undefined) scene.style.setProperty('--scene-roll', `${view.roll.toFixed(3)}deg`);
 }
 
 /** Hands `scene` back to the stylesheet's framing. */
 export function releaseScene(scene: HTMLElement): void {
-  for (const name of ['--scene-camera', '--scene-blur', '--scene-contact']) scene.style.removeProperty(name);
+  for (const name of ['--scene-camera', '--scene-blur', '--scene-contact', '--scene-lift', '--scene-roll'])
+    scene.style.removeProperty(name);
 }

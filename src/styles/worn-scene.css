@@ -16,7 +16,11 @@
      stage units, on top of their resting blur. 0 at rest; it grows as the
      camera closes in. (The straps keep their own soft-to-sharp focus.)
    - `--scene-contact`: how much the badge rests on the chest, so how much of
-     its contact shadow shows. 1 at rest; 0 once the badge is lifted off. */
+     its contact shadow shows. 1 at rest; 0 once the badge is lifted off.
+   - `--scene-lift`: how much of the lifted badge's drop shadow (the held
+     close-up's) shows on the wearer. 0 at rest, 1 held up face on.
+   - `--scene-roll`: the badge's roll as a hand turns it; the clip and the
+     lifted badge's shadow turn with it, about the badge's centre. */
 
 .worn-scene {
   display: none;
@@ -42,6 +46,8 @@
     --scene-camera: none;
     --scene-blur: 0;
     --scene-contact: 1;
+    --scene-lift: 0;
+    --scene-roll: 0deg;
     /* The badge's tilt, mirrored here by scene/worn-scene.ts. */
     --tx: 0;
     --ty: 0;
@@ -135,7 +141,31 @@
     filter: blur(calc(14 * var(--worn-u)));
   }
 
+  /* The badge lifted off the chest: its drop shadow on the wearer. At
+     --scene-lift 1, under the held close-up's camera, it is the held view's
+     own (held-view.css, .held-view__surround::after: offset 10, blur 28,
+     45%) drawn in the scene, so a hand turn (flip/hand-turn.ts) hands over to
+     it without a step. A blurred box rather than a box-shadow, which would
+     leave a hard-edged hole wherever the turning badge doesn't cover it;
+     outside the badge the two are the same. */
+  .worn-scene__lift-shadow {
+    --lift-shadow-w: calc(var(--worn-badge-h) * 390 / 844);
+
+    left: calc(50% - var(--lift-shadow-w) / 2);
+    top: var(--worn-badge-top);
+    width: var(--lift-shadow-w);
+    height: var(--worn-badge-h);
+    border-radius: calc(var(--lift-shadow-w) * 0.045);
+    background: rgb(0 0 0 / 0.45);
+    filter: blur(calc(14 * var(--worn-u)));
+    opacity: var(--scene-lift);
+    transform: translateY(calc(10 * var(--worn-u))) rotate(var(--scene-roll));
+  }
+
   .worn-scene__clip {
     background-image: url('/scene/clip.svg');
+    /* It rides on the badge's top edge: it turns with the badge's roll, about the badge's centre. */
+    transform: rotate(var(--scene-roll));
+    transform-origin: calc(-1 * var(--art-x) * var(--worn-u)) calc((250 - var(--art-y)) * var(--worn-u));
   }
 }

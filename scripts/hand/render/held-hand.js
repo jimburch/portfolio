@@ -1,37 +1,32 @@
 // Renders the resting hand for the held close-up: v10's final pose, in two layers split at the card's plane, cropped
 // to the hand and scaled to the held badge. Run in a browser by ../render-held-hand.mjs; see scripts/hand/README.md
-// for the framing contract the two images follow.
+// for the framing contract the two images follow. The scene, look, rig and pose are the page's own
+// (src/scene/hand/), served type-stripped by the script, so these stills and the hand turn's last frame are one source.
 import * as THREE from 'three';
-import { createLook } from './look.js';
-import { aimForearm, applyPose, loadHand, solveContacts } from './rig.js';
-import { BADGE_FINAL, CARD, ELBOW_UP, HAND_SCALE, KEY_P, STAGE } from './held-pose.js';
+import {
+  BADGE_RADIUS,
+  HAND_SHADOW,
+  createHandScene,
+  frameCamera,
+  nearPlane,
+  paintHandShadow,
+  placeBadge,
+} from '/src/scene/hand/hand-scene.ts';
+import { createLook, scaleOutlines } from '/src/scene/hand/look.ts';
+import { createHandPoser } from '/src/scene/hand/pose.ts';
+import { parseHandModel, rigHand } from '/src/scene/hand/rig.ts';
+import { CARD, badgeAt, magnificationAt } from '/src/scene/hand/timeline.ts';
 
-const D = Math.PI / 180;
+/** v10's stage: 1280 × 800 spike px, the eye over its centre (the badge's resting centre). */
+const STAGE = { width: 1280, height: 800 };
+const STAGE_VIEW = { left: 0, top: 0, width: STAGE.width, height: STAGE.height, eyeX: STAGE.width / 2, eyeY: STAGE.height / 2, pxPerUnit: 1 };
 
 /** The card's face in units (500 tall). */
 const FACE_W = (CARD.BW2 / CARD.BH2) * 500;
 
-/** The held badge's corner radius, as a share of its width (held-view.css: border-radius 0.045 × width). */
-const BADGE_RADIUS = 0.045;
-
-// The hand's soft shadow on the card (v10): the near-side layer, blacked out, blurred 5 px, offset (6, 12) px at the
-// card's depth, 30% opaque, only on the card's face.
-const SHADOW = { blur: 5, dx: 6, dy: 12, opacity: 0.3 };
-
-/** The badge's matrix at t = 1, in three.js space (v10's CSS composition, y flipped). */
-function badgeMatrix() {
-  const { th, tz, ty, tx, roll } = BADGE_FINAL;
-  const k0 = STAGE.perspective / (STAGE.perspective - tz);
-  const css = new THREE.Matrix4()
-    .makeTranslation(tx / k0, ty / k0, tz)
-    .multiply(new THREE.Matrix4().makeRotationZ(roll * D))
-    .multiply(new THREE.Matrix4().makeRotationY(th * D));
-  const flip = new THREE.Matrix4().makeScale(1, -1, 1);
-  return { matrix: flip.clone().multiply(css).multiply(flip), k0 };
-}
-
 /** A world point → stage px (x right, y down). */
 function stagePoint(camera, v) {
+  frameCamera(camera, STAGE_VIEW);
   const n = v.clone().project(camera);
   return { x: ((n.x + 1) / 2) * STAGE.width, y: ((1 - n.y) / 2) * STAGE.height };
 }
@@ -107,39 +102,24 @@ function alphaBounds(canvases) {
  * @param {number} options.bottom how far down the images reach, in units from the badge's top edge
  */
 export async function renderHeldHand({ modelUrl, pxPerUnit, bottom }) {
-  const { width: W, height: H, perspective: P } = STAGE;
-
-  // ---- the scene: the spike's camera, light and fog, the badge frame at t = 1, the hand under it
-  const camera = new THREE.PerspectiveCamera((2 * Math.atan(H / 2 / P)) / D, W / H, 10, 6000);
-  camera.position.set(0, 0, P);
-  camera.lookAt(0, 0, 0);
-  camera.updateMatrixWorld(true);
-  const scene = new THREE.Scene();
-  const sun = new THREE.DirectionalLight(0xffffff, Math.PI);
-  sun.position.set(-0.55, 0.75, 0.62).multiplyScalar(1000);
-  scene.add(sun);
-  scene.fog = new THREE.Fog(0x1d232d, P - 100, P + 1500);
-
-  const { matrix, k0 } = badgeMatrix();
-  const badgeFrame = new THREE.Object3D();
-  badgeFrame.matrixAutoUpdate = false;
-  badgeFrame.matrix.copy(matrix);
-  scene.add(badgeFrame);
-  const handPlace = new THREE.Object3D();
-  badgeFrame.add(handPlace);
+  // ---- the scene (shared with the page's hand turn): the eye, lamp and fog, the badge at t = 1, the hand under it
+  const hs = createHandScene();
+  const { scene, camera, badgeFrame, handPlace } = hs;
+  const final = badgeAt(1);
+  const k0 = magnificationAt(final.tz);
+  placeBadge(badgeFrame, final);
+  frameCamera(camera, STAGE_VIEW);
 
   const look = createLook();
-  const rig = await loadHand(modelUrl, handPlace, look, HAND_SCALE);
+  const glb = await (await fetch(modelUrl)).arrayBuffer();
+  const rig = rigHand(await parseHandModel(glb), handPlace, look);
 
-  // ---- the pose, as v10's render(1): the key, then the forearm, then the contacts
-  applyPose(rig, handPlace, KEY_P);
-  scene.updateMatrixWorld(true);
-  const wrist = aimForearm(rig, handPlace, new THREE.Vector3(...ELBOW_UP));
-  const curls = solveContacts(rig, badgeFrame, KEY_P.contacts);
+  // ---- the pose, as v10's render(1): the key, then the forearm, then the contacts (solved here)
+  const { curls, wrist } = createHandPoser(rig, handPlace, badgeFrame).pose(1, 'solve');
   scene.updateMatrixWorld(true);
 
-  // ---- the card's visible face (the back, toward the camera) on the stage; one unit = its height / 500
-  const corner = (x, y) => stagePoint(camera, new THREE.Vector3(x, y, -CARD.HZ).applyMatrix4(badgeFrame.matrixWorld));
+  // ---- the card on the stage, at its mid-plane (where the page's DOM badge lies); one unit = its height / 500
+  const corner = (x, y) => stagePoint(camera, new THREE.Vector3(x, y, 0).applyMatrix4(badgeFrame.matrixWorld));
   const corners = [corner(-CARD.BW2, CARD.BH2), corner(CARD.BW2, CARD.BH2), corner(CARD.BW2, -CARD.BH2), corner(-CARD.BW2, -CARD.BH2)];
   const face = {
     left: Math.min(...corners.map((c) => c.x)),
@@ -178,27 +158,27 @@ export async function renderHeldHand({ modelUrl, pxPerUnit, bottom }) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setPixelRatio(1);
   renderer.setSize(cw, ch, false);
-  camera.setViewOffset(W, H, face.left + box.x * unit, face.top + box.y * unit, box.width * unit, box.height * unit);
-  look.outline.uRes.value.set(cw, ch);
-  look.outline.uPr.value = pr;
+  frameCamera(camera, {
+    ...STAGE_VIEW,
+    left: face.left + box.x * unit,
+    top: face.top + box.y * unit,
+    width: box.width * unit,
+    height: box.height * unit,
+  });
+  scaleOutlines(look, cw, ch, pr);
 
   const snapshot = () => {
     const c = newCanvas(cw, ch);
     c.getContext('2d').drawImage(renderer.domElement, 0, 0);
     return c;
   };
-  // The badge's plane; "near" is the camera's side of it.
-  const planeN = new THREE.Vector3(0, 0, 1).transformDirection(badgeFrame.matrixWorld);
-  const planeC = new THREE.Vector3().setFromMatrixPosition(badgeFrame.matrixWorld);
-  const side = planeN.dot(camera.position.clone().sub(planeC)) >= 0 ? 1 : -1;
-  const nearPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(planeN.clone().multiplyScalar(side), planeC);
 
   // Behind: the whole hand. The badge covers it wherever the card is, so beside the card it is the whole hand, with
   // no seam where the in-front layer meets it (that layer draws the same pixels there).
   renderer.clippingPlanes = [];
   renderer.render(scene, camera);
   const behind = snapshot();
-  renderer.clippingPlanes = [nearPlane];
+  renderer.clippingPlanes = [nearPlane(hs)];
   renderer.render(scene, camera);
   const near = snapshot();
   renderer.dispose();
@@ -229,9 +209,7 @@ export async function renderHeldHand({ modelUrl, pxPerUnit, bottom }) {
     ctx.save();
     facePath(ctx, 0);
     ctx.clip();
-    ctx.globalAlpha = SHADOW.opacity;
-    ctx.filter = `brightness(0) blur(${SHADOW.blur * pr}px)`;
-    ctx.drawImage(near, SHADOW.dx * pr * k0, SHADOW.dy * pr * k0);
+    paintHandShadow(ctx, near, { dx: HAND_SHADOW.dx * pr * k0, dy: HAND_SHADOW.dy * pr * k0, blur: HAND_SHADOW.blur * pr });
     ctx.restore();
     ctx.drawImage(near, 0, 0);
   }
