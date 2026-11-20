@@ -11,9 +11,16 @@
 
    Focus: landing on a back moves it to the page's h1; landing on the front
    gives it back to the front control that had it when the badge turned over
-   (the RESUME pad, a launcher entry), if that control is still there. */
+   (the RESUME pad, a launcher entry), if that control is still there.
 
-export type Side = 'front' | 'back';
+   This is the flip's controller: it decides when the badge turns and to which
+   side. How a turn looks is a turn presentation's job (presentation.ts), picked
+   afresh for every turn. */
+
+import { oppositeSide, type BadgeFaces, type Side } from './faces';
+import type { RunningTurn, TurnPresentation } from './presentation';
+
+export type { Side } from './faces';
 
 export interface Flipper {
   flipTo(route: string, opts?: { push?: boolean }): Promise<void>;
@@ -21,10 +28,6 @@ export interface Flipper {
   side(): Side;
 }
 
-const TURN_MS = 600;
-const TURN_EASING = 'cubic-bezier(.2,.7,.2,1)';
-const PERSPECTIVE_PX = 1400;
-const FADE_MS = 150;
 const FRONT_PATH = '/';
 
 /** `/resume/` → `/resume`; the front page (`/`) has none. */
@@ -59,13 +62,6 @@ async function loadBackPage(route: string): Promise<BackPage | null> {
   }
 }
 
-/** The on-screen part of the badge: its size and where its top sits. */
-interface Box {
-  width: number;
-  height: number;
-  marginTop: number;
-}
-
 /** What the flipper stores on the history entries it creates. */
 interface EntryState {
   side: Side;
@@ -79,139 +75,54 @@ function entryState(): EntryState | null {
   return state && typeof state === 'object' && 'side' in state ? (state as EntryState) : null;
 }
 
-/** A turn under way: the routes at its two ends (null is the front). */
-interface Turn {
-  fromRoute: string | null;
-  toRoute: string | null;
-  animations: Animation[];
-  /** Heading back to where it started. */
-  reversed: boolean;
+/** A turn under way, and the routes at its two ends (null is the front). */
+interface TurnUnderWay {
+  turn: RunningTurn;
+  from: { side: Side; route: string | null };
+  to: { side: Side; route: string | null };
 }
-
-function frame(box: Box, deg: number): Keyframe {
-  return {
-    transform: `perspective(${PERSPECTIVE_PX}px) rotateY(${deg}deg)`,
-    width: `${box.width}px`,
-    height: `${box.height}px`,
-    marginTop: `${box.marginTop}px`,
-  };
-}
-
-const SWAP_OUT: Keyframe[] = [{ opacity: 1 }, { opacity: 1, offset: 0.5 }, { opacity: 0, offset: 0.5 }, { opacity: 0 }];
-const SWAP_IN: Keyframe[] = [{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1, offset: 0.5 }, { opacity: 1 }];
 
 export function createFlipper(opts: {
-  badge: HTMLElement;
-  backSlot: HTMLElement;
-  reducedMotion: boolean;
+  faces: BadgeFaces;
+  /** The presentation to show the next turn with. */
+  presentation: () => TurnPresentation;
   /** After landing. On the front, focus is already back on the control that started the flip, if it could be. */
   onSideChange: (side: Side) => void;
 }): Flipper {
-  const { badge, backSlot, reducedMotion, onSideChange } = opts;
-  const front = badge.querySelector<HTMLElement>(':scope > .face-front')!;
+  const { faces, presentation, onSideChange } = opts;
+  const { badge, front, backSlot } = faces;
   const frontTitle = document.title;
 
   /** The back route on the badge, or null while the front is showing. */
   let shown: string | null = null;
   let settling: Promise<void> | null = null;
   /** The turn under way, if any. */
-  let turning: Turn | null = null;
+  let turning: TurnUnderWay | null = null;
   /** The front control focused when the badge last turned to its back. */
   let returnFocus: HTMLElement | null = null;
 
-  /** Lays the badge out as a settled side: the front, or the back as a page. */
-  function layOut(side: Side) {
-    badge.dataset.side = side;
-    front.hidden = side === 'back';
-    backSlot.hidden = side === 'front';
-    if (side === 'back') backSlot.removeAttribute('aria-hidden');
-    else backSlot.setAttribute('aria-hidden', 'true');
-  }
-
-  /** Measures the on-screen badge box for the side it is laid out as. */
-  function visibleBox(): Box {
-    const badgeRect = badge.getBoundingClientRect();
-    const face = badge.dataset.side === 'back' ? backSlot.firstElementChild : null;
-    const rect = face ? face.getBoundingClientRect() : badgeRect;
-    return {
-      width: rect.width,
-      height: Math.min(rect.height, window.innerHeight - rect.top),
-      marginTop: parseFloat(getComputedStyle(badge).marginTop) + rect.top - badgeRect.top,
-    };
-  }
-
   /**
-   * 3D turn: both faces back to back while the badge grows or shrinks between
-   * sides. Resolves with the side it ended on: `to`, or the side it left if it
-   * was turned back midway.
+   * Turns the badge to `to` (whose route is `toRoute`) and resolves with the
+   * side it settled on: `to`, or the side it left if it was steered back.
+   * Sides start and land at the top of the page, as a page load would.
    */
-  async function turn(to: Side, toRoute: string | null): Promise<Side> {
-    // Measure both ends (FLIP), then turn from one to the other.
-    const origin: Side = to === 'back' ? 'front' : 'back';
-    const from = visibleBox();
-    layOut(to);
-    const target = visibleBox();
-    layOut(origin);
-
-    badge.dataset.flipping = 'turn';
-    front.hidden = false;
-    backSlot.hidden = false;
-    const [fromDeg, toDeg] = to === 'back' ? [0, 180] : [180, 0];
-    const [leaving, arriving] = to === 'back' ? [front, backSlot] : [backSlot, front];
-    // 'both' so a turn reversed back to its start still holds its first frame.
-    const timing: KeyframeAnimationOptions = { duration: TURN_MS, easing: TURN_EASING, fill: 'both' };
-    const run: Turn = {
-      fromRoute: shown,
-      toRoute,
-      reversed: false,
-      animations: [
-        badge.animate([frame(from, fromDeg), frame(target, toDeg)], timing),
-        // Swap faces exactly edge-on (offsets are in eased progress, like the
-        // rotation), so the turn never relies on backface-visibility alone.
-        leaving.animate(SWAP_OUT, timing),
-        arriving.animate(SWAP_IN, timing),
-      ],
-    };
-    turning = run;
-    await Promise.all(run.animations.map((a) => a.finished)).catch(() => {});
-    turning = null;
-
-    const landed = run.reversed ? origin : to;
-    delete badge.dataset.flipping;
-    layOut(landed);
-    for (const a of run.animations) a.cancel();
-    return landed;
+  async function show(to: Side, toRoute: string | null): Promise<Side> {
+    window.scrollTo(0, 0);
+    const turn = presentation().run(to);
+    turning = { turn, from: { side: oppositeSide(to), route: shown }, to: { side: to, route: toRoute } };
+    try {
+      return await turn.settled;
+    } finally {
+      turning = null;
+      window.scrollTo(0, 0);
+    }
   }
 
   /** Mid-turn, heads the turn for whichever end the URL now names, if either. */
-  function steerTurn(run: Turn) {
+  function steerTurn({ turn, from, to }: TurnUnderWay) {
     const want = backRouteOf(location.pathname);
-    const headBack = want === run.fromRoute ? true : want === run.toRoute ? false : run.reversed;
-    if (headBack === run.reversed) return;
-    run.reversed = headBack;
-    for (const a of run.animations) a.reverse();
-  }
-
-  /** Reduced motion: a quick fade through the swap instead of the turn. */
-  async function fade(to: Side): Promise<Side> {
-    badge.dataset.flipping = 'fade';
-    const out = badge.animate({ opacity: [1, 0] }, { duration: FADE_MS / 2, fill: 'forwards' });
-    await out.finished.catch(() => {});
-    layOut(to);
-    out.cancel();
-    await badge
-      .animate({ opacity: [0, 1] }, { duration: FADE_MS / 2 })
-      .finished.catch(() => {});
-    delete badge.dataset.flipping;
-    return to;
-  }
-
-  async function show(to: Side, route: string | null): Promise<Side> {
-    window.scrollTo(0, 0);
-    const landed =
-      reducedMotion || typeof badge.animate !== 'function' ? await fade(to) : await turn(to, route);
-    window.scrollTo(0, 0);
-    return landed;
+    if (want === from.route) turn.steer(from.side);
+    else if (want === to.route) turn.steer(to.side);
   }
 
   async function showBack(route: string, page: BackPage) {
@@ -219,9 +130,9 @@ export function createFlipper(opts: {
       const active = document.activeElement;
       returnFocus = active instanceof HTMLElement && front.contains(active) ? active : null;
     }
-    backSlot.replaceChildren(page.face);
+    faces.setBack(page.face);
     if ((await show('back', route)) === 'front') {
-      backSlot.replaceChildren();
+      faces.setBack(null);
       return;
     }
     shown = route;
@@ -233,7 +144,7 @@ export function createFlipper(opts: {
   async function showFront() {
     if ((await show('front', null)) === 'back') return;
     shown = null;
-    backSlot.replaceChildren();
+    faces.setBack(null);
     document.title = frontTitle;
     if (returnFocus?.isConnected && front.contains(returnFocus)) returnFocus.focus({ preventScroll: true });
     returnFocus = null;

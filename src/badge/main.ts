@@ -1,4 +1,6 @@
 import { BACK_ROUTES } from '../data/site';
+import { createPresentationChooser } from './flip/choose-presentation';
+import { createBadgeFaces } from './flip/faces';
 import { createFlipper, prefetchBackPages } from './flip/flipper';
 import { COMBOS, createComboDetector } from './input/combos';
 import { createInputBus } from './input/bus';
@@ -47,11 +49,11 @@ const runtime = createRuntime({
   session,
 });
 
-// Front ↔ back. The flipper owns #badge's data-side, which wireControls' isActive reads.
+// Front ↔ back. The flip lays out #badge's data-side, which wireControls' isActive reads.
+const faces = createBadgeFaces(root, document.getElementById('back-slot')!);
 const flipper = createFlipper({
-  badge: root,
-  backSlot: document.getElementById('back-slot')!,
-  reducedMotion,
+  faces,
+  presentation: createPresentationChooser(faces, { reducedMotion }),
   onSideChange: (side) => {
     // Tilt only means something while the front faces the visitor.
     tilt.setActive(side === 'front');

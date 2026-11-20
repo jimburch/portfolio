@@ -12,5 +12,6 @@ export default defineConfig({
   projects: [
     { name: 'webkit-phone', use: { ...devices['iPhone 14'], browserName: 'webkit' } },
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'] } },
+    { name: 'webkit-desktop', use: { ...devices['Desktop Safari'] } },
   ],
 });

@@ -566,7 +566,7 @@
   visibility: visible;
 }
 
-/* ---- The flip (flip/flipper.ts) ----------------------------------------- */
+/* ---- The flip (flip/: faces.ts, css-turn.ts, fade.ts) ------------------- */
 
 .face-front[hidden] {
   display: none;
@@ -587,7 +587,7 @@
   pointer-events: none;
 }
 
-/* Mid-turn the flipper animates the badge's box from one side's on-screen size
+/* Mid-turn the CSS turn animates the badge's box from one side's on-screen size
    to the other's (badge to reading column on desktop) while it rotates; the two
    faces sit back to back inside it. */
 #badge[data-flipping='turn'] {
