@@ -6,25 +6,21 @@
    wherever it is. It is the hand turn's stand-in (hand-turn.ts) until the
    3D hand has loaded, and wherever it can't.
 
-   The motion is held-turn-motion.ts (one time value → one frame); the stage
-   it plays on is held-stage.ts. While the badge turns, the back slot is
-   clipped to the badge; once it faces the visitor the held view's own
-   scene, pushed in by the same camera, frames it as on a direct load, and
-   the resting hand comes in. Once it settles nothing is left transformed,
+   The motion is held-turn-motion.ts (one time value → one frame); the
+   stage it plays on, which also runs it, is held-stage.ts. While the badge
+   turns, the back slot is clipped to the badge; once it faces the visitor
+   the held view's own scene, pushed in by the same camera, frames it as on
+   a direct load, and the resting hand comes in. Once it settles nothing is left transformed,
    so the back is laid out at its real on-screen size and its text is crisp.
 
-   Held, the back's links to other back pages swap the page in the window with
-   a quick crossfade (back-swap.ts); the badge stays held and the hand stays
+   Held, the back's links to other back pages swap the page in the window
+   (back-swap.ts, the controller's); the badge stays held and the hand stays
    put. */
 
-import { crossfadeBack } from './back-swap';
-import type { BadgeFaces, Side } from './faces';
-import { createHeldStageView, type HeldStage, type StageFrame } from './held-stage';
+import type { BadgeFaces } from './faces';
+import { createHeldStage, type HeldStage, type StageFrame } from './held-stage';
 import { faceTransform, frameAt, type TurnFrame } from './held-turn-motion';
-import type { RunningTurn, TurnPresentation } from './presentation';
-import { playTurn } from './turn-clock';
-
-export type { HeldStage } from './held-stage';
+import type { TurnPresentation } from './presentation';
 
 /** The whole motion, one way. */
 const TURN_MS = 1100;
@@ -48,25 +44,14 @@ function stageFrameOf({ camera, contact, front, back, pose }: TurnFrame): StageF
   };
 }
 
-export function createHeldTurn(faces: BadgeFaces, stage: HeldStage): TurnPresentation {
-  const { badge, front, backSlot } = faces;
-  const view = createHeldStageView(faces, stage);
-
-  function run(to: Side): RunningTurn {
-    view.release();
-    badge.dataset.flipping = 'held-turn';
-    front.hidden = false;
-    backSlot.hidden = false;
-    const framing = view.measure();
-    return playTurn(to, TURN_MS, {
-      draw: (t) => view.show(stageFrameOf(frameAt(t, framing))),
-      land(side) {
-        view.release();
-        faces.layOut(side);
-        delete badge.dataset.flipping;
-      },
-    });
-  }
-
-  return { run, swapBack: (content) => crossfadeBack(faces, content) };
+export function createHeldTurn(faces: BadgeFaces, held: HeldStage): TurnPresentation {
+  const stage = createHeldStage(faces, held);
+  return {
+    run: (to) =>
+      stage.play(to, {
+        flipping: 'held-turn',
+        ms: TURN_MS,
+        frameAt: (t, framing) => stageFrameOf(frameAt(t, framing)),
+      }),
+  };
 }

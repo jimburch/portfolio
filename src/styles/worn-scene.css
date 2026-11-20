@@ -96,6 +96,19 @@
     background: no-repeat 0 0 / 100% 100%;
   }
 
+  /* The room carried on past its edges, under it: the hand turn's camera
+     pulls back (flip/hand-turn-motion.ts) until the room no longer reaches
+     the window's edges. Its gradient is the room's own, on a box 2.2 times
+     the window instead of 1.12, with the stops moved so every point the room
+     covers gets the same colour (1.12 / 2.2 of the gradient line, centred);
+     past the room it runs on in the end colours. A blur leaves a linear
+     gradient as it is, so it needs none to meet the blurred room without a
+     seam. At rest and held the room covers it. */
+  .worn-scene__room-beyond {
+    inset: -60%;
+    background: linear-gradient(170deg, #5a4a3e 24.545%, #221d1a 75.455%);
+  }
+
   /* The wearer is out of focus and a little in shadow, so the badge stays the subject. */
   .worn-scene__wearer,
   .worn-scene__neck {

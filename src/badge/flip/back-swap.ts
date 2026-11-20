@@ -1,16 +1,35 @@
-/* Swapping one back page for another in place, with the badge staying as it
-   is (held up in the held close-up, or laid out as a page): the crossfade the
-   turn presentations' swapBack shows.
+/* Swapping one back page for another in place while the badge is held up in
+   the held close-up (a qualifying desktop, scene/gate.ts): the controller's
+   (flipper.ts), whatever turn brought the back up. Everywhere else a back
+   page's links are ordinary page loads.
 
    The new page goes in from its top, as a page load would show it. The old
    one stays over it, pinned where it was showing, while it fades out, so the
    new page shows through as the old one goes. Opacity only, no motion: it
-   suits reduced motion as well. */
+   suits reduced motion as well, only quicker. */
 
 import type { BadgeFaces } from './faces';
 
 /** The quick crossfade between two back pages. */
 export const SWAP_MS = 200;
+/** With reduced motion: quicker still (as quick as the reduced-motion fade's turn). */
+export const REDUCED_MOTION_SWAP_MS = 150;
+
+/** The in-place swap of the back page, while it can happen. */
+export interface BackSwap {
+  /** Whether a back page shown now would swap in place: only while the badge is held. */
+  available(): boolean;
+  /** Replaces the back page shown with `content`, in place, from its top; resolves once the old page is gone. */
+  swap(content: HTMLElement): Promise<void>;
+}
+
+export function createHeldSwap(
+  faces: BadgeFaces,
+  { isHeld, reducedMotion }: { isHeld: () => boolean; reducedMotion: boolean },
+): BackSwap {
+  const ms = reducedMotion ? REDUCED_MOTION_SWAP_MS : SWAP_MS;
+  return { available: isHeld, swap: (content) => crossfadeBack(faces, content, ms) };
+}
 
 /**
  * Takes `el` out of the page's flow and pins it to the viewport where `at`

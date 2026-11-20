@@ -9,11 +9,13 @@
    turns back from where it is rather than finishing first. If a back page cannot be fetched, the visitor gets it by normal
    navigation instead, and the badge is never left half-turned.
 
-   From one back page to another (the back's own links, marked data-flip) the
-   badge swaps the page in place, if the presentation can, rather than turning
-   by way of the front. A swap takes over the back's history entry rather than
-   adding one, as a second flip before the first lands does, so Back and HOME
-   always return to the front however many swaps there were.
+   While the badge is held (a back page up in the held close-up on a
+   qualifying desktop), from one back page to another (the back's own links,
+   marked data-flip) it swaps the page in place (back-swap.ts) rather than
+   turning by way of the front. A swap takes over the back's history entry
+   rather than adding one, as a second flip before the first lands does, so
+   Back and HOME always return to the front however many swaps there were.
+   Anywhere else a back page's links are ordinary page loads.
 
    Focus: landing on a back, or swapping one in, moves it to the page's h1;
    landing on the front gives it back to the front control that had it when the
@@ -24,6 +26,7 @@
    side. How a turn looks is a turn presentation's job (presentation.ts), picked
    afresh for every turn. */
 
+import type { BackSwap } from './back-swap';
 import { oppositeSide, type BadgeFaces, type Side } from './faces';
 import type { RunningTurn, TurnPresentation } from './presentation';
 
@@ -55,9 +58,6 @@ interface BackPage {
   face: HTMLElement;
   title: string;
 }
-
-/** A presentation's in-place swap of the back page (TurnPresentation.swapBack). */
-type Swap = (content: HTMLElement) => Promise<void>;
 
 /** The back page's `[data-back-face]` and title, or null if it cannot be had. */
 async function loadBackPage(route: string): Promise<BackPage | null> {
@@ -98,8 +98,10 @@ export function createFlipper(opts: {
   presentation: () => TurnPresentation;
   /** After landing. On the front, focus is already back on the control that started the flip, if it could be. */
   onSideChange: (side: Side) => void;
+  /** Swapping one back page for another in place, where the badge can (held). */
+  swap?: BackSwap;
 }): Flipper {
-  const { faces, presentation, onSideChange } = opts;
+  const { faces, presentation, onSideChange, swap } = opts;
   const { badge, front, backSlot } = faces;
   const frontTitle = document.title;
 
@@ -157,8 +159,8 @@ export function createFlipper(opts: {
   }
 
   /** Swaps the back page on the badge for `route`'s, in place. */
-  async function swapBack(route: string, page: BackPage, swap: Swap) {
-    await swap(page.face);
+  async function swapBack(route: string, page: BackPage, inPlace: BackSwap) {
+    await inPlace.swap(page.face);
     shownBack(route, page);
   }
 
@@ -172,27 +174,24 @@ export function createFlipper(opts: {
     onSideChange('front');
   }
 
-  /** Swaps the back page in place with the presentation, if it can. */
-  function swapper(): Swap | null {
-    const p = presentation();
-    return p.swapBack ? (content) => p.swapBack!(content) : null;
-  }
+  /** Whether a back page shown now would swap in place for another (else it goes by way of the front). */
+  const swapsInPlace = () => shown !== null && swap?.available() === true;
 
   /** Turns or swaps the badge, one at a time, until it shows what the URL names. */
   async function reconcile() {
     for (;;) {
       const want = backRouteOf(location.pathname);
       if (want === shown) return;
-      const swap = shown !== null ? swapper() : null;
+      const inPlace = swapsInPlace() ? swap! : null;
       // Back to back goes by way of the front when it can't swap in place.
-      if (want === null || (shown !== null && !swap)) {
+      if (want === null || (shown !== null && !inPlace)) {
         await showFront();
         continue;
       }
       const page = await loadBackPage(want);
       if (backRouteOf(location.pathname) !== want) continue; // the URL moved on meanwhile
       if (!page) return navigateInstead(want);
-      if (swap) await swapBack(want, page, swap);
+      if (inPlace) await swapBack(want, page, inPlace);
       else await showBack(want, page);
     }
   }
@@ -276,9 +275,6 @@ export function createFlipper(opts: {
 
   const isPlainClick = (e: MouseEvent) =>
     !e.defaultPrevented && e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
-
-  /** Whether a back link clicked now can swap the page in place; if not, the browser follows it. */
-  const swapsInPlace = () => shown !== null && swapper() !== null;
 
   badge.addEventListener('click', (e) => {
     if (!isPlainClick(e) || !(e.target instanceof Element)) return;

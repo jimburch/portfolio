@@ -43,8 +43,10 @@ pnpm hand:images    # renders the model just built
 ```
 
 - **`hand:contacts`** poses the hand at 1001 evenly spaced t with the contact
-  solve (as the spike did every frame), writes each digit's curl, then sweeps
-  the page's own path (the baked curls, interpolated) over 2001 t and fails if
+  solve (as the spike did every frame), on the page's own path (v10's badge
+  with the lift scaled to the held zoom and trimmed, as `hand-turn-motion.ts`
+  places it), writes each digit's curl, then sweeps that path over 2001 t,
+  with the baked curls interpolated and solved at every sample, and fails if
   any skin triangle passes through the card or the held pose's pads don't all
   rest on the face. The curls depend only on t: the key poses are in the
   badge's frame and the forearm, which the framing moves, carries no pad.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { frameAt, poseAt, type HeldFraming } from '../../src/badge/flip/held-turn-motion';
+import type { HeldFraming } from '../../src/badge/flip/held-stage';
+import { frameAt, poseAt } from '../../src/badge/flip/held-turn-motion';
 
 /* The held turn's motion (t → frame): the seam the hand turn (#32) drives.
    Pinned here because "never scaled up" and "lands exactly" are about every
@@ -10,6 +11,7 @@ const framing: HeldFraming = {
   worn: { x: 560.2, y: 175, width: 320.1, height: 693 },
   held: { x: 531, y: 62.2, width: 377.9, height: 818.2 },
   heldBlur: 4,
+  view: { width: 1440, height: 900 },
 };
 const ts = Array.from({ length: 1001 }, (_, i) => i / 1000);
 

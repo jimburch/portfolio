@@ -6,7 +6,7 @@
    Ported from the hand-turn spike (v10). The stylesheet blurs both layers
    heavily (depth of field), so shapes are simple and edges are soft on screen. */
 
-import { ABOVE_ART, ART_BOX, BELOW_ART, NECK, type Box } from './stage';
+import { ABOVE_ART, ART_BOX, BELOW_ART, NECK, REST_ART_BOTTOM, type Box } from './stage';
 
 const SKIN = '#b98a6c';
 const SKIN_SHADE_LEFT = '#94684f';
@@ -51,13 +51,15 @@ export function bodySvg(): string {
     `M${-(h + 6)} ${b - 6}Q${-(h - 30)} ${b + 180} 0 ${b + 300}` +
     `Q${h - 30} ${b + 180} ${h + 6} ${b - 6}Q0 ${b + 50} ${-(h + 6)} ${b - 6}Z`;
   // A lighter panel down the jacket front, either side of the V.
+  // (Each shape keeps the curve it had down to REST_ART_BOTTOM and runs straight on below it.)
+  const end = REST_ART_BOTTOM;
   const front =
-    `M-400 ${b + 10}Q-240 ${b + 330} -224 ${bottom}L224 ${bottom}Q240 ${b + 330} 400 ${b + 10}` +
+    `M-400 ${b + 10}Q-240 ${b + 330} -224 ${end}L-224 ${bottom}L224 ${bottom}L224 ${end}Q240 ${b + 330} 400 ${b + 10}` +
     `Q160 ${b + 170} 0 ${b + 300}Q-160 ${b + 170} -400 ${b + 10}Z`;
   // Darker sides toward the arms.
   const side = (s: -1 | 1) =>
     `M${s * 520} ${b + 470}Q${s * 340} ${b + 420} ${s * 260} ${b + 550}` +
-    `L${s * 280} ${bottom}L${s * 560} ${bottom}Z`;
+    `L${s * 280} ${end}L${s * 280} ${bottom}L${s * 560} ${bottom}L${s * 560} ${end}Z`;
 
   return (
     `<path d="${jacket}" fill="${JACKET}"/>` +

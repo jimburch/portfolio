@@ -4,9 +4,10 @@
    focus, and the controller knows nothing of how a turn is drawn.
 
    Contract with the controller:
-   - The controller starts at most one turn or swap at a time, a turn always
-     from the side the badge is laid out as, a swap only while it is laid out
-     as the back, and waits for each to settle before starting another.
+   - The controller starts at most one turn at a time, always from the side
+     the badge is laid out as, and waits for it to settle before starting
+     another. (Swapping one back page for another in place is the
+     controller's own, back-swap.ts: no presentation turns for it.)
    - When turning to the back, the back slot already holds the back page's face.
      The controller empties it once a turn settles on the front.
    - While a turn runs the badge carries `data-flipping` (no taps land); once it
@@ -36,12 +37,4 @@ export interface RunningTurn {
 export interface TurnPresentation {
   /** Starts turning the badge from the side it is laid out as over to `to`. */
   run(to: Side): RunningTurn;
-  /**
-   * Replaces the back page shown on the back with `content`, in place, without
-   * turning to the front, and shows it from its top (the page scrolled there),
-   * as a page load would. The badge stays on its back and carries no
-   * `data-flipping`. Resolves once the new page is at rest, with the old one
-   * gone. Optional: a presentation without it swaps backs by way of the front.
-   */
-  swapBack?(content: HTMLElement): Promise<void>;
 }

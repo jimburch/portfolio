@@ -1,7 +1,5 @@
-/* Reduced motion: a quick fade through the swap instead of a turn, and a
-   crossfade as quick from one back page to another. */
+/* Reduced motion: a quick fade through the swap instead of a turn. */
 
-import { crossfadeBack } from './back-swap';
 import type { BadgeFaces, Side } from './faces';
 import type { RunningTurn, TurnPresentation } from './presentation';
 
@@ -29,5 +27,5 @@ export function createFade(faces: BadgeFaces): TurnPresentation {
     };
   }
 
-  return { run, swapBack: (content) => crossfadeBack(faces, content, FADE_MS) };
+  return { run };
 }

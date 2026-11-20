@@ -1,4 +1,5 @@
 import { BACK_ROUTES } from '../data/site';
+import { createHeldSwap } from './flip/back-swap';
 import { createPresentationChooser } from './flip/choose-presentation';
 import { createBadgeFaces } from './flip/faces';
 import { createFlipper, prefetchBackPages } from './flip/flipper';
@@ -62,13 +63,14 @@ const faces = createBadgeFaces(root, backSlot);
 // On a qualifying desktop the back lands in the held close-up the back slot holds.
 const heldView = backSlot.querySelector<HTMLElement>(':scope > .held-view');
 const held = scene && heldView ? { scene, heldView } : null;
+const wornDesktop = wornDesktopQuery();
 // There, once the front has booted and the browser is idle, the hand turn loads in the background.
 const handTurn =
   held &&
   loadHandTurnWhenIdle({
     faces,
     stage: held,
-    gate: wornDesktopQuery(),
+    gate: wornDesktop,
     reducedMotion,
     whenBooted: (fn) => runtime.onReady(fn),
     // Marked for tests and tooling: 'ready' (the hand turns the badge from the next flip on) or 'unavailable'.
@@ -83,6 +85,8 @@ const flipper = createFlipper({
     held,
     handTurn: () => handTurn?.ready() ?? null,
   }),
+  // Held, one back page swaps for another in place; elsewhere back links are page loads.
+  swap: held ? createHeldSwap(faces, { isHeld: () => wornDesktop.matches, reducedMotion }) : undefined,
   onSideChange: (side) => {
     // Tilt only means something while the front faces the visitor.
     tilt.setActive(side === 'front');

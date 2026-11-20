@@ -23,8 +23,9 @@ export interface BadgeFaces {
   /**
    * Puts a back page's face in the back slot in place of the one there, and
    * hands back that old face, if any: still in the slot, after the new one
-   * (so drawn over it), but no longer the back's face. It is inert and hidden
-   * from assistive tech; the caller takes it out.
+   * (so drawn over it), but no longer the back's face. It is inert, hidden
+   * from assistive tech, and its links carry no flip markers; the caller takes
+   * it out.
    */
   replaceBack(content: HTMLElement): HTMLElement | null;
   /** The back page's face in the back slot, if any. */
@@ -56,9 +57,15 @@ export function createBadgeFaces(badge: HTMLElement, backSlot: HTMLElement): Bad
         backSlot.append(content);
         return null;
       }
+      // Retired: a picture of the old page while it goes, no longer a page. Its
+      // links lose the flip's markers too, so only the shown page has them.
       old.removeAttribute('data-back-face');
       old.inert = true;
       old.setAttribute('aria-hidden', 'true');
+      for (const link of old.querySelectorAll('[data-flip], [data-home]')) {
+        link.removeAttribute('data-flip');
+        link.removeAttribute('data-home');
+      }
       old.before(content);
       return old;
     },

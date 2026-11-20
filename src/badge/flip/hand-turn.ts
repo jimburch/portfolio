@@ -10,25 +10,24 @@
    turns t into one badge placement for the DOM faces, the page scene's
    camera and the 3D hand's camera, and the hand's pose comes from the same
    t, so hand and badge stay locked. The stage is the held turn's
-   (held-stage.ts), with the back slot clipped to the badge the whole way;
-   the hand is two canvases split at the card's plane (scene/hand/hand-view.ts),
+   (held-stage.ts, which also runs the turn), with the back slot clipped to
+   the badge the whole way; the hand is two canvases split at the card's plane (scene/hand/hand-view.ts),
    placed behind and in front of the badge while it turns. Once it settles
    the canvases go and the resting hand's static images (HeldView.astro), the
    same pose, take over; turning back, the canvases take over from them.
 
    This module, three.js and the model are loaded in the background
    (hand-turn-loader.ts); until then, or if they can't load, the held turn
-   runs instead. */
+   runs instead. Held, swapping one back page for another is the
+   controller's (back-swap.ts). */
 
 import { createHandView, type HandView } from '../../scene/hand/hand-view';
 import { HAND_TURN_MS } from '../../scene/hand/timeline';
 import modelUrl from '../../scene/hand/hand.glb?url';
-import { crossfadeBack } from './back-swap';
-import type { BadgeFaces, Side } from './faces';
-import { createHeldStageView, type HeldStage, type StageFrame } from './held-stage';
+import type { BadgeFaces } from './faces';
+import { createHeldStage, type HeldStage, type StageFrame } from './held-stage';
 import { handFrameAt, type HandTurnFrame } from './hand-turn-motion';
-import type { RunningTurn, TurnPresentation } from './presentation';
-import { playTurn } from './turn-clock';
+import type { TurnPresentation } from './presentation';
 
 export interface HandTurn extends TurnPresentation {
   /** False once the hand can't be drawn any more (the WebGL context lost): use another presentation. */
@@ -46,36 +45,30 @@ const stageFrameOf = ({ scene, front, back }: HandTurnFrame): StageFrame => ({
   grip: 0,
 });
 
-export function createHandTurn(faces: BadgeFaces, stage: HeldStage, hand: HandView): HandTurn {
-  const { badge, front, backSlot } = faces;
-  const view = createHeldStageView(faces, stage);
-
-  function run(to: Side): RunningTurn {
-    view.release();
-    badge.dataset.flipping = 'hand-turn';
-    front.hidden = false;
-    backSlot.hidden = false;
-    // Behind the badge's faces and in front of them, over the page's scene.
-    badge.before(hand.behind);
-    badge.after(hand.front);
-    const framing = view.measure();
-    return playTurn(to, HAND_TURN_MS, {
-      draw(t) {
-        const frame = handFrameAt(t, framing);
-        view.show(stageFrameOf(frame));
-        hand.draw(frame);
-      },
-      land(side) {
-        hand.behind.remove();
-        hand.front.remove();
-        view.release();
-        faces.layOut(side);
-        delete badge.dataset.flipping;
-      },
-    });
-  }
-
-  return { run, swapBack: (content) => crossfadeBack(faces, content), usable: hand.usable };
+export function createHandTurn(faces: BadgeFaces, held: HeldStage, hand: HandView): HandTurn {
+  const stage = createHeldStage(faces, held);
+  return {
+    run: (to) =>
+      stage.play(to, {
+        flipping: 'hand-turn',
+        ms: HAND_TURN_MS,
+        frameAt(t, framing) {
+          const frame = handFrameAt(t, framing);
+          hand.draw(frame);
+          return stageFrameOf(frame);
+        },
+        // Behind the badge's faces and in front of them, over the page's scene, only while it turns.
+        enter() {
+          faces.badge.before(hand.behind);
+          faces.badge.after(hand.front);
+        },
+        leave() {
+          hand.behind.remove();
+          hand.front.remove();
+        },
+      }),
+    usable: hand.usable,
+  };
 }
 
 /** Fetches the model and readies the hand to draw; rejects if it can't (no WebGL, the model failing to load). */

@@ -15,10 +15,13 @@
    it settles.
 
    poseAt(t) is the choreography; frameAt(t, framing) puts it on screen as
-   plain numbers: the scene's camera, and where each face sits. The hand turn
-   (#32) drives this same frame from its own clock, places its 3D camera from
-   `camera` and the badge from `front` / `back`, and falls back to the held
-   turn (held-turn.ts) that draws it without a hand. */
+   plain numbers: the scene's camera, and where each face sits. It is the held
+   turn's own (held-turn.ts). The hand turn has its own motion
+   (hand-turn-motion.ts: v10's) on the same stage, and the held turn stands in
+   for it until the 3D hand has loaded. */
+
+import { centre, clamp01 } from '../../scene/geometry';
+import type { HeldFraming } from './held-stage';
 
 export interface TurnPose {
   /** How far over the badge has turned: 0 front up, 1 back up (180°). */
@@ -36,8 +39,6 @@ const PUSH_START = TURN_END / 2;
 /** The resting hand comes in quickly at the very end, as the camera settles. */
 const GRIP_START = 0.8;
 
-const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
-
 /** Cubic ease-in-out: still at both ends, symmetric about its midpoint (0.5 → 0.5). */
 const easeInOut = (x: number) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2);
 
@@ -50,24 +51,6 @@ export function poseAt(t: number): TurnPose {
     push: between(t, PUSH_START, 1),
     grip: between(t, GRIP_START, 1),
   };
-}
-
-/** A box on screen, in viewport px. */
-export interface ScreenBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-/** The two ends of the motion, measured on the page. */
-export interface HeldFraming {
-  /** The badge hanging at rest: the front's box. */
-  worn: ScreenBox;
-  /** The badge held up in the close-up: the held view's badge. */
-  held: ScreenBox;
-  /** The held close-up's extra blur on the scene, in stage units (`--held-blur`). */
-  heldBlur: number;
 }
 
 /**
@@ -100,8 +83,6 @@ export interface TurnFrame {
 
 /** Perspective distance, in badge heights: as deep as the plain CSS turn's. */
 const PERSPECTIVE_PER_HEIGHT = 2;
-
-const centre = (box: ScreenBox) => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 });
 
 /**
  * The frame at time t. The camera is a zoom by `scale` about the worn badge's

@@ -1,9 +1,10 @@
 /* The stage the desktop turns play on (scene/gate.ts): the badge on the
    page's worn scene, and the back slot laid out as the held close-up it
    lands in (HeldView.astro, badge-front.css "The held turn"). Shared by the
-   held turn and the hand turn: each works out a frame for its t, and this
-   puts the frame on the page and takes it all off again once the turn
-   settles, so the landed back is laid out exactly as a direct load of it.
+   held turn and the hand turn: each says what a frame at t looks like, and
+   the stage runs the turn, puts each frame on the page and takes it all off
+   once the turn settles, so the landed back is laid out exactly as a direct
+   load of it.
 
    - the page's own scene (#worn-scene) takes the camera;
    - the front face turns in its box where it hangs;
@@ -14,8 +15,10 @@
      much as `grip` says. */
 
 import { frameScene, releaseScene, type SceneView } from '../../scene/camera';
-import type { BadgeFaces } from './faces';
-import type { HeldFraming, ScreenBox } from './held-turn-motion';
+import type { ScreenBox } from '../../scene/geometry';
+import type { BadgeFaces, Side } from './faces';
+import type { RunningTurn } from './presentation';
+import { playTurn } from './turn-clock';
 
 /** The held close-up the back lands in: the held view in the back slot. */
 export interface HeldStage {
@@ -23,6 +26,18 @@ export interface HeldStage {
   scene: HTMLElement;
   /** The held view ahead of the back face in the back slot. */
   heldView: HTMLElement;
+}
+
+/** The two ends of a turn, measured on the page. */
+export interface HeldFraming {
+  /** The badge hanging at rest: the front's box. */
+  worn: ScreenBox;
+  /** The badge held up in the close-up: the held view's badge. */
+  held: ScreenBox;
+  /** The held close-up's extra blur on the scene, in stage units (`--held-blur`). */
+  heldBlur: number;
+  /** The window the turn plays in, px. */
+  view: { width: number; height: number };
 }
 
 /** How a face shows: its CSS transform, about its transform origin, and whether it is the one facing the visitor. */
@@ -48,12 +63,22 @@ export interface StageFrame {
   grip: number;
 }
 
-export interface HeldStageView {
-  /** The two ends, with both faces laid out for the turn and nothing transformed. */
-  measure(): HeldFraming;
-  show(frame: StageFrame): void;
-  /** Takes every frame off the page. */
-  release(): void;
+/** What a presentation brings to a turn on the stage. */
+export interface StageTurn {
+  /** The badge's `data-flipping` while it runs. */
+  flipping: string;
+  /** The whole motion, one way. */
+  ms: number;
+  /** The frame at t, between the two measured ends; anything else drawn per frame is drawn here too. */
+  frameAt(t: number, framing: HeldFraming): StageFrame;
+  /** Puts extra layers in for the turn, and takes them out once it lands. */
+  enter?(): void;
+  leave?(): void;
+}
+
+export interface HeldStageRunner {
+  /** Turns the badge to `to` on the stage. */
+  play(to: Side, turn: StageTurn): RunningTurn;
 }
 
 const boxOf = (el: Element): ScreenBox => {
@@ -61,43 +86,63 @@ const boxOf = (el: Element): ScreenBox => {
   return { x, y, width, height };
 };
 
-export function createHeldStageView(faces: BadgeFaces, { scene, heldView }: HeldStage): HeldStageView {
-  const { front, backSlot } = faces;
+export function createHeldStage(faces: BadgeFaces, { scene, heldView }: HeldStage): HeldStageRunner {
+  const { badge, front, backSlot } = faces;
   const heldScene = heldView.querySelector<HTMLElement>('.worn-scene')!;
   const heldBadge = heldView.querySelector<HTMLElement>('.held-view__badge')!;
 
+  /** The two ends, with both faces laid out for the turn and nothing transformed. */
+  const measure = (): HeldFraming => ({
+    worn: boxOf(front),
+    held: boxOf(heldBadge),
+    heldBlur: parseFloat(getComputedStyle(heldScene).getPropertyValue('--scene-blur')) || 0,
+    view: { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight },
+  });
+
+  function show(f: StageFrame) {
+    frameScene(scene, f.scene);
+    // The face turned away is see-through, not hidden: hiding the front would
+    // take focus off the control that started the turn.
+    front.style.transform = f.front.transform;
+    front.style.opacity = f.front.shown ? '' : '0';
+    backSlot.style.transform = f.back.transform;
+    backSlot.style.opacity = f.back.shown ? '' : '0';
+    backSlot.toggleAttribute('data-turning', f.turning);
+    backSlot.style.setProperty('--held-turn-inset', `${f.inset.toFixed(2)}px`);
+    // Seen through the back slot the held scene is pushed in only as far as
+    // the page's: blurred as much, so the two meet without a seam.
+    frameScene(heldScene, { blur: f.heldBlur });
+    heldView.style.setProperty('--held-grip', f.grip.toFixed(4));
+  }
+
+  function release() {
+    releaseScene(scene);
+    releaseScene(heldScene);
+    heldView.style.removeProperty('--held-grip');
+    backSlot.style.removeProperty('--held-turn-inset');
+    for (const el of [front, backSlot]) {
+      for (const name of ['transform', 'opacity']) el.style.removeProperty(name);
+    }
+    backSlot.removeAttribute('data-turning');
+  }
+
   return {
-    measure: () => ({
-      worn: boxOf(front),
-      held: boxOf(heldBadge),
-      heldBlur: parseFloat(getComputedStyle(heldScene).getPropertyValue('--scene-blur')) || 0,
-    }),
-
-    show(f) {
-      frameScene(scene, f.scene);
-      // The face turned away is see-through, not hidden: hiding the front would
-      // take focus off the control that started the turn.
-      front.style.transform = f.front.transform;
-      front.style.opacity = f.front.shown ? '' : '0';
-      backSlot.style.transform = f.back.transform;
-      backSlot.style.opacity = f.back.shown ? '' : '0';
-      backSlot.toggleAttribute('data-turning', f.turning);
-      backSlot.style.setProperty('--held-turn-inset', `${f.inset.toFixed(2)}px`);
-      // Seen through the back slot the held scene is pushed in only as far as
-      // the page's: blurred as much, so the two meet without a seam.
-      frameScene(heldScene, { blur: f.heldBlur });
-      heldView.style.setProperty('--held-grip', f.grip.toFixed(4));
-    },
-
-    release() {
-      releaseScene(scene);
-      releaseScene(heldScene);
-      heldView.style.removeProperty('--held-grip');
-      backSlot.style.removeProperty('--held-turn-inset');
-      for (const el of [front, backSlot]) {
-        for (const name of ['transform', 'opacity']) el.style.removeProperty(name);
-      }
-      backSlot.removeAttribute('data-turning');
+    play(to, turn) {
+      release();
+      badge.dataset.flipping = turn.flipping;
+      front.hidden = false;
+      backSlot.hidden = false;
+      turn.enter?.();
+      const framing = measure();
+      return playTurn(to, turn.ms, {
+        draw: (t) => show(turn.frameAt(t, framing)),
+        land(side) {
+          turn.leave?.();
+          release();
+          faces.layOut(side);
+          delete badge.dataset.flipping;
+        },
+      });
     },
   };
 }

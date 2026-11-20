@@ -21,8 +21,8 @@ interface Frame {
   canvases: number;
   /** The resting hand's static image, in front of the badge. */
   restingHand: number;
-  /** The page scene's camera zoom. */
-  zoom: number;
+  /** How far the camera has pushed in: the page scene's extra blur (0 at rest, the held close-up's 4 once held). */
+  push: number;
 }
 
 const pad = (page: Page) => page.getByRole('link', { name: 'RESUME', exact: true });
@@ -77,13 +77,13 @@ async function recordFrames(page: Page) {
     const scene = document.getElementById('worn-scene')!;
     const hand = document.querySelector('#back-slot .held-view__hand--front')!;
     const sample = () => {
-      const zoom = /scale\(([\d.]+)\)/.exec(scene.style.getPropertyValue('--scene-camera'))?.[1];
+      const blur = scene.style.getPropertyValue('--scene-blur');
       w.__frames.push({
         side: el.dataset.side,
         flipping: el.dataset.flipping,
         canvases: document.querySelectorAll('canvas.hand-layer').length,
         restingHand: parseFloat(getComputedStyle(hand).opacity),
-        zoom: zoom ? parseFloat(zoom) : 1,
+        push: blur ? parseFloat(blur) : 0,
       });
       requestAnimationFrame(sample);
     };
@@ -121,23 +121,31 @@ test.describe('on a qualifying desktop', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
   test('once loaded, the hand turns the badge into the held close-up, and HOME turns it back', async ({ page }) => {
+    test.slow();
+    await page.clock.install({ time: 0 });
     await page.goto('/');
     await handLoaded(page, 'ready');
+    await page.waitForLoadState('networkidle');
+    await page.clock.pauseAt(60_000);
     await recordFrames(page);
     await pad(page).focus();
     await page.keyboard.press('Enter');
+    await turnStarts(page, 'hand-turn');
+    await step(page, 1700); // nearly there
+    await step(page, 400);
     await landsHeld(page);
     let all = await frames(page);
     expect(kindsOf(all)).toEqual(['hand-turn']);
     // The hand was drawn on its two canvases while the badge turned, and the static hand stayed out of it.
     expect(all.some((f) => f.flipping === 'hand-turn' && f.canvases === 2)).toBe(true);
     expect(all.filter((f) => f.flipping).every((f) => f.restingHand === 0)).toBe(true);
-    // The camera pushed in as far as the held close-up's, then the held view took over.
-    expect(Math.max(...all.map((f) => f.zoom))).toBeGreaterThan(1.15);
+    // The camera pushed in nearly as far as the held close-up's, then the held view took over.
+    expect(Math.max(...all.filter((f) => f.flipping).map((f) => f.push))).toBeGreaterThan(3.9);
 
     await recordFrames(page);
     await page.locator('#back-slot [data-back-face] a[data-home]').click();
     await expect.poll(() => path(page)).toBe('/');
+    await step(page, 2100);
     await expect(badge(page)).toHaveAttribute('data-side', 'front');
     await expect(badge(page)).not.toHaveAttribute('data-flipping');
     await expect(pad(page)).toBeFocused();
@@ -162,13 +170,13 @@ test.describe('on a qualifying desktop', () => {
     // Part-way: the badge is lifted and edge-on, the camera part-way in.
     await step(page, 800);
     const before = (await frames(page)).at(-1)!;
-    expect(before.zoom).toBeGreaterThan(1.05);
+    expect(before.push).toBeGreaterThan(2);
 
     await page.goBack();
     await expect.poll(() => path(page)).toBe('/');
     await step(page, 150);
     // It turned back at once: the camera is already pulling out.
-    expect((await frames(page)).at(-1)!.zoom).toBeLessThan(before.zoom);
+    expect((await frames(page)).at(-1)!.push).toBeLessThan(before.push);
     await step(page, 1000); // back down from under halfway: well under a whole turn
 
     await expect(badge(page)).toHaveAttribute('data-side', 'front');
@@ -176,7 +184,7 @@ test.describe('on a qualifying desktop', () => {
     await expect(canvases(page)).toHaveCount(0);
     const all = await frames(page);
     expect(all.every((f) => f.side === 'front')).toBe(true);
-    expect(Math.max(...all.map((f) => f.zoom))).toBeLessThan(1.15);
+    expect(Math.max(...all.map((f) => f.push))).toBeLessThan(3.9);
   });
 
   test('its canvases are decorative: hidden from assistive tech, never focused, never in the way of a click', async ({

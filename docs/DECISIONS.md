@@ -149,7 +149,9 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   the lifted face goes after it, so a flipped-in back is the direct load's
   markup and CSS exactly (no second copy of the held layout). The motion is a
   pure function of one time value (`held-turn-motion.ts`: `poseAt`,
-  `frameAt`), which the 3D hand turn (#32) will drive and fall back to.
+  `frameAt`). It is the held turn's own: the hand turn (#32) has its own
+  motion (`hand-turn-motion.ts`) on the same stage (`held-stage.ts`), and the
+  held turn stands in for it until the 3D hand has loaded.
   Without the 3D hand, the resting hand fades in over the last fifth of the
   motion. Reduced motion keeps the existing fade, which lands in the held
   close-up as a unit. Phones, touch screens and short windows keep the CSS
@@ -162,10 +164,10 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   its top. A swap replaces the history entry (like a second flip before the
   first lands), so one Back or HOME always returns to the front; focus moves
   to the new h1. Held on a desktop, the badge stays held and the hand stays
-  put. It is shared by every presentation (`flip/back-swap.ts`), so phones get
-  it too (reduced motion: the fade's 150 ms crossfade). External links, the
-  PDF and the vCard stay ordinary links, and a direct-loaded back page still
-  ships no script, so its links are ordinary page loads.
+  put (reduced motion: a 150 ms crossfade). External links, the PDF and the
+  vCard stay ordinary links, and a direct-loaded back page still ships no
+  script, so its links are ordinary page loads. *(Narrowed 2026-11-20, below:
+  only while the badge is held; phones went back to page loads.)*
 - **The hand turn (#32).** On a qualifying desktop, once the front has booted
   and the browser is idle, the hand turn loads in the background (one lazy
   chunk: three.js, tree-shaken, about 167 KB gz; the meshopt model, 62 KB gz,
@@ -185,3 +187,33 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   Finger contacts are baked at build time (`pnpm hand:contacts`, 0 crossings
   over 2001 t). The hand's look, rig, keys, pose and scene are one TypeScript
   source shared by the page and the resting-image render.
+
+## 2026-11-20 (Jim's review of the hand turn)
+
+- **The camera pulls back during the hand turn.** At rest the badge fills 77%
+  of the window (v10: about 63%) and held 91% (v10: about 73%), which left the
+  hand's reach and grip below the window and the clip above it. The rest and
+  held framings stay exactly as they are; in between, the page scene and the
+  3D eye zoom out together, on one smooth curve of the same t, to v10's own
+  framing (a window 800 units tall around the badge) as the hand reaches, and
+  back in as the badge settles. The fist shows as it rises, the grip is whole
+  and the clip stays in the window at every t (unit-tested at 1440×900 and
+  800×620). `flip/hand-turn-motion.ts`.
+- **Phones keep a simple flip to the back, no hand, and no in-place swap.**
+  Swapping one back page for another in place happens only while the badge is
+  held on a qualifying desktop; it is the flip controller's (`flip/back-swap.ts`),
+  not a turn presentation's. Everywhere else a back page's links are ordinary
+  page loads, as before #31.
+- **The lift is trimmed.** v10's lift overshot (244 against 218 at rest),
+  which drew the back a little larger than it is laid out mid-turn, against
+  the rule "laid out at its final size and scaled down, never up". The lift's
+  keys past edge-on are scaled so its peak is its end value and the settle
+  dips below instead; the back is never drawn above its laid-out size
+  (unit-tested over 2001 t). `scene/hand/timeline.ts`.
+- **The hand-turn baselines are approved** (#33's key-frame snapshots), to be
+  regenerated after this change.
+- **The hand model's licence notice** (MIT, © 2019 Amazon): #29 kept it next to
+  the built model. The model now ships content-hashed under `/_astro/` (so a
+  changed model is never served stale), where a file can't sit beside it; the
+  notice is embedded in the model itself (its glTF `asset.copyright`) and
+  published at `/hand/LICENSE-webxr-input-profiles.md` (`public/hand/`).
