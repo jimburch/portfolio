@@ -7,7 +7,13 @@ export interface Orientation {
   gamma: number;
 }
 export type ScreenAngle = 0 | 90 | 180 | 270;
-export type TiltSourceKind = 'gyro' | 'pointer' | 'off';
+/**
+ * What tilts the badge: the device's accelerometer/gyroscope (`gyro`), nothing
+ * yet because no orientation reading has arrived (`none`, e.g. any desktop),
+ * or nothing ever because the visitor prefers reduced motion (`off`). The
+ * pointer is never a source.
+ */
+export type TiltSourceKind = 'gyro' | 'none' | 'off';
 
 /** Degrees of device rotation that map to a full unit of tilt. */
 const FULL_TILT_DEGREES = 30;
@@ -41,16 +47,5 @@ export function driftBaseline(baseline: Orientation, reading: Orientation, rate 
   return {
     beta: baseline.beta + (reading.beta - baseline.beta) * rate,
     gamma: baseline.gamma + (reading.gamma - baseline.gamma) * rate,
-  };
-}
-
-export function pointerToTilt(
-  clientX: number,
-  clientY: number,
-  rect: { left: number; top: number; width: number; height: number },
-): Tilt {
-  return {
-    x: clampUnit((clientX - (rect.left + rect.width / 2)) / (rect.width / 2)),
-    y: clampUnit((clientY - (rect.top + rect.height / 2)) / (rect.height / 2)),
   };
 }

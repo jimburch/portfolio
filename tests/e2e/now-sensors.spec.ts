@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { tipDevice, waitForQuietFront } from './support/tilt';
 
 async function launcher(page: Page): Promise<void> {
   await page.goto('/');
@@ -35,20 +36,34 @@ test('sensors appear only in dev mode and report the source', async ({ page }) =
   await expect(page.locator('#lcd-screen')).not.toContainText('SENSORS');
   await openSensors(page);
   const screen = page.locator('#lcd-screen');
-  await expect(screen).toContainText(/SOURCE (pointer|gyro|off)/);
+  await expect(screen).toContainText(/SOURCE (none|gyro|off)/);
   await expect(screen).toContainText(/X [+-]\d\.\d\d/);
   await expect(screen).toContainText(/Y [+-]\d\.\d\d/);
 });
 
-test('sensors readout follows pointer tilt and stops after leaving', async ({ page, isMobile }) => {
-  test.skip(isMobile, 'pointer tilt is a desktop path');
+test('sensors readout ignores the mouse', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'a mouse is a desktop path');
+  await openSensors(page);
+  await waitForQuietFront(page);
+  await page.mouse.move(5, 5, { steps: 6 });
+  await page.waitForTimeout(300);
+  const screen = page.locator('#lcd-screen');
+  await expect(screen).toContainText('SOURCE none');
+  await expect(screen).toContainText('X +0.00');
+  await expect(screen).toContainText('Y +0.00');
+});
+
+test('sensors readout follows the device and stops after leaving', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openSensors(page);
-  await page.mouse.move(5, 5);
-  await expect(page.locator('#lcd-screen')).not.toContainText('X +0.00');
+  await waitForQuietFront(page);
+  await tipDevice(page);
+  const screen = page.locator('#lcd-screen');
+  await expect(screen).toContainText('SOURCE gyro');
+  await expect(screen).not.toContainText('X +0.00');
   await page.keyboard.press('x');
-  await page.mouse.move(300, 300);
+  await tipDevice(page);
   await page.waitForTimeout(200);
   expect(errors).toEqual([]);
 });

@@ -6,9 +6,9 @@
    Tilt (Task 5) writes --tx/--ty in [-1, 1] on #badge; nothing else moves.
 
    Light: tilting changes only how the light falls. Everything below derives
-   from --tx/--ty, so gyro, finger and mouse all drive it, and at rest
-   (including reduced motion, where tilt is off) it settles on a still,
-   lit-from-the-upper-left look. Only paint properties change per frame
+   from --tx/--ty, which only the device's orientation drives (never a mouse
+   or finger), and at rest (any desktop, and reduced motion, where tilt is
+   off) it settles on a still, lit-from-the-upper-left look. Only paint properties change per frame
    (gradient and background positions, colors, shadows): never layout. */
 
 #badge {

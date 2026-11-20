@@ -132,8 +132,9 @@
   }
 
   /* The straps catch the light as the badge tilts: a soft band of light,
-     masked to the straps, slides across them with the pointer, the way the
-     highlight slides across the badge's metal. */
+     masked to the straps, slides across them, the way the highlight slides
+     across the badge's metal. Only device orientation tilts it, so without a
+     sensor the band rests where the light falls at rest. */
   .worn-scene__sheen {
     --strap-shine: calc((var(--tx) * 150 + var(--ty) * 40 - 40) * var(--worn-u));
     background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.16) 50%, transparent 70%)

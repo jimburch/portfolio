@@ -13,7 +13,7 @@ import { HAND_TURN_MS } from '../../src/scene/hand/timeline';
    page animates once the badge has booted (the LCD's glitch animations run
    only when OVERCLOCK is on), so nothing is masked. The turn is started with
    a synthetic click on the RESUME pad: no pointer over the badge, so no hover
-   state and no pointer tilt, and no keyboard focus ring on the pad.
+   state, and no keyboard focus ring on the pad.
 
    One viewport, 1440×900 at DPR 1, keeps the baselines small. */
 

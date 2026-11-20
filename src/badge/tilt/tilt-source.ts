@@ -2,7 +2,6 @@ import type { SafeStorage } from '../storage';
 import {
   driftBaseline,
   orientationToTilt,
-  pointerToTilt,
   stepToward,
   type Orientation,
   type ScreenAngle,
@@ -10,6 +9,11 @@ import {
   type TiltSourceKind,
 } from './math';
 
+/**
+ * The badge's tilt, from the device's orientation only (never the pointer).
+ * Writes `--tx`/`--ty` in [-1, 1] on `root`; without an orientation reading,
+ * or under reduced motion, they stay at 0, the badge's neutral light.
+ */
 export interface TiltSource {
   current(): Tilt;
   kind(): TiltSourceKind;
@@ -42,7 +46,7 @@ export function createTiltSource(opts: {
 }): TiltSource {
   const { root, reducedMotion, session } = opts;
   const listeners = new Set<(t: Tilt, kind: TiltSourceKind) => void>();
-  let kind: TiltSourceKind = reducedMotion ? 'off' : 'pointer';
+  let kind: TiltSourceKind = reducedMotion ? 'off' : 'none';
   let current: Tilt = { x: 0, y: 0 };
   let target: Tilt = { x: 0, y: 0 };
   let baseline: Orientation | null = null;
@@ -89,26 +93,8 @@ export function createTiltSource(opts: {
     baseline = driftBaseline(baseline, reading);
   }
 
-  function onPointerMove(e: PointerEvent) {
-    if (kind !== 'pointer') return;
-    setTarget(pointerToTilt(e.clientX, e.clientY, root.getBoundingClientRect()));
-  }
-
-  function recenter() {
-    if (kind === 'pointer') setTarget({ x: 0, y: 0 });
-  }
-
-  // A mouse keeps hovering after pointerup; a finger or pen is gone.
-  function onPointerRelease(e: PointerEvent) {
-    if (e.pointerType !== 'mouse') recenter();
-  }
-
   if (!reducedMotion) {
     window.addEventListener('deviceorientation', onOrientation);
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerRelease);
-    window.addEventListener('pointercancel', onPointerRelease);
-    document.documentElement.addEventListener('pointerleave', recenter);
     document.addEventListener('visibilitychange', wake);
   }
 

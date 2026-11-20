@@ -1,4 +1,5 @@
 import { expect, test, type Browser, type BrowserContextOptions, type Page } from '@playwright/test';
+import { tipDevice, waitForQuietFront } from './support/tilt';
 
 /* The worn desktop scene: on a qualifying desktop (a wide, tall enough window
    with a mouse or trackpad) the badge hangs on a lanyard on a blurred person.
@@ -78,16 +79,29 @@ test.describe('on a qualifying desktop', () => {
     await expect(page.locator('#badge')).toHaveAttribute('data-side', 'back');
   });
 
-  test('the straps catch the light as the pointer tilts the badge', async ({ page }) => {
+  test('the straps hold still when the mouse moves', async ({ page }) => {
     await page.goto('/');
+    await waitForQuietFront(page);
     const sheen = page.locator('#worn-scene .worn-scene__sheen');
     const position = () => sheen.evaluate((el) => getComputedStyle(el).backgroundPosition);
+    const atRest = await position();
     const box = await badgeBox(page);
-    await page.mouse.move(box.x + 2, box.y + box.height / 2);
+    await page.mouse.move(box.x + 2, box.y + box.height / 2, { steps: 6 });
     await page.waitForTimeout(600);
-    const left = await position();
-    await page.mouse.move(box.x + box.width - 2, box.y + box.height / 2);
-    await expect.poll(position).not.toBe(left);
+    expect(await position()).toBe(atRest);
+    await page.mouse.move(box.x + box.width - 2, box.y + box.height / 2, { steps: 6 });
+    await page.waitForTimeout(600);
+    expect(await position()).toBe(atRest);
+  });
+
+  test('the straps catch the light when the device tilts the badge', async ({ page }) => {
+    await page.goto('/');
+    await waitForQuietFront(page);
+    const sheen = page.locator('#worn-scene .worn-scene__sheen');
+    const position = () => sheen.evaluate((el) => getComputedStyle(el).backgroundPosition);
+    const atRest = await position();
+    await tipDevice(page);
+    await expect.poll(position).not.toBe(atRest);
   });
 });
 

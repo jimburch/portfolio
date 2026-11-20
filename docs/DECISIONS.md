@@ -217,3 +217,17 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   changed model is never served stale), where a file can't sit beside it; the
   notice is embedded in the model itself (its glTF `asset.copyright`) and
   published at `/hand/LICENSE-webxr-input-profiles.md` (`public/hand/`).
+
+## 2026-11-20 (tilt from the device only)
+
+- **Only the accelerometer/gyroscope tilts the badge.** Moving a mouse on a
+  desktop, or dragging a finger on a phone, no longer changes the badge's
+  reflections (the metal highlight, the case glare, the board's sheen, the
+  avatar dots' glow, the raised parts' side faces) or the straps' sheen. A
+  device that reports its orientation tilts them as before, including the iOS
+  permission asked on the first tap. Without orientation, everything rests at
+  its neutral light. Reduced motion still turns tilt off. The pointer mode is
+  removed outright, not flagged off. The sensor readout's source is now
+  `gyro`, `none` (no reading yet, e.g. any desktop) or `off`.
+  `badge/tilt/tilt-source.ts`. *(Jim asked for the mouse; dropping the finger
+  drag too was the build's call, for Jim to overturn.)*

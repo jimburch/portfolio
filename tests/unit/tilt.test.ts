@@ -3,7 +3,6 @@ import {
   clampUnit,
   driftBaseline,
   orientationToTilt,
-  pointerToTilt,
   stepToward,
 } from '../../src/badge/tilt/math';
 
@@ -34,11 +33,4 @@ test('baseline drifts slowly', () => {
   const d = driftBaseline(base, { beta: 55, gamma: 10 });
   expect(d.beta).toBeCloseTo(45.02);
   expect(d.gamma).toBeCloseTo(0.02);
-});
-
-test('pointer mapping', () => {
-  const rect = { left: 100, top: 0, width: 200, height: 400 };
-  expect(pointerToTilt(200, 200, rect)).toEqual({ x: 0, y: 0 });
-  expect(pointerToTilt(300, 0, rect)).toEqual({ x: 1, y: -1 });
-  expect(pointerToTilt(900, 900, rect)).toEqual({ x: 1, y: 1 });
 });

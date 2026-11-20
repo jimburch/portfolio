@@ -7,7 +7,7 @@ afterEach(() => vi.unstubAllGlobals());
 function setup(requestPermission: () => Promise<string>) {
   const noop = () => {};
   vi.stubGlobal('window', { addEventListener: noop });
-  vi.stubGlobal('document', { addEventListener: noop, documentElement: { addEventListener: noop } });
+  vi.stubGlobal('document', { addEventListener: noop });
   vi.stubGlobal('DeviceOrientationEvent', { requestPermission });
   const data = new Map<string, string>();
   const session = createSafeStorage(
