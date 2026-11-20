@@ -127,3 +127,17 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   the plain flip; reduced motion on desktop fades into the held view. Design:
   `docs/superpowers/specs/2026-11-19-desktop-hand-turn-design.md`. Background research:
   `docs/research/2026-11-18-hand-grab-animation.md`.
+
+## 2026-11-20 (hand turn build)
+
+- **Hand assets (#29).** The hand model ships as `public/hand/hand.glb`
+  (84 KB; 62 KB gzip) with the WebXR asset's MIT licence beside it, built by
+  `pnpm hand:model` from `scripts/hand/` (v10's Blender build, then lossless
+  meshopt: no re-quantization, only reordering, checked against the build).
+  Meshopt over Draco: its decoder is tiny and the model is already quantized.
+  The resting hand on a direct-loaded back page is two static WebP images of
+  v10's final grip (behind and in front of the badge, 74 KB together),
+  rendered by `pnpm hand:images` (headless Chromium, three.js as a dev
+  dependency only) and placed in held-badge units from a generated framing
+  file. Only qualifying desktops fetch them. Contract and rebuild steps:
+  `scripts/hand/README.md`.

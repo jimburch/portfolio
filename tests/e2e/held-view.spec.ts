@@ -1,4 +1,5 @@
 import { expect, test, type Browser, type BrowserContextOptions, type Page } from '@playwright/test';
+import { HELD_HAND } from '../../src/scene/hand/held-hand';
 
 /* The held close-up: on a qualifying desktop, a direct load of a back page
    shows the worn scene zoomed in, with the badge turned and held up, nearly
@@ -14,22 +15,27 @@ const BACK_ROUTES = [
 ] as const;
 
 /** The 3D hand: three.js and the hand model must never load on a back page. */
-const HAND_CODE = /three|\.glb$|hand/i;
+const HAND_CODE = /three|\.glb$/i;
+/** The resting hand's two static images (behind and in front of the badge). */
+const HAND_IMAGE = /held-hand-(behind|front)\b/;
 
-/** Opens `route` in a fresh context, recording requests for scene art and hand code. */
+/** Opens `route` in a fresh context, recording requests for scene art, hand code and the hand's images. */
 async function openBack(browser: Browser, route: string, options: BrowserContextOptions = {}) {
   const context = await browser.newContext(options);
   const page = await context.newPage();
   const sceneRequests: string[] = [];
   const handRequests: string[] = [];
+  const handImages: string[] = [];
   page.on('request', (r) => {
     const path = new URL(r.url()).pathname;
     if (path.startsWith('/scene/')) sceneRequests.push(path);
     if (HAND_CODE.test(path)) handRequests.push(path);
+    const image = path.match(HAND_IMAGE);
+    if (image) handImages.push(image[1]!);
   });
   await page.goto(route);
   await page.waitForLoadState('networkidle');
-  return { page, sceneRequests, handRequests };
+  return { page, sceneRequests, handRequests, handImages };
 }
 
 const box = async (page: Page, selector: string) => (await page.locator(selector).boundingBox())!;
@@ -68,6 +74,37 @@ test.describe('on a qualifying desktop, a direct load', () => {
       expect(badge.x + badge.width).toBeLessThan(width);
     });
   }
+  for (const [width, height] of [
+    [1440, 900],
+    [800, 620],
+  ])
+    test(`${width}×${height}: the hand rests on the held badge, as two images, with no 3D code`, async ({ browser }) => {
+      const { page, handRequests, handImages } = await openBack(browser, '/resume', {
+        viewport: { width, height },
+        javaScriptEnabled: false,
+      });
+      expect(handImages.sort()).toEqual(['behind', 'front']);
+      expect(handRequests).toEqual([]);
+
+      // Both images cover the box the render gave, in units of the held badge (1/500 of its height) from its
+      // top-left corner.
+      const badge = await heldBadge(page);
+      const u = badge.height / 500;
+      const { box: unitBox } = HELD_HAND;
+      for (const layer of ['behind', 'front']) {
+        const b = await box(page, `.held-view__hand--${layer}`);
+        expect(Math.abs(b.x - (badge.x + unitBox.x * u)), layer).toBeLessThan(1.5);
+        expect(Math.abs(b.y - (badge.y + unitBox.y * u)), layer).toBeLessThan(1.5);
+        expect(Math.abs(b.width - unitBox.width * u), layer).toBeLessThan(1.5);
+        expect(Math.abs(b.height - unitBox.height * u), layer).toBeLessThan(1.5);
+      }
+      // Behind the badge (under the surround, which the badge covers), and in front of the badge and the strip.
+      const z = (selector: string) => page.locator(selector).evaluate((el) => Number(getComputedStyle(el).zIndex));
+      await expect(page.locator('.held-view__surround .held-view__hand--behind')).toHaveCount(1);
+      expect(await z('.held-view__surround')).toBeLessThan(await z('.held-view__badge'));
+      expect(await z('.held-view__hand--front')).toBeGreaterThan(await z('.held-view__badge'));
+      expect(await z('.held-view__hand--front')).toBeGreaterThan(await z('.back-face .back-nav'));
+    });
 });
 
 test.describe('the held close-up on a qualifying desktop', () => {
@@ -329,15 +366,87 @@ test.describe('the held close-up on a qualifying desktop', () => {
     }
   });
 
+  /** Text the visitor can see (inside the window, or in the pinned strip) that sits under the hand in front of
+      the badge or its shadow: the image is read back at its on-screen size, and anything over 5% opaque counts
+      (the shadow's last faint fringe may touch).
+      Decorative art (aria-hidden, like the footer's circuit and its TP1 / U1 labels) may pass under a finger. */
+  const textUnderTheHand = (page: Page) =>
+    page.evaluate(async () => {
+      const hand = document.querySelector<HTMLElement>('.held-view__hand--front')!;
+      const r = hand.getBoundingClientRect();
+      const url = /url\("?(.*?)"?\)/.exec(getComputedStyle(hand).backgroundImage)![1]!;
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      const canvas = Object.assign(document.createElement('canvas'), { width: Math.round(r.width), height: Math.round(r.height) });
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const alpha = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const solid = (x: number, y: number) => {
+        const ix = Math.floor(x - r.left);
+        const iy = Math.floor(y - r.top);
+        if (ix < 0 || iy < 0 || ix >= canvas.width || iy >= canvas.height) return false;
+        return alpha[(iy * canvas.width + ix) * 4 + 3]! >= 13;
+      };
+      const win = document.querySelector('.held-view__window')!.getBoundingClientRect();
+      const covered: string[] = [];
+      const walker = document.createTreeWalker(document.querySelector('.back-face')!, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const parent = node.parentElement!;
+        if (!node.textContent!.trim() || parent.closest('[aria-hidden="true"]')) continue;
+        if (getComputedStyle(parent).visibility === 'hidden') continue;
+        const inStrip = !!parent.closest('.back-name, .back-home, .back-nav');
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        for (const t of range.getClientRects()) {
+          // What shows of it: all of it in the strip, else the part inside the window.
+          const x0 = inStrip ? t.left : Math.max(t.left, win.left);
+          const x1 = inStrip ? t.right : Math.min(t.right, win.right);
+          const y0 = inStrip ? t.top : Math.max(t.top, win.top);
+          const y1 = inStrip ? t.bottom : Math.min(t.bottom, win.bottom);
+          let hit = false;
+          for (let y = y0 + 0.5; y < y1 && !hit; y += 1) for (let x = x0 + 0.5; x < x1 && !hit; x += 1) hit = solid(x, y);
+          if (hit) covered.push(`${node.textContent!.trim().slice(0, 40)} @ ${Math.round(t.left)},${Math.round(t.top)}`);
+        }
+      }
+      return covered;
+    });
+
+  for (const size of [
+    { width: 1440, height: 900 },
+    { width: 800, height: 620 },
+  ])
+    test(`${size.width}×${size.height}: at the top, part-way and at the end, no text sits under the hand or its shadow`, async ({ page }) => {
+      await page.setViewportSize(size);
+      for (const [route] of BACK_ROUTES) {
+        await page.goto(route);
+        expect(await textUnderTheHand(page), `${route}, top`).toEqual([]);
+        // Part-way: the header's details (centred on the badge, wider than the reading column) scroll up and
+        // away from the fingers, never down past them.
+        await page.evaluate(() => scrollTo(0, innerHeight / 3));
+        expect(await textUnderTheHand(page), `${route}, part-way`).toEqual([]);
+        await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+        await expect
+          .poll(() => page.evaluate(() => scrollY + innerHeight >= document.documentElement.scrollHeight - 1))
+          .toBe(true);
+        expect(await textUnderTheHand(page), `${route}, end`).toEqual([]);
+      }
+    });
+
   test('the held view is decorative to assistive tech and never takes focus', async ({ page }) => {
     await page.goto('/resume');
-    for (const layer of ['.held-view__surround', '.held-view__badge', '.held-view__window'])
+    for (const layer of ['.held-view__surround', '.held-view__badge', '.held-view__window', '.held-view__hand--front'])
       await expect(page.locator(layer)).toHaveAttribute('aria-hidden', 'true');
+    // The hand behind the badge is inside the surround, hidden with it.
+    await expect(page.locator('.held-view__surround .held-view__hand--behind')).toHaveCount(1);
     await expect(page.locator('.held-view :is(a, button, input, [tabindex])')).toHaveCount(0);
+    // The hand never takes a click: a link under a finger stays clickable.
+    for (const hand of ['.held-view__hand--behind', '.held-view__hand--front'])
+      expect(await page.locator(hand).evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
   });
 });
 
-test.describe('everyone else keeps today’s back page and downloads no scene art', () => {
+test.describe('everyone else keeps today’s back page and downloads no scene art or hand', () => {
   test.skip(({ isMobile }) => isMobile, 'opens its own contexts; once per desktop engine');
 
   const cases: [string, BrowserContextOptions][] = [
@@ -347,11 +456,13 @@ test.describe('everyone else keeps today’s back page and downloads no scene ar
     ['a narrow window', { viewport: { width: 700, height: 900 } }],
   ];
   for (const [name, options] of cases) {
-    test(`${name}: no held view, the header on top, no scene requests`, async ({ browser }) => {
-      const { page, sceneRequests } = await openBack(browser, '/resume', options);
+    test(`${name}: no held view, the header on top, no scene art or hand requested`, async ({ browser }) => {
+      const { page, sceneRequests, handRequests, handImages } = await openBack(browser, '/resume', options);
       await expect(page.locator('.held-view')).toBeHidden();
       await expect(page.locator('.worn-scene')).toBeHidden();
       expect(sceneRequests).toEqual([]);
+      expect(handImages).toEqual([]);
+      expect(handRequests).toEqual([]);
       // Today's order: HOME and the vCard at the top, then the ID block, the page pads, the label.
       const y = (s: string) => box(page, s).then((b) => b.y);
       expect(await y('.back-home')).toBeLessThan(await y('.back-name'));

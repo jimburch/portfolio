@@ -10,13 +10,21 @@
 
    Layers, back to front (z-index tokens in held-view.css):
      the back content (in the page's flow)
-     < surround: the scene (and the hand behind the badge) around the window
+     < surround: the scene, then the hand behind the badge, around the window
      < badge: the board around the window, and the window's edge
      < the pinned strip (part of the back content, badge-back.css)
      < the hand in front of the badge
+   The hand is two static images of v10's final grip (scene/hand/held-hand.ts):
+   decorative, never focusable, and it takes no pointer events, so the content
+   under a finger stays clickable.
    The badge's content follows this element (`.held-view ~ .back-face`). */
 import '../../styles/held-view.css';
 import WornScene from './WornScene.astro';
+import { HELD_HAND } from '../../scene/hand/held-hand';
+
+/** Where the hand's images sit on the held badge, in its units (held-view.css places them). */
+const { box } = HELD_HAND;
+const handBox = `--hand-x: ${box.x}; --hand-y: ${box.y}; --hand-w: ${box.width}; --hand-h: ${box.height}`;
 ---
 
 <div class="held-view">
@@ -24,9 +32,9 @@ import WornScene from './WornScene.astro';
        and takes the clicks meant for what it hides. Never focusable. -->
   <div class="held-view__surround" aria-hidden="true">
     <WornScene />
-    <!-- The hand behind the badge (static art) goes here, above the scene. -->
+    <div class="held-view__hand held-view__hand--behind" style={handBox}></div>
   </div>
   <div class="held-view__badge" aria-hidden="true"></div>
   <div class="held-view__window" aria-hidden="true"></div>
-  <!-- The hand in front of the badge (static art) goes here, last. -->
+  <div class="held-view__hand held-view__hand--front" style={handBox} aria-hidden="true"></div>
 </div>

@@ -1,6 +1,9 @@
-# Builds hand-v10.glb from the WebXR generic-hand right.glb (MIT, (c) 2019 Amazon).
+# Builds the hand model (the v10 spike's hand-v10.glb) from the WebXR generic-hand right.glb (MIT, (c) 2019 Amazon).
+# Run through build-model.mjs (`pnpm hand:model`), which also compresses it for shipping. By hand:
 #
-#   /Applications/Blender.app/Contents/MacOS/Blender -b --python build_hand.py -- <in right.glb> <out hand-v10.glb>
+#   /Applications/Blender.app/Contents/MacOS/Blender -b --python build_hand.py -- source/webxr-generic-hand-right.glb <out.glb>
+#
+# measure.py (next to this file) measures the segment widths the finger inflation scales to.
 #
 # v9 -> v10 (the wrist only; fingers, thumb, sleeve, colours and export unchanged):
 #  - v9's waist (WAIST_*) and heel slimming (HYPO, now default 0) are gone. In their place a measured TAPER: each side's

@@ -342,6 +342,9 @@
 
 .contact-links {
   display: grid;
+  /* A column that may shrink below a long address, so it wraps (overflow-wrap)
+     instead of running out of a narrow column (the held badge's, beside the thumb). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.6rem;
 }
 
@@ -676,11 +679,14 @@
 
   /* -- The content: the header's details, the label, the footer -- */
 
-  /* Everything that scrolls is centred in the part of the window clear of the hand. */
+  /* The header's details sit above the fingers at rest, so they are centred
+     on the badge, with the thumb's clearance on both sides; they pass behind
+     the fingers only mid-scroll. The reading content below stays in the part
+     of the window clear of the hand. */
   .held-view ~ .back-face :is(.back-qr, .back-role, .back-credits) {
     grid-column: full-start / full-end;
     justify-self: center;
-    margin-inline: var(--clear-left) var(--clear-right);
+    margin-inline: var(--clear-right);
     text-align: center;
     text-wrap: balance;
   }

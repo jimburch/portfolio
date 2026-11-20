@@ -1,0 +1,12 @@
+<!doctype html>
+<!-- The resting-hand renderer's page (render-held-hand.mjs serves it, three.js from node_modules). -->
+<meta charset="utf-8" />
+<title>Held hand render</title>
+<script type="importmap">
+  { "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }
+</script>
+<script type="module">
+  import { renderHeldHand } from '/render/held-hand.js';
+  window.renderHeldHand = renderHeldHand;
+  window.__ready = true;
+</script>
