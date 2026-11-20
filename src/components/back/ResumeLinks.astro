@@ -1,0 +1,26 @@
+---
+import { CONTACT } from '../../data/contact';
+
+/**
+ * The resume's three quick links, at the top of the page: the PDF, LinkedIn
+ * and GitHub. Part of the page's own content (not the header), so it travels
+ * with the resume wherever the layout puts it.
+ */
+const links = [
+  { text: 'Download PDF', href: '/jim-burch-resume.pdf', download: true },
+  { text: 'LinkedIn', href: CONTACT.linkedin, download: false },
+  { text: 'GitHub', href: CONTACT.github, download: false },
+];
+---
+
+<ul class="resume-links" aria-label="Resume links">
+  {
+    links.map(({ text, href, download }) => (
+      <li>
+        <a class="back-pad" href={href} download={download || undefined}>
+          {text}
+        </a>
+      </li>
+    ))
+  }
+</ul>

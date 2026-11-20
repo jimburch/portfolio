@@ -327,6 +327,19 @@
   font: 600 0.85rem / 1.4 var(--mono);
 }
 
+#back-main .resume-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#back-main .resume-links li + li {
+  margin-top: 0;
+}
+
 .contact-links {
   display: grid;
   gap: 0.6rem;
@@ -579,6 +592,10 @@
 
   .back-face #back-main .lede {
     color: #000;
+  }
+
+  .back-face #back-main .resume-links {
+    display: none;
   }
 
   .back-face #back-main h2 {
