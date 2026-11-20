@@ -55,10 +55,16 @@ const runtime = createRuntime({
 });
 
 // Front ↔ back. The flip lays out #badge's data-side, which wireControls' isActive reads.
-const faces = createBadgeFaces(root, document.getElementById('back-slot')!);
+const backSlot = document.getElementById('back-slot')!;
+const faces = createBadgeFaces(root, backSlot);
+// On a qualifying desktop the back lands in the held close-up the back slot holds.
+const heldView = backSlot.querySelector<HTMLElement>(':scope > .held-view');
 const flipper = createFlipper({
   faces,
-  presentation: createPresentationChooser(faces, { reducedMotion }),
+  presentation: createPresentationChooser(faces, {
+    reducedMotion,
+    held: scene && heldView ? { scene, heldView } : null,
+  }),
   onSideChange: (side) => {
     // Tilt only means something while the front faces the visitor.
     tilt.setActive(side === 'front');

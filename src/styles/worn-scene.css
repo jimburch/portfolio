@@ -14,7 +14,9 @@
      lanyard, contact shadow), about the badge's centre. `none` at rest.
    - `--scene-blur`: extra depth-of-field blur on the room and the wearer, in
      stage units, on top of their resting blur. 0 at rest; it grows as the
-     camera closes in. (The straps keep their own soft-to-sharp focus.) */
+     camera closes in. (The straps keep their own soft-to-sharp focus.)
+   - `--scene-contact`: how much the badge rests on the chest, so how much of
+     its contact shadow shows. 1 at rest; 0 once the badge is lifted off. */
 
 .worn-scene {
   display: none;
@@ -39,6 +41,7 @@
   .worn-scene {
     --scene-camera: none;
     --scene-blur: 0;
+    --scene-contact: 1;
     /* The badge's tilt, mirrored here by scene/worn-scene.ts. */
     --tx: 0;
     --ty: 0;
@@ -51,8 +54,9 @@
     background: #221d1a;
   }
 
-  /* Hidden once the badge has settled on its back: back pages keep their own look. */
-  :root:has(#badge[data-side='back']:not([data-flipping])) .worn-scene {
+  /* The page's own scene is hidden once the badge has settled on its back:
+     the held close-up in the back slot (HeldView.astro) draws its own. */
+  :root:has(#badge[data-side='back']:not([data-flipping])) #worn-scene {
     visibility: hidden;
   }
 
@@ -127,7 +131,7 @@
     height: calc(510 * var(--worn-u));
     border-radius: calc(26 * var(--worn-u));
     background: #000;
-    opacity: 0.5;
+    opacity: calc(0.5 * var(--scene-contact));
     filter: blur(calc(14 * var(--worn-u)));
   }
 

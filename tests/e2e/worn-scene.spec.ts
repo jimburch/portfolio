@@ -2,7 +2,9 @@ import { expect, test, type Browser, type BrowserContextOptions, type Page } fro
 
 /* The worn desktop scene: on a qualifying desktop (a wide, tall enough window
    with a mouse or trackpad) the badge hangs on a lanyard on a blurred person.
-   Everyone else keeps today's look and downloads none of the scene's art. */
+   Everyone else keeps today's look and downloads none of the scene's art.
+   `#worn-scene` is the page's own scene; the held close-up in the back slot
+   (HeldView.astro) draws its own copy, shown only once the badge is held. */
 
 const SCENE_ART = /\/scene\//;
 
@@ -35,7 +37,7 @@ test.describe('on a qualifying desktop', () => {
       browser,
     }) => {
       const { page, sceneRequests } = await openFront(browser, { viewport: { width, height } });
-      await expect(page.locator('.worn-scene')).toBeVisible();
+      await expect(page.locator('#worn-scene')).toBeVisible();
       // The wearer, the neck and the lanyard (behind and in front of the neck) are drawn.
       for (const layer of ['wearer', 'lanyard-behind', 'neck', 'lanyard-front', 'clip']) {
         expect(sceneRequests.some((u) => u.includes(`/scene/${layer}.svg`)), layer).toBe(true);
@@ -52,7 +54,7 @@ test.describe('on a qualifying desktop', () => {
 
   test('the scene is decorative: hidden from assistive tech, never focused, never clicked', async ({ page }) => {
     await page.goto('/');
-    const scene = page.locator('.worn-scene');
+    const scene = page.locator('#worn-scene');
     await expect(scene).toHaveAttribute('aria-hidden', 'true');
     await expect(page.locator('.worn-scene *:focus, .worn-scene:focus')).toHaveCount(0);
     // A point on the wearer, beside the badge, hits the page, not the scene.
@@ -78,7 +80,7 @@ test.describe('on a qualifying desktop', () => {
 
   test('the straps catch the light as the pointer tilts the badge', async ({ page }) => {
     await page.goto('/');
-    const sheen = page.locator('.worn-scene__sheen');
+    const sheen = page.locator('#worn-scene .worn-scene__sheen');
     const position = () => sheen.evaluate((el) => getComputedStyle(el).backgroundPosition);
     const box = await badgeBox(page);
     await page.mouse.move(box.x + 2, box.y + box.height / 2);
@@ -102,7 +104,7 @@ test.describe('everyone else keeps today’s look and downloads no scene art', (
     test(`${name}: no scene, no scene requests`, async ({ browser }) => {
       const { page, sceneRequests } = await openFront(browser, options);
       await expect(page.locator('#badge')).toBeVisible();
-      await expect(page.locator('.worn-scene')).toBeHidden();
+      await expect(page.locator('#worn-scene')).toBeHidden();
       expect(sceneRequests).toEqual([]);
     });
   }

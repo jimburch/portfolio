@@ -1,6 +1,10 @@
 /* The badge's two faces: the front (JIM/OS) and the back slot a back page is
    lifted into. Shared by the flip controller, which decides what the back
-   holds, and the turn presentations, which lay the badge out as a side. */
+   holds, and the turn presentations, which lay the badge out as a side.
+
+   The back slot keeps the page furniture a back page has ahead of its face
+   (the held close-up, HeldView.astro), so a lifted face lands in the same
+   markup as on its own page; only the face itself comes and goes. */
 
 export type Side = 'front' | 'back';
 
@@ -14,12 +18,15 @@ export interface BadgeFaces {
   layOut(side: Side): void;
   /** The side the badge is laid out as. */
   laidOutAs(): Side;
-  /** Puts a back page's face in the back slot, or empties it. */
+  /** Puts a back page's face in the back slot, or takes it out. */
   setBack(content: HTMLElement | null): void;
+  /** The back page's face in the back slot, if any. */
+  backFace(): HTMLElement | null;
 }
 
 export function createBadgeFaces(badge: HTMLElement, backSlot: HTMLElement): BadgeFaces {
   const front = badge.querySelector<HTMLElement>(':scope > .face-front')!;
+  const backFace = () => backSlot.querySelector<HTMLElement>(':scope > [data-back-face]');
   return {
     badge,
     front,
@@ -33,8 +40,9 @@ export function createBadgeFaces(badge: HTMLElement, backSlot: HTMLElement): Bad
     },
     laidOutAs: () => (badge.dataset.side === 'back' ? 'back' : 'front'),
     setBack(content) {
-      if (content) backSlot.replaceChildren(content);
-      else backSlot.replaceChildren();
+      backFace()?.remove();
+      if (content) backSlot.append(content);
     },
+    backFace,
   };
 }

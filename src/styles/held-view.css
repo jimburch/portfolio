@@ -56,6 +56,12 @@
     --held-window-w: calc(var(--held-badge-w) - 2 * var(--held-rim));
     --held-window-r: 12px;
 
+    /* The held badge's outline, as a clip on a viewport-sized box. */
+    --held-badge-outline: inset(
+      var(--held-badge-top) calc(50% - var(--held-badge-w) / 2)
+        calc(100% - var(--held-badge-top) - var(--held-badge-h)) round calc(var(--held-badge-w) * 0.045)
+    );
+
     /* Where the back keeps its content clear of the resting hand (spike
        v10's final grip, in units of this badge; scene/hand/held-hand.json
        `reach` has the measured hand). The four fingertips reach 48.5 units in
@@ -75,13 +81,19 @@
   }
 
   /* Keyboard focus and in-page links bring things into the window, not
-     under the strip or behind the scene. */
-  :root:has(> body > .held-view) {
+     under the strip or behind the scene. (On a back page, and on the front
+     once a back page's face is lifted in after its held view.) */
+  :root:has(.held-view ~ .back-face) {
     scroll-padding-top: calc(var(--held-window-top) + 8px);
     scroll-padding-bottom: calc(100dvh - var(--held-window-bottom) + var(--held-hand-bottom));
   }
 
   .held-view {
+    /* How far the hand has the badge held up: 1 in the held close-up. The
+       held turn (flip/held-turn.ts) brings the resting hand and the held
+       badge's shadow in as the camera arrives. */
+    --held-grip: 1;
+
     display: block;
   }
 
@@ -117,10 +129,7 @@
   .held-view .worn-scene {
     --scene-camera: var(--held-camera);
     --scene-blur: var(--held-blur);
-  }
-
-  .held-view .worn-scene__contact-shadow {
-    display: none;
+    --scene-contact: 0;
   }
 
   /* The held badge's own shadow, on the scene behind it. */
@@ -134,6 +143,7 @@
     margin-left: calc(var(--held-badge-w) / -2);
     border-radius: calc(var(--held-badge-w) * 0.045);
     box-shadow: 0 calc(10 * var(--held-u)) calc(28 * var(--held-u)) rgb(0 0 0 / 0.45);
+    opacity: var(--held-grip);
   }
 
   /* ---- The resting hand: two static images ------------------------------ */
@@ -150,6 +160,7 @@
     width: calc(var(--hand-w) * var(--held-u));
     height: calc(var(--hand-h) * var(--held-u));
     pointer-events: none;
+    opacity: var(--held-grip);
     background: no-repeat 0 0 / 100% 100%;
   }
 

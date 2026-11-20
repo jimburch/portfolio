@@ -17,7 +17,11 @@
    The hand is two static images of v10's final grip (scene/hand/held-hand.ts):
    decorative, never focusable, and it takes no pointer events, so the content
    under a finger stays clickable.
-   The badge's content follows this element (`.held-view ~ .back-face`). */
+   The badge's content follows this element (`.held-view ~ .back-face`).
+
+   Rendered by back pages (BackLayout.astro) and in the front's back slot
+   (BadgeFront.astro), where a flipped-in back page's face is placed after
+   it: the held turn (flip/held-turn.ts) lands in this same markup. */
 import '../../styles/held-view.css';
 import WornScene from './WornScene.astro';
 import { HELD_HAND } from '../../scene/hand/held-hand';

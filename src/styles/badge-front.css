@@ -649,6 +649,43 @@
     --badge-w: calc(var(--badge-h) * 390 / 844);
     margin-top: var(--worn-badge-top);
   }
+
+  /* The held turn (flip/held-turn.ts): the front turns over where it hangs,
+     and the back slot is laid out as the held close-up it lands in (the held
+     view and the back face, held-view.css and badge-back.css), over the
+     whole window. The script turns and scales each as one piece, so the back
+     is laid out at its final size and only ever scaled down on the way. */
+  #badge[data-flipping='held-turn'] {
+    width: var(--badge-w);
+    height: var(--badge-h);
+    margin: var(--worn-badge-top) auto 0;
+    aspect-ratio: 390 / 844;
+    container-type: size;
+  }
+
+  /* Clipped a hair inside its edge (--held-turn-inset, from the script):
+     there the held view's scene meets the page's (#worn-scene), pushed in as
+     far, and nothing of the back page running on below the window shows past
+     it. Once the slot fills the window again there is no edge to hide. */
+  #badge[data-flipping='held-turn'] > #back-slot {
+    position: fixed;
+    inset: 0;
+    /* It turns about the held badge's upright centre line. */
+    transform-origin: 50% calc(var(--held-badge-top) + var(--held-badge-h) / 2);
+    clip-path: inset(var(--held-turn-inset, 0px));
+  }
+
+  /* While the badge turns, only the badge itself shows of the back: the held
+     view's own scene would turn with it. The page's scene (#worn-scene) shows
+     around it. The slot is no wider than the badge then (everything in it is
+     placed from its centre line, so nothing moves): WebKit draws a
+     perspective turn of a window-wide box squashed nearly edge-on. */
+  #badge[data-flipping='held-turn'] > #back-slot[data-turning] {
+    right: auto;
+    left: calc(50% - var(--held-badge-w) / 2);
+    width: var(--held-badge-w);
+    clip-path: var(--held-badge-outline);
+  }
 }
 
 /* RESKIN app: two rows (label left, value right) and a hint line. */

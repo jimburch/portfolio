@@ -17,7 +17,7 @@ const nowJson = JSON.stringify(nowData ?? null).replace(/</g, '\\u003c');
 ---
 
 <Base title="Jim Burch">
-  <WornScene />
+  <WornScene id="worn-scene" />
   <BadgeFront />
   <script type="application/json" id="data-now" set:html={nowJson} />
 </Base>

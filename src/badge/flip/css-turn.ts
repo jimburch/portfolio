@@ -35,7 +35,7 @@ export function createCssTurn(faces: BadgeFaces): TurnPresentation {
   /** Measures the on-screen badge box for the side it is laid out as. */
   function visibleBox(): Box {
     const badgeRect = badge.getBoundingClientRect();
-    const face = faces.laidOutAs() === 'back' ? backSlot.firstElementChild : null;
+    const face = faces.laidOutAs() === 'back' ? faces.backFace() : null;
     const rect = face ? face.getBoundingClientRect() : badgeRect;
     return {
       width: rect.width,

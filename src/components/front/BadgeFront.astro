@@ -3,6 +3,7 @@ import '../../styles/badge-front.css';
 import { SITE } from '../../data/site';
 import Avatar from './Avatar.astro';
 import StaticMenu from './StaticMenu.astro';
+import HeldView from '../scene/HeldView.astro';
 ---
 
 <div id="badge" data-side="front">
@@ -46,5 +47,10 @@ import StaticMenu from './StaticMenu.astro';
     </div>
   </main>
 
-  <div id="back-slot" class="face-back" aria-hidden="true" hidden></div>
+  <!-- A back page's face is lifted in here, after the held close-up (shown
+       only on a qualifying desktop): the same markup a back page has, so the
+       landed back is laid out exactly like a direct load of it. -->
+  <div id="back-slot" class="face-back" aria-hidden="true" hidden>
+    <HeldView />
+  </div>
 </div>

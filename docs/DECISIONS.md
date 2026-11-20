@@ -141,3 +141,16 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   dependency only) and placed in held-badge units from a generated framing
   file. Only qualifying desktops fetch them. Contract and rebuild steps:
   `scripts/hand/README.md`.
+- **The desktop flip into the held close-up (#30).** On a qualifying desktop
+  the flip is the held turn (`src/badge/flip/held-turn.ts`): the badge turns
+  over where it hangs, then the scene's camera pushes in, blur growing, until
+  the badge is held up; HOME and Back run it backwards from wherever it is.
+  The front page's back slot renders the same `HeldView` a back page has, and
+  the lifted face goes after it, so a flipped-in back is the direct load's
+  markup and CSS exactly (no second copy of the held layout). The motion is a
+  pure function of one time value (`held-turn-motion.ts`: `poseAt`,
+  `frameAt`), which the 3D hand turn (#32) will drive and fall back to.
+  Without the 3D hand, the resting hand fades in over the last fifth of the
+  motion. Reduced motion keeps the existing fade, which lands in the held
+  close-up as a unit. Phones, touch screens and short windows keep the CSS
+  turn.

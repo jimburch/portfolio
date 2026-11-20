@@ -81,18 +81,21 @@ test('double tap and back mid-flip settle to match the URL', async ({ page }) =>
 });
 
 test('the landed back lays out like its own page and scrolls', async ({ page, isMobile }) => {
-  // On a qualifying desktop a direct load shows the held close-up, which an
-  // in-session flip doesn't land in yet (#30). Until then, compare the two in a
-  // short desktop window, where both are today's reading column.
-  if (!isMobile) await page.setViewportSize({ width: 1280, height: 560 });
+  // On a qualifying desktop both are the held close-up: the back face, the
+  // held badge and the resting hand all sit where a direct load puts them.
+  const parts = isMobile
+    ? ['[data-back-face]']
+    : ['[data-back-face]', '.held-view__badge', '.held-view__window', '.held-view__hand--behind', '.held-view__hand--front'];
   await page.goto('/resume');
-  const standalone = await page.locator('[data-back-face]').boundingBox();
+  const standalone = await Promise.all(parts.map((p) => page.locator(p).boundingBox()));
+  if (!isMobile) expect(standalone[1]).not.toBeNull();
   await page.goto('/');
   await page.locator('[data-part="resume-pad"]').click();
   await expect(page.locator('#badge')).toHaveAttribute('data-side', 'back');
   await expect(page.locator('#badge')).not.toHaveAttribute('data-flipping');
   await expect(page.locator('.face-front')).toBeHidden();
-  expect(await page.locator('#back-slot [data-back-face]').boundingBox()).toEqual(standalone);
+  const landed = await Promise.all(parts.map((p) => page.locator(`#back-slot ${p}`).boundingBox()));
+  expect(landed).toEqual(standalone);
   expect(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight)).toBe(true);
 });
 

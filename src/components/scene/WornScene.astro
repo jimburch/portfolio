@@ -2,9 +2,21 @@
 /* The worn desktop scene: the badge hangs on a lanyard on a blurred person.
    Decorative only: hidden from assistive tech, inert (never focused), and it
    takes no pointer events. Shown, and its art fetched, only on a qualifying
-   desktop (scene/gate.ts); everywhere else it is display: none. */
+   desktop (scene/gate.ts); everywhere else it is display: none.
+
+   A page has one scene of its own, the one the badge is worn in at rest
+   (`id="worn-scene"`, which the front's script and the stylesheets name). The
+   held close-up (HeldView.astro) draws its own copy, pushed in, around the
+   held badge; that copy takes no id. */
 import '../../styles/worn-scene.css';
 import { SCENE_ART, type SceneLayer } from '../../scene/art/layers';
+
+interface Props {
+  /** `worn-scene` for the page's own scene; none for the held close-up's copy. */
+  id?: string;
+}
+
+const { id } = Astro.props;
 
 /** Where an art layer sits, in stage units (worn-scene.css places it). */
 const placed = (layer: SceneLayer) => {
@@ -13,7 +25,7 @@ const placed = (layer: SceneLayer) => {
 };
 ---
 
-<div id="worn-scene" class="worn-scene" aria-hidden="true" inert>
+<div id={id} class="worn-scene" aria-hidden="true" inert>
   <div class="worn-scene__camera">
     <div class="worn-scene__room"></div>
     <div class="worn-scene__art worn-scene__wearer" style={placed('wearer')}></div>
