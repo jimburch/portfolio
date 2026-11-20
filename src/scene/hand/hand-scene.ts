@@ -135,15 +135,20 @@ export function nearPlane(hs: HandScene, out = new THREE.Plane()): THREE.Plane {
   return out.setFromNormalAndCoplanarPoint(_n.multiplyScalar(side), _c);
 }
 
-/**
- * The badge's outline (rounded corners) on its mid-plane, projected: points in px of `region`. The hand's shadow
- * falls only inside it.
- */
-export function badgeOutline(hs: HandScene, r: ViewRegion, perCorner = 6): Array<{ x: number; y: number }> {
+/** A point on the card's outline in its own plane (world units, y up), and the outline's outward normal there. */
+export interface OutlinePoint {
+  x: number;
+  y: number;
+  nx: number;
+  ny: number;
+}
+
+/** The card's outline, rounded corners and all, counter-clockwise from the right edge's top: `perCorner` steps a corner. */
+export function cardOutline(perCorner = 6): OutlinePoint[] {
   const w = CARD.BW2;
   const h = CARD.BH2;
   const rad = BADGE_RADIUS * 2 * w;
-  const pts: Array<[number, number]> = [];
+  const pts: OutlinePoint[] = [];
   const corners: Array<[number, number, number]> = [
     [w - rad, h - rad, 0],
     [-w + rad, h - rad, 90],
@@ -153,10 +158,18 @@ export function badgeOutline(hs: HandScene, r: ViewRegion, perCorner = 6): Array
   for (const [cx, cy, a0] of corners)
     for (let i = 0; i <= perCorner; i++) {
       const a = (a0 + (90 * i) / perCorner) * D;
-      pts.push([cx + rad * Math.cos(a), cy + rad * Math.sin(a)]);
+      pts.push({ x: cx + rad * Math.cos(a), y: cy + rad * Math.sin(a), nx: Math.cos(a), ny: Math.sin(a) });
     }
+  return pts;
+}
+
+/**
+ * The badge's outline (rounded corners) on its mid-plane, projected: points in px of `region`. The hand's shadow
+ * falls only inside it.
+ */
+export function badgeOutline(hs: HandScene, r: ViewRegion, perCorner = 6): Array<{ x: number; y: number }> {
   const v = new THREE.Vector3();
-  return pts.map(([x, y]) => {
+  return cardOutline(perCorner).map(({ x, y }) => {
     v.set(x, y, 0).applyMatrix4(hs.badgeFrame.matrixWorld).project(hs.camera);
     return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
   });

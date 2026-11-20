@@ -231,3 +231,19 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   `gyro`, `none` (no reading yet, e.g. any desktop) or `off`.
   `badge/tilt/tilt-source.ts`. *(Jim asked for the mouse; dropping the finger
   drag too was the build's call, for Jim to overturn.)*
+
+## 2026-11-20 (the hand turn's card: thickness, sheen, clip)
+
+- **The card has an edge while the hand turns it.** v10's 10-unit-thick edge
+  is drawn in the hand's 3D scene (`scene/hand/card-edge.ts`), placed with the
+  badge's own matrix and depth-tested with the hand, so edge-on the badge is a
+  solid bar between thumb and fingers. The DOM faces stay on the card's
+  mid-plane; the half of the edge on the eye's side is drawn on the front
+  canvas, over the face's rim, as a face nearer the eye would hide it. Its
+  colour comes from the board's (`--board`), so a reskinned board matches.
+  The held turn (no WebGL) stays flat.
+- **A band of light crosses each face as it turns** (v10's sheen), moved by
+  the turn's angle only, never the tilt. It exists only while it is on a
+  face, so rest and held are untouched.
+- **The clip turns with the badge**: it narrows with |cos θ| (never below
+  30%, v10's rule), so edge-on it is a sliver at the top of the edge.

@@ -20,7 +20,9 @@
    - `--scene-lift`: how much of the lifted badge's drop shadow (the held
      close-up's) shows on the wearer. 0 at rest, 1 held up face on.
    - `--scene-roll`: the badge's roll as a hand turns it; the clip and the
-     lifted badge's shadow turn with it, about the badge's centre. */
+     lifted badge's shadow turn with it, about the badge's centre.
+   - `--scene-face`: how face-on a hand has turned the badge, 1 face on to 0
+     edge-on; the clip turns with it. */
 
 .worn-scene {
   display: none;
@@ -48,6 +50,7 @@
     --scene-contact: 1;
     --scene-lift: 0;
     --scene-roll: 0deg;
+    --scene-face: 1;
     /* The badge's tilt, mirrored here by scene/worn-scene.ts. */
     --tx: 0;
     --ty: 0;
@@ -178,8 +181,10 @@
 
   .worn-scene__clip {
     background-image: url('/scene/clip.svg');
-    /* It rides on the badge's top edge: it turns with the badge's roll, about the badge's centre. */
-    transform: rotate(var(--scene-roll));
+    /* It rides on the badge's top edge: it turns with the badge's roll, about the badge's centre, and narrows as
+       the badge turns edge-on (v10: never below 30%, the clip's own depth), so edge-on it is a sliver at the top
+       of the card's edge, not a whole clip face on above it. */
+    transform: rotate(var(--scene-roll)) scaleX(max(0.3, var(--scene-face)));
     transform-origin: calc(-1 * var(--art-x) * var(--worn-u)) calc((250 - var(--art-y)) * var(--worn-u));
   }
 }

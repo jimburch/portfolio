@@ -1,11 +1,17 @@
 /* The hand turn's 3D hand on the page: two transparent canvases over the
    window, one behind the badge and one in front of it, split at the card's
-   plane, as in v10. One WebGL renderer (off the page) draws the hand twice
-   a frame and each drawing is copied onto its canvas:
-   - behind: the whole hand and sleeve (the badge covers what is behind it,
-     so beside the card both canvases draw the same pixels: no seam);
-   - in front: the hand's soft shadow on the card's face, then what is on the
-     eye's side of the card's plane (the fingertips over the edge, the thumb).
+   plane, as in v10. One WebGL renderer (off the page) draws the scene and
+   each drawing is copied onto its canvas:
+   - behind: the whole hand and sleeve, and the card's edge (card-edge.ts),
+     depth-tested together (the badge covers what is behind it, so beside the
+     card both canvases draw the same pixels: no seam);
+   - in front: what of the card's edge is on the eye's side of its plane (the
+     DOM face lies on the mid-plane, so that half of the edge covers the
+     face's rim, as the face nearer the eye would), then the hand's soft
+     shadow on the card's face, then what of the hand is on the eye's side
+     of the card's plane (the fingertips over the edge, the thumb). Nothing
+     on that side can be behind that half of the edge, so drawn in that
+     order each is in front of what it should be.
    The same scene, look, rig and pose as the resting-hand images
    (scripts/hand), so the turn's last frame is those images.
 
@@ -13,6 +19,7 @@
    events (badge-front.css). Whoever shows them places them in the page. */
 
 import * as THREE from 'three';
+import { createCardEdge } from './card-edge.ts';
 import { curlsAt } from './contacts.ts';
 import {
   HAND_SHADOW,
@@ -45,9 +52,14 @@ export interface HandView {
   readonly front: HTMLCanvasElement;
   /** Draws the hand for `frame`, sizing the canvases to the window first if it changed. */
   draw(frame: HandFrame): void;
+  /** Colours the card's edge from the board's colour (a CSS colour, such as the `--board` token's hex). */
+  setBoard(colour: string): void;
   /** False once the WebGL context is gone: the hand can't be drawn any more. */
   usable(): boolean;
 }
+
+/** The hand is on three.js's default layer 0; the card's edge on this one. */
+const EDGE_LAYER = 1;
 
 function layer(name: string): HTMLCanvasElement {
   const c = document.createElement('canvas');
@@ -66,6 +78,10 @@ export async function createHandView(glb: ArrayBuffer): Promise<HandView> {
   const look = createLook();
   const rig = rigHand(await parseHandModel(glb), hs.handPlace, look);
   const poser = createHandPoser(rig, hs.handPlace, hs.badgeFrame);
+  // The card's edge on a layer of its own, so a pass can draw it without the hand or the hand without it.
+  const edge = createCardEdge();
+  edge.mesh.layers.set(EDGE_LAYER);
+  hs.badgeFrame.add(edge.mesh);
 
   const gl = document.createElement('canvas');
   // Throws where there is no WebGL.
@@ -112,14 +128,23 @@ export async function createHandView(glb: ArrayBuffer): Promise<HandView> {
     frameCamera(hs.camera, view);
     scaleOutlines(look, gl.width, gl.height, pxPerUnit * ratio);
 
+    // Behind: everything.
+    hs.camera.layers.enableAll();
     renderer.clippingPlanes = [];
     renderer.render(hs.scene, hs.camera);
     behindCtx.clearRect(0, 0, behind.width, behind.height);
     behindCtx.drawImage(gl, 0, 0);
 
+    // In front: the eye's side of the card's plane, the edge first, then the hand's shadow and the hand.
     renderer.clippingPlanes = [nearPlane(hs, clipPlane)];
-    renderer.render(hs.scene, hs.camera);
     frontCtx.clearRect(0, 0, front.width, front.height);
+    if (edge.seenFrom(eyeInBadge())) {
+      hs.camera.layers.set(EDGE_LAYER);
+      renderer.render(hs.scene, hs.camera);
+      frontCtx.drawImage(gl, 0, 0);
+    }
+    hs.camera.layers.set(0);
+    renderer.render(hs.scene, hs.camera);
     // The shadow falls only on the card's face: blacked out, blurred, offset (more as the badge is lifted).
     const k0 = magnificationAt(badge.tz);
     const s = pxPerUnit * ratio;
@@ -133,17 +158,26 @@ export async function createHandView(glb: ArrayBuffer): Promise<HandView> {
     frontCtx.drawImage(gl, 0, 0);
   }
 
+  const eyeLocal = new THREE.Vector3();
+  const toLocal = new THREE.Matrix4();
+  /** The eye in the badge's own frame. */
+  function eyeInBadge() {
+    toLocal.copy(hs.badgeFrame.matrixWorld).invert();
+    return eyeLocal.setFromMatrixPosition(hs.camera.matrixWorld).applyMatrix4(toLocal);
+  }
+
   // Ready to draw at once: compile both passes' shaders now (the clip plane is a shader variant), on a tiny target,
   // so the first frame of a turn doesn't stall and loading costs the page little.
   fit(16, 16);
   placeBadge(hs.badgeFrame, { th: 180, tz: 0, tx: 0, ty: 0, roll: 0 });
   poser.pose(1, curlsAt(1, curls));
   frameCamera(hs.camera, { left: 0, top: 0, width: 16, height: 16, eyeX: 8, eyeY: 8, pxPerUnit: 0.02 });
+  hs.camera.layers.enableAll();
   for (const planes of [[], [nearPlane(hs, clipPlane)]]) {
     renderer.clippingPlanes = planes;
     renderer.render(hs.scene, hs.camera);
   }
   if (lost || !renderer.getContext()) throw new Error('hand: no WebGL');
 
-  return { behind, front, draw, usable: () => !lost };
+  return { behind, front, draw, setBoard: edge.setBoard, usable: () => !lost };
 }

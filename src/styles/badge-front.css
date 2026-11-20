@@ -688,6 +688,37 @@
     clip-path: var(--held-badge-outline);
   }
 
+  /* The turn's sheen (flip/held-stage.ts): v10's band of light crossing a
+     face as it turns, placed by --sheen (0 to 1 across the face) from the
+     turn alone, never the tilt. The script sets data-sheen only while the
+     band is on that face, so at rest and held nothing here exists. On the
+     back it covers the held badge (the slot is the window tall). */
+  :is(.face-front, #back-slot)[data-sheen]::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    z-index: 10;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    background: linear-gradient(
+        104deg,
+        transparent 38%,
+        rgb(255 255 255 / 0.1) 44%,
+        rgb(255 255 255 / 0.34) 49%,
+        rgb(255 255 255 / 0.42) 50%,
+        rgb(255 255 255 / 0.3) 51.5%,
+        rgb(255 255 255 / 0.08) 56%,
+        transparent 62%
+      )
+      calc(92% - 84% * var(--sheen)) 0 / 320% 100% no-repeat;
+  }
+
+  #back-slot[data-sheen]::after {
+    inset: auto -2px;
+    top: calc(var(--held-badge-top) - 2px);
+    height: calc(var(--held-badge-h) + 4px);
+  }
+
   /* The hand turn's 3D hand (flip/hand-turn.ts): two canvases over the
      window, one just before #badge (behind its faces) and one just after it
      (in front of them), only while the badge turns. Decorative: aria-hidden,

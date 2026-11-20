@@ -21,6 +21,8 @@ export interface SceneView {
   lift?: number;
   /** The badge's roll, degrees clockwise: the clip and the lifted badge's shadow turn with it (`--scene-roll`). */
   roll?: number;
+  /** How face-on the badge is turned, 0 (edge-on) to 1: the clip turns with it (`--scene-face`). */
+  face?: number;
 }
 
 export const cameraTransform = ({ x, y, scale }: CameraMove): string =>
@@ -33,10 +35,11 @@ export function frameScene(scene: HTMLElement, view: SceneView): void {
   if (view.contact !== undefined) scene.style.setProperty('--scene-contact', view.contact.toFixed(4));
   if (view.lift !== undefined) scene.style.setProperty('--scene-lift', view.lift.toFixed(4));
   if (view.roll !== undefined) scene.style.setProperty('--scene-roll', `${view.roll.toFixed(3)}deg`);
+  if (view.face !== undefined) scene.style.setProperty('--scene-face', view.face.toFixed(4));
 }
 
 /** Hands `scene` back to the stylesheet's framing. */
 export function releaseScene(scene: HTMLElement): void {
-  for (const name of ['--scene-camera', '--scene-blur', '--scene-contact', '--scene-lift', '--scene-roll'])
+  for (const name of ['--scene-camera', '--scene-blur', '--scene-contact', '--scene-lift', '--scene-roll', '--scene-face'])
     scene.style.removeProperty(name);
 }

@@ -73,15 +73,14 @@ export function scaleOutlines(look: HandLook, width: number, height: number, pxP
 export function createLook(): HandLook {
   const outline: OutlineScale = { uRes: { value: new THREE.Vector2(1, 1) }, uPr: { value: 1 } };
 
-  // Inverted hull, pushed along a smoothed normal (no cracks at UV seams). A SILHOUETTE hull is drawn first with no
-  // depth test (the mesh covers all of it but what sticks out past the silhouette); an INNER hull is depth-tested
-  // (where a finger crosses the palm or another finger). `masked`: the width is scaled per vertex by `hullMask`.
+  // Inverted hull, pushed along a smoothed normal (no cracks at UV seams). A SILHOUETTE hull is drawn before the hand
+  // and writes no depth (the mesh covers all of it but what sticks out past the silhouette); it tests depth only
+  // against what is drawn before it, the card's edge (card-edge.ts), so a finger behind the edge loses its outline
+  // there too. An INNER hull is depth-tested (where a finger crosses the palm or another finger). `masked`: the width
+  // is scaled per vertex by `hullMask`.
   function outlineMat(hex: string, width: number, silhouette: boolean, fog = false, masked = false) {
     const m = new THREE.MeshBasicMaterial({ color: hex, side: THREE.BackSide, fog });
-    if (silhouette) {
-      m.depthTest = false;
-      m.depthWrite = false;
-    }
+    if (silhouette) m.depthWrite = false;
     const uWidth = { value: width };
     m.onBeforeCompile = (sh) => {
       sh.uniforms.uWidth = uWidth;

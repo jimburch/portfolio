@@ -11,8 +11,10 @@
    camera and the 3D hand's camera, and the hand's pose comes from the same
    t, so hand and badge stay locked. The stage is the held turn's
    (held-stage.ts, which also runs the turn), with the back slot clipped to
-   the badge the whole way; the hand is two canvases split at the card's plane (scene/hand/hand-view.ts),
-   placed behind and in front of the badge while it turns. Once it settles
+   the badge the whole way; the hand and the card's edge are two canvases
+   split at the card's plane (scene/hand/hand-view.ts), placed behind and in
+   front of the badge while it turns. A band of light crosses each face as
+   it turns (the stage's sheen). Once it settles
    the canvases go and the resting hand's static images (HeldView.astro), the
    same pose, take over; turning back, the canvases take over from them.
 
@@ -57,8 +59,11 @@ export function createHandTurn(faces: BadgeFaces, held: HeldStage, hand: HandVie
           hand.draw(frame);
           return stageFrameOf(frame);
         },
-        // Behind the badge's faces and in front of them, over the page's scene, only while it turns.
+        // Behind the badge's faces and in front of them, over the page's scene, only while it turns. The card's
+        // edge takes the board's colour as it is now (the RESKIN app can change it).
         enter() {
+          const board = getComputedStyle(faces.front).getPropertyValue('--board').trim();
+          if (board) hand.setBoard(board);
           faces.badge.before(hand.behind);
           faces.badge.after(hand.front);
         },

@@ -60,6 +60,8 @@ export interface HandTurnFrame {
     /** How much of the lifted badge's drop shadow shows. */
     lift: number;
     roll: number;
+    /** How face-on the turn leaves the badge, |cos θ|: 1 face on, 0 edge-on. The clip turns with it. */
+    face: number;
   };
   front: FaceView;
   back: FaceView;
@@ -75,6 +77,18 @@ const PULL_OUT: readonly [number, number] = [0.6, 1];
 const pullAt = (t: number) => smooth(seg(t, ...PULL_IN)) * (1 - smooth(seg(t, ...PULL_OUT)));
 
 const px = (n: number) => `${n.toFixed(3)}px`;
+
+/**
+ * v10's sheen, a band of light that crosses the front over the first 92° of the turn and the back over the last
+ * 92°: where it is across each face at a turn of `th` degrees, 0 to 1, or null while it is off that face (so at rest
+ * and held there is none). The turn alone moves it, never the tilt.
+ */
+const SHEEN_SPAN = 92;
+const onFace = (p: number) => (p > 0 && p < 1 ? p : null);
+export const sheenAt = (th: number) => ({
+  front: onFace(th / SHEEN_SPAN),
+  back: onFace((th - (180 - SHEEN_SPAN)) / SHEEN_SPAN),
+});
 
 export function handFrameAt(t: number, { worn, held, heldBlur, view }: HeldFraming): HandTurnFrame {
   const u = worn.height / 500;
@@ -129,6 +143,8 @@ export function handFrameAt(t: number, { worn, held, heldBlur, view }: HeldFrami
     -Math.sin(th) * (Math.cos(roll) * (b.tx / k0) + Math.sin(roll) * (b.ty / k0)) +
     Math.cos(th) * (EYE_DISTANCE - b.tz);
   const frontUp = facing >= 0;
+  const face = Math.abs(Math.cos(th));
+  const sheen = sheenAt(b.th);
 
   return {
     t,
@@ -142,17 +158,23 @@ export function handFrameAt(t: number, { worn, held, heldBlur, view }: HeldFrami
       blur: Math.max(0, push) * heldBlur,
       contact: Math.pow(1 - liftAt(t), 1.6),
       // The lifted badge's shadow: as far as it is lifted, and as wide as it is face on (thin edge-on).
-      lift: liftAt(t) * Math.abs(Math.cos(th)),
+      lift: liftAt(t) * face,
       roll: b.roll,
+      face,
     },
     // About the front's own centre, the worn badge's: moved to the eye.
-    front: { transform: `translate(${px(eye.x - c0.x)}, ${px(eye.y - c0.y)}) ${place} ${turn(b.th)}`, shown: frontUp },
+    front: {
+      transform: `translate(${px(eye.x - c0.x)}, ${px(eye.y - c0.y)}) ${place} ${turn(b.th)}`,
+      shown: frontUp,
+      sheen: sheen.front,
+    },
     // About the held badge's centre: moved to the eye, then the badge as the front, turned over and laid out held.
     back: {
       transform:
         `translate(${px(eye.x - c1.x)}, ${px(eye.y - c1.y)}) ${place} ${turn(b.th - 180)} ` +
         `scale(${(1 / zoom).toFixed(6)})`,
       shown: !frontUp,
+      sheen: sheen.back,
     },
   };
 }

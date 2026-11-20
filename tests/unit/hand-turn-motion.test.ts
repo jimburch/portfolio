@@ -133,6 +133,41 @@ describe.each(Object.entries(SIZES))('hand turn motion at %s', (_, framing) => {
     }
   });
 
+  it('lights the faces only while they turn: no sheen at rest or held, v10\'s band across each face as it turns', () => {
+    for (const t of [0, 1]) {
+      const f = handFrameAt(t, framing);
+      expect([f.front.sheen, f.back.sheen], `t ${t}`).toEqual([null, null]);
+    }
+    let front = 0;
+    let back = 0;
+    for (const t of ts) {
+      const f = handFrameAt(t, framing);
+      const th = f.badge.th;
+      // v10: the front's band crosses it over the first 92° of the turn, the back's over the last 92°.
+      const pf = th / 92;
+      const pb = (th - 88) / 92;
+      if (pf > 0 && pf < 1) expect(f.front.sheen, `t ${t}`).toBeCloseTo(pf, 10);
+      else expect(f.front.sheen, `t ${t}`).toBeNull();
+      if (pb > 0 && pb < 1) expect(f.back.sheen, `t ${t}`).toBeCloseTo(pb, 10);
+      else expect(f.back.sheen, `t ${t}`).toBeNull();
+      if (f.front.sheen !== null) front++;
+      if (f.back.sheen !== null) back++;
+    }
+    expect(front).toBeGreaterThan(100);
+    expect(back).toBeGreaterThan(100);
+  });
+
+  it('tells the scene how face-on the badge is, so the clip turns with it: 1 at both ends, about 0 edge-on', () => {
+    expect(handFrameAt(0, framing).scene.face).toBe(1);
+    expect(handFrameAt(1, framing).scene.face).toBe(1);
+    const edgeOn = ts.reduce((a, t) => (Math.abs(handFrameAt(t, framing).badge.th - 90) < Math.abs(handFrameAt(a, framing).badge.th - 90) ? t : a));
+    expect(handFrameAt(edgeOn, framing).scene.face).toBeLessThan(0.02);
+    for (const t of ts) {
+      const f = handFrameAt(t, framing);
+      expect(f.scene.face, `t ${t}`).toBeCloseTo(Math.abs(Math.cos((f.badge.th * Math.PI) / 180)), 10);
+    }
+  });
+
   it('keeps the badge and the scene together: the scene moves with the badge as the camera moves', () => {
     for (const t of ts) {
       const f = handFrameAt(t, framing);

@@ -44,6 +44,11 @@ export interface HeldFraming {
 export interface FaceView {
   transform: string;
   shown: boolean;
+  /**
+   * A band of light crossing the face as it turns: where it is across the face, 0 to 1 from one side to the other.
+   * None (null or left out) while it is off the face.
+   */
+  sheen?: number | null;
 }
 
 export interface StageFrame {
@@ -99,14 +104,27 @@ export function createHeldStage(faces: BadgeFaces, { scene, heldView }: HeldStag
     view: { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight },
   });
 
+  /** The face's turn sheen (badge-front.css): on only while the band is on the face. */
+  function light(face: HTMLElement, sheen: number | null | undefined) {
+    if (sheen === null || sheen === undefined) {
+      face.removeAttribute('data-sheen');
+      face.style.removeProperty('--sheen');
+    } else {
+      face.setAttribute('data-sheen', '');
+      face.style.setProperty('--sheen', sheen.toFixed(4));
+    }
+  }
+
   function show(f: StageFrame) {
     frameScene(scene, f.scene);
     // The face turned away is see-through, not hidden: hiding the front would
     // take focus off the control that started the turn.
     front.style.transform = f.front.transform;
     front.style.opacity = f.front.shown ? '' : '0';
+    light(front, f.front.sheen);
     backSlot.style.transform = f.back.transform;
     backSlot.style.opacity = f.back.shown ? '' : '0';
+    light(backSlot, f.back.sheen);
     backSlot.toggleAttribute('data-turning', f.turning);
     backSlot.style.setProperty('--held-turn-inset', `${f.inset.toFixed(2)}px`);
     // Seen through the back slot the held scene is pushed in only as far as
@@ -122,6 +140,7 @@ export function createHeldStage(faces: BadgeFaces, { scene, heldView }: HeldStag
     backSlot.style.removeProperty('--held-turn-inset');
     for (const el of [front, backSlot]) {
       for (const name of ['transform', 'opacity']) el.style.removeProperty(name);
+      light(el, null);
     }
     backSlot.removeAttribute('data-turning');
   }

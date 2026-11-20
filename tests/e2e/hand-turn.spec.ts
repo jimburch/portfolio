@@ -294,6 +294,121 @@ test.describe('on a qualifying desktop', () => {
   }
 });
 
+/* The badge turns like a card (v10): it has an edge with thickness, a band of
+   light crosses each face as it turns, and the clip turns with it. Frames
+   counted as in hand-turn-baselines.spec.ts: the turn's first animation frame
+   only starts its timer, then t moves 16 / 1800 a frame; frame 48 is v10's
+   edge-on (t .4267). */
+test.describe('the turned card', () => {
+  test.skip(({ isMobile }) => isMobile, 'desktop projects only');
+  test.use({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+
+  const EDGE_ON = 48;
+
+  /** The front at rest, the hand loaded and the clock paused; then a click with no pointer over the badge. */
+  async function startTurn(page: Page) {
+    await page.clock.install({ time: 0 });
+    await page.goto('/');
+    await handLoaded(page, 'ready');
+    await page.waitForLoadState('networkidle');
+    await page.clock.pauseAt(60_000);
+    await page.locator('[data-part="resume-pad"]').dispatchEvent('click');
+    await turnStarts(page, 'hand-turn');
+  }
+  const stepToFrame = (page: Page, frame: number) => step(page, (frame + 1) * 16 + 8);
+
+  /** Which faces carry the turn's sheen, and whether it is drawn (its ::after is generated), every frame. */
+  async function recordSheen(page: Page) {
+    await page.evaluate(() => {
+      const w = window as unknown as { __sheen: Array<{ front: boolean; back: boolean; drawn: number }> };
+      w.__sheen = [];
+      const front = document.querySelector('.face-front')!;
+      const back = document.getElementById('back-slot')!;
+      const sample = () => {
+        w.__sheen.push({
+          front: front.hasAttribute('data-sheen'),
+          back: back.hasAttribute('data-sheen'),
+          drawn: [front, back].filter((el) => getComputedStyle(el, '::after').content !== 'none').length,
+        });
+        requestAnimationFrame(sample);
+      };
+      requestAnimationFrame(sample);
+    });
+  }
+  const sheen = (page: Page) =>
+    page.evaluate(() => (window as unknown as { __sheen: Array<{ front: boolean; back: boolean; drawn: number }> }).__sheen);
+
+  test('edge-on it is a solid bar, as thick as v10\'s card, not a hairline', async ({ page }) => {
+    test.slow();
+    await startTurn(page);
+    await stepToFrame(page, EDGE_ON);
+    // The widest run of the card's green across rows between the clip and the hand, on the canvas behind the face.
+    const widths = await page.evaluate(() => {
+      const c = document.querySelector<HTMLCanvasElement>('canvas.hand-layer--behind')!;
+      const ctx = c.getContext('2d')!;
+      return [200, 300, 400].map((y) => {
+        const row = ctx.getImageData(0, y * devicePixelRatio, c.width, 1).data;
+        let run = 0;
+        let best = 0;
+        for (let x = 0; x < c.width; x++) {
+          const [r, g, b, a] = row.slice(x * 4, x * 4 + 4);
+          run = a > 200 && g > r + 20 && g > b ? run + 1 : 0;
+          best = Math.max(best, run);
+        }
+        return best / devicePixelRatio;
+      });
+    });
+    // v10's card is 10 units thick, about 12.7 px here at edge-on; the face alone is a line a pixel or two wide.
+    for (const w of widths) expect(w).toBeGreaterThanOrEqual(10);
+  });
+
+  test('edge-on the clip has turned with the badge: a sliver, not a clip face on', async ({ page }) => {
+    test.slow();
+    await startTurn(page);
+    const clip = page.locator('#worn-scene .worn-scene__clip');
+    const atRest = (await clip.boundingBox())!.width;
+    await stepToFrame(page, EDGE_ON);
+    expect((await clip.boundingBox())!.width / atRest).toBeLessThan(0.4);
+  });
+
+  test('a band of light crosses each face only while it turns, there and back, and none at rest or held', async ({
+    page,
+  }) => {
+    test.slow();
+    await page.clock.install({ time: 0 });
+    await page.goto('/');
+    await handLoaded(page, 'ready');
+    await page.waitForLoadState('networkidle');
+    await page.clock.pauseAt(60_000);
+    await expect(page.locator('[data-sheen]')).toHaveCount(0);
+    await recordSheen(page);
+    await page.locator('[data-part="resume-pad"]').dispatchEvent('click');
+    await turnStarts(page, 'hand-turn');
+    await step(page, 2100);
+    await landsHeld(page);
+    let all = await sheen(page);
+    // It crossed the front, then the back; while it was on a face it was drawn there, and once held it is gone.
+    const firstFront = all.findIndex((f) => f.front);
+    const firstBack = all.findIndex((f) => f.back);
+    expect(firstFront).toBeGreaterThan(0);
+    expect(firstBack).toBeGreaterThan(firstFront);
+    expect(all.every((f) => f.drawn === Number(f.front) + Number(f.back))).toBe(true);
+    await expect(page.locator('[data-sheen]')).toHaveCount(0);
+    expect(await page.locator('#back-slot').evaluate((el) => getComputedStyle(el, '::after').content)).toBe('none');
+
+    await recordSheen(page);
+    await page.locator('#back-slot [data-back-face] a[data-home]').click();
+    await expect.poll(() => path(page)).toBe('/');
+    await step(page, 2100);
+    await expect(badge(page)).not.toHaveAttribute('data-flipping');
+    all = await sheen(page);
+    expect(all.some((f) => f.back)).toBe(true);
+    expect(all.some((f) => f.front)).toBe(true);
+    await expect(page.locator('[data-sheen]')).toHaveCount(0);
+    expect(await page.locator('.face-front').evaluate((el) => getComputedStyle(el, '::after').content)).toBe('none');
+  });
+});
+
 test.describe('who never loads the hand', () => {
   const cases: Array<[string, BrowserContextOptions, (isMobile: boolean) => boolean]> = [
     ['a phone', {}, (isMobile) => !isMobile],
