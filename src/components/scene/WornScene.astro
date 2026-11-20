@@ -1,0 +1,27 @@
+---
+/* The worn desktop scene: the badge hangs on a lanyard on a blurred person.
+   Decorative only: hidden from assistive tech, inert (never focused), and it
+   takes no pointer events. Shown, and its art fetched, only on a qualifying
+   desktop (scene/gate.ts); everywhere else it is display: none. */
+import '../../styles/worn-scene.css';
+import { SCENE_ART, type SceneLayer } from '../../scene/art/layers';
+
+/** Where an art layer sits, in stage units (worn-scene.css places it). */
+const placed = (layer: SceneLayer) => {
+  const { x, y, width, height } = SCENE_ART[layer].box;
+  return `--art-x: ${x}; --art-y: ${y}; --art-w: ${width}; --art-h: ${height}`;
+};
+---
+
+<div id="worn-scene" class="worn-scene" aria-hidden="true" inert>
+  <div class="worn-scene__camera">
+    <div class="worn-scene__room"></div>
+    <div class="worn-scene__art worn-scene__wearer" style={placed('wearer')}></div>
+    <div class="worn-scene__art worn-scene__lanyard-behind" style={placed('lanyard-behind')}></div>
+    <div class="worn-scene__art worn-scene__neck" style={placed('neck')}></div>
+    <div class="worn-scene__art worn-scene__lanyard-front" style={placed('lanyard-front')}></div>
+    <div class="worn-scene__art worn-scene__sheen" style={placed('lanyard-front')}></div>
+    <div class="worn-scene__contact-shadow"></div>
+    <div class="worn-scene__art worn-scene__clip" style={placed('clip')}></div>
+  </div>
+</div>

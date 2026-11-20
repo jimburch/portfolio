@@ -639,6 +639,18 @@
   }
 }
 
+/* ---- Qualifying desktop: the badge is worn (worn-scene.css) ------------- */
+
+/* It hangs on the wearer's chest at the scene's framing: 78% of the window
+   tall, its top just below the collar and lanyard. */
+@media (--worn-desktop) {
+  #badge {
+    --badge-h: var(--worn-badge-h);
+    --badge-w: calc(var(--badge-h) * 390 / 844);
+    margin-top: var(--worn-badge-top);
+  }
+}
+
 /* RESKIN app: two rows (label left, value right) and a hint line. */
 .lcd-reskin-row {
   justify-content: flex-start;

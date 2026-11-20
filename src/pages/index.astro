@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import BadgeFront from '../components/front/BadgeFront.astro';
+import WornScene from '../components/scene/WornScene.astro';
 // The flip lifts back faces into this page, so their styles ship with it.
 import '../styles/badge-back.css';
 import { getEntry } from 'astro:content';
@@ -16,6 +17,7 @@ const nowJson = JSON.stringify(nowData ?? null).replace(/</g, '\\u003c');
 ---
 
 <Base title="Jim Burch">
+  <WornScene />
   <BadgeFront />
   <script type="application/json" id="data-now" set:html={nowJson} />
 </Base>

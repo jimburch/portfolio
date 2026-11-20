@@ -1,0 +1,132 @@
+/* The worn desktop scene (components/scene/WornScene.astro): the badge hangs
+   on a lanyard on a heavily blurred, flat-vector person. Only on a qualifying
+   desktop (`--worn-desktop`, defined once in scene/gate.ts); elsewhere the
+   scene is display: none and none of its art is fetched, since every rule
+   that names an art file sits inside the gate.
+
+   Stage units (scene/art/stage.ts): the origin is the badge's top centre and
+   the badge is 500 units tall, so one unit is `--worn-u` px. Each art layer
+   is an SVG over its own box (`--art-x/-y/-w/-h`, set on the layer from
+   art/layers.ts), placed in those units so it always meets the badge.
+
+   The camera, for whatever moves it later (the push-in, the held close-up):
+   - `--scene-camera`: ONE transform on the whole scene (room, wearer,
+     lanyard, contact shadow), about the badge's centre. `none` at rest.
+   - `--scene-blur`: extra depth-of-field blur on the room and the wearer, in
+     stage units, on top of their resting blur. 0 at rest; it grows as the
+     camera closes in. (The straps keep their own soft-to-sharp focus.) */
+
+.worn-scene {
+  display: none;
+}
+
+@media (--worn-desktop) {
+  /* Framing at rest, shared with the badge (badge-front.css): the badge is
+     77% of the window tall (unless the window is too narrow for that), and
+     its top sits 126 units below the window's top edge, so the collar and
+     the lanyard's turn round the neck sit at the top edge. */
+  :root {
+    --worn-badge-h: min(77dvh, (100vw - 64px) * 844 / 390);
+    --worn-u: calc(var(--worn-badge-h) / 500);
+    --worn-badge-top: calc(126 * var(--worn-u));
+  }
+
+  .worn-scene {
+    --scene-camera: none;
+    --scene-blur: 0;
+    /* The badge's tilt, mirrored here by scene/worn-scene.ts. */
+    --tx: 0;
+    --ty: 0;
+
+    display: block;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: #221d1a;
+  }
+
+  /* Hidden once the badge has settled on its back: back pages keep their own look. */
+  :root:has(#badge[data-side='back']:not([data-flipping])) .worn-scene {
+    visibility: hidden;
+  }
+
+  .worn-scene__camera {
+    position: absolute;
+    inset: 0;
+    transform: var(--scene-camera);
+    transform-origin: 50% calc(var(--worn-badge-top) + 250 * var(--worn-u));
+  }
+
+  .worn-scene__camera > * {
+    position: absolute;
+  }
+
+  /* The room behind the wearer: warm lamps and a cool window, far out of focus. */
+  .worn-scene__room {
+    inset: -6%;
+    background:
+      radial-gradient(circle at 9% 16%, rgb(255 186 110 / 0.65) 0 4.5%, transparent 5.5%),
+      radial-gradient(circle at 92% 10%, rgb(255 214 150 / 0.55) 0 3.5%, transparent 4.5%),
+      radial-gradient(circle at 90% 86%, rgb(130 170 255 / 0.35) 0 5%, transparent 6%),
+      linear-gradient(170deg, #5a4a3e, #221d1a);
+    filter: blur(calc((16 + var(--scene-blur)) * var(--worn-u)));
+  }
+
+  .worn-scene__art {
+    left: calc(50% + var(--art-x) * var(--worn-u));
+    top: calc(var(--worn-badge-top) + var(--art-y) * var(--worn-u));
+    width: calc(var(--art-w) * var(--worn-u));
+    height: calc(var(--art-h) * var(--worn-u));
+    background: no-repeat 0 0 / 100% 100%;
+  }
+
+  /* The wearer is out of focus and a little in shadow, so the badge stays the subject. */
+  .worn-scene__wearer,
+  .worn-scene__neck {
+    filter: blur(calc((9 + var(--scene-blur)) * var(--worn-u))) brightness(0.72);
+  }
+
+  .worn-scene__wearer {
+    background-image: url('/scene/wearer.svg');
+  }
+
+  .worn-scene__lanyard-behind {
+    background-image: url('/scene/lanyard-behind.svg');
+  }
+
+  .worn-scene__neck {
+    background-image: url('/scene/neck.svg');
+  }
+
+  .worn-scene__lanyard-front {
+    background-image: url('/scene/lanyard-front.svg');
+  }
+
+  /* The straps catch the light as the badge tilts: a soft band of light,
+     masked to the straps, slides across them with the pointer, the way the
+     highlight slides across the badge's metal. */
+  .worn-scene__sheen {
+    --strap-shine: calc((var(--tx) * 150 + var(--ty) * 40 - 40) * var(--worn-u));
+    background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.16) 50%, transparent 70%)
+      calc(50% + var(--strap-shine)) 0 / calc(200 * var(--worn-u)) 100% no-repeat;
+    -webkit-mask: url('/scene/lanyard-front.svg') 0 0 / 100% 100% no-repeat;
+    mask: url('/scene/lanyard-front.svg') 0 0 / 100% 100% no-repeat;
+  }
+
+  /* The badge rests on the chest: a soft shadow just around and below it. */
+  .worn-scene__contact-shadow {
+    left: calc(50% - 135 * var(--worn-u));
+    top: calc(var(--worn-badge-top) + 6 * var(--worn-u));
+    width: calc(270 * var(--worn-u));
+    height: calc(510 * var(--worn-u));
+    border-radius: calc(26 * var(--worn-u));
+    background: #000;
+    opacity: 0.5;
+    filter: blur(calc(14 * var(--worn-u)));
+  }
+
+  .worn-scene__clip {
+    background-image: url('/scene/clip.svg');
+  }
+}

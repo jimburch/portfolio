@@ -12,6 +12,7 @@ import { readPageData } from './page-data';
 import { safeStorage } from './storage';
 import { createThemeController } from './theme/theme';
 import { createTiltSource } from './tilt/tilt-source';
+import { letSceneFollowTilt } from '../scene/worn-scene';
 
 const root = document.getElementById('badge')!;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -20,6 +21,10 @@ const local = safeStorage('local');
 
 const tilt = createTiltSource({ root, reducedMotion, session });
 const theme = createThemeController(document.documentElement, local);
+
+// On a qualifying desktop the badge is worn; the lanyard catches the same light.
+const scene = document.getElementById('worn-scene');
+if (scene) letSceneFollowTilt(scene, tilt);
 
 // Raw input from the badge's controls and keys.
 const bus = createInputBus();
