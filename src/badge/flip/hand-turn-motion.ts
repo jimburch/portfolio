@@ -79,8 +79,9 @@ export function handFrameAt(t: number, { worn, held, heldBlur }: HeldFraming): H
 
   // v10's badge matrix in px about the eye, `perspective(P) translate3d(tx/k0, ty/k0, tz) rotate rotateY`, written
   // without the translateZ: lifted by tz, the badge is magnified k0 = P / (P - tz) and seen from P - tz, so
-  // `scale(k0) perspective(P - tz) translate(tx/k0, ty/k0)` is the same projection, point for point. (Headless
-  // WebKit draws a translateZ under perspective() unmagnified, though it measures it right.)
+  // `scale(k0) perspective(P - tz) translate(tx/k0, ty/k0)` is the same projection, point for point. (Playwright's
+  // WebKit screenshots drop the perspective divide, so with the magnification in scale() they stay closer to what
+  // WebKit actually paints; see the #32 report, "Fix round 1".)
   const place =
     `scale(${k0.toFixed(6)}) perspective(${px((EYE_DISTANCE - b.tz) * u)}) ` +
     `translate(${px((b.tx / k0) * u)}, ${px((b.ty / k0) * u)}) ` +
