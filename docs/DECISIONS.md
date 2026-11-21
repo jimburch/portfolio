@@ -267,3 +267,15 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   face, so rest and held are untouched.
 - **The clip turns with the badge**: it narrows with |cos θ| (never below
   30%, v10's rule), so edge-on it is a sliver at the top of the edge.
+
+## 2026-11-20 (resume content and the PDF)
+
+- **The resume page is a short version; Download PDF is the full resume.**
+  The page (`/resume`) carries a bite-sized cut of Jim's resume: the work
+  entries in `content/work/`, skills and education in `data/resume.ts`. The
+  PDF is Jim's full resume, kept as its own document
+  (`scripts/resume/full-resume.html`), printed by hand with `pnpm resume:pdf`
+  to `public/jim-burch-resume.pdf` and committed. So `pnpm build` is plain
+  `astro build` and needs no browser, which any static host (Cloudflare Pages)
+  can run. No phone number in either; the public email is hello@jimburch.com,
+  and the location is Mesa, AZ.

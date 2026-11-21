@@ -6,6 +6,7 @@ import ResumeLinks from '../components/back/ResumeLinks.astro';
 import ContactLinks from '../components/back/ContactLinks.astro';
 import { frontmatter as about } from '../copy/about.md';
 import { byOrder } from '../data/order';
+import { EDUCATION, SKILLS } from '../data/resume';
 
 const work = (await getCollection('work')).sort(byOrder);
 const summary: string = about.summary;
@@ -20,15 +21,14 @@ const summary: string = about.summary;
     {work.map((entry) => <WorkEntry entry={entry} />)}
   </section>
 
-  <section aria-labelledby="education-heading">
-    <h2 id="education-heading">Education</h2>
-    <p>Hack Reactor · Software engineering program · 2021</p>
-    <p>TODO(jim): confirm, and add anything else you want listed.</p>
-  </section>
-
   <section aria-labelledby="skills-heading">
     <h2 id="skills-heading">Skills</h2>
-    <p>TODO(jim)</p>
+    {SKILLS.map(({ area, skills }) => <p><strong>{area}:</strong> {skills}</p>)}
+  </section>
+
+  <section aria-labelledby="education-heading">
+    <h2 id="education-heading">Education</h2>
+    {EDUCATION.map(({ school, program, year }) => <p>{school} · {program} · {year}</p>)}
   </section>
 
   <section aria-labelledby="contact-heading">

@@ -52,5 +52,5 @@ test('resume has work, education, skills and contact sections', async ({ page })
   const main = page.locator('#back-main');
   for (const name of ['Work', 'Education', 'Skills', 'Contact'])
     await expect(main.getByRole('heading', { level: 2, name, exact: true })).toBeVisible();
-  await expect(main.getByRole('region', { name: 'Education' })).toContainText('Hack Reactor');
+  await expect(main.getByRole('region', { name: 'Education' })).toContainText('Galvanize');
 });

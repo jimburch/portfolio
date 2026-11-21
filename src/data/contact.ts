@@ -5,7 +5,7 @@
  */
 export const CONTACT = {
   name: 'Jim Burch',
-  email: 'TODO(jim)@example.com',
+  email: 'hello@jimburch.com',
   linkedin: 'https://www.linkedin.com/in/jimburch1/',
   github: 'https://github.com/jimburch',
   city: 'Mesa, AZ',

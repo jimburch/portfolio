@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/build-resume-pdf.mjs",
+    "build": "astro build",
+    "resume:pdf": "node scripts/build-resume-pdf.mjs",
     "preview": "astro preview",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",

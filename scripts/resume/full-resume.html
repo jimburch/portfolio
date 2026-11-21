@@ -1,0 +1,121 @@
+<!doctype html>
+<!--
+  Jim's full resume: the source of /jim-burch-resume.pdf (the resume page's
+  Download PDF). `pnpm resume:pdf` prints this to public/jim-burch-resume.pdf;
+  the PDF is committed, so the site build needs no browser.
+  Public repo: no phone number or street address here.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Jim Burch · Resume</title>
+    <style>
+      @page { size: Letter; margin: 0.5in 0.55in; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 9.6pt/1.38 -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #1b1f1d;
+      }
+      a { color: inherit; text-decoration: none; }
+      header { border-bottom: 1.5pt solid #1d6b4a; padding-bottom: 6pt; margin-bottom: 8pt; }
+      h1 { font-size: 20pt; letter-spacing: 0.02em; margin: 0; line-height: 1.1; }
+      .title { font-size: 11pt; color: #1d6b4a; font-weight: 600; margin: 1pt 0 3pt; }
+      .contact { font-size: 9pt; color: #444; }
+      .contact span + span::before { content: '  |  '; white-space: pre; color: #999; }
+      h2 {
+        font-size: 9.5pt; letter-spacing: 0.12em; text-transform: uppercase; color: #1d6b4a;
+        margin: 10pt 0 4pt; border-bottom: 0.5pt solid #c8d3cd; padding-bottom: 2pt;
+      }
+      p { margin: 0 0 4pt; }
+      ul { margin: 2pt 0 6pt; padding-left: 12pt; }
+      li { margin-bottom: 2.5pt; }
+      .row { display: flex; justify-content: space-between; gap: 12pt; align-items: baseline; }
+      .row .when { white-space: nowrap; color: #444; font-size: 9pt; }
+      .job { margin-top: 6pt; break-inside: avoid-page; }
+      .role { font-weight: 700; }
+      .about { font-style: italic; color: #444; margin-bottom: 2pt; }
+      .sub { margin-top: 4pt; font-weight: 600; }
+      .sub .when { font-weight: 400; }
+      .skills p { margin-bottom: 2pt; }
+      .skills b { font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Jim Burch</h1>
+      <p class="title">Full Stack Software Engineer</p>
+      <p class="contact">
+        <span>Mesa, AZ</span><span><a href="mailto:hello@jimburch.com">hello@jimburch.com</a></span><span><a href="https://jimburch.com">jimburch.com</a></span><span><a href="https://github.com/jimburch">github.com/jimburch</a></span><span><a href="https://www.linkedin.com/in/jimburch1/">linkedin.com/in/jimburch1</a></span>
+      </p>
+    </header>
+
+    <h2>Summary</h2>
+    <p>
+      Full stack software engineer (5+ years) who builds products for non-technical users: first sports data
+      products embedded by partners like USA Today and NASCAR, now a no-code website platform used by
+      photographers, designers, and small business owners. I take product areas from idea to production in React,
+      TypeScript, Node.js, and PostgreSQL; my self-serve trial experiment added $100K+ in revenue in one month.
+      Before engineering, I spent nearly a decade as a copywriter, so I think about how a product reads to the
+      customer.
+    </p>
+
+    <h2>Skills</h2>
+    <div class="skills">
+      <p><b>Languages:</b> JavaScript, TypeScript, SQL, HTML, CSS, Ruby (exposure), Python (exposure)</p>
+      <p><b>Frontend:</b> React, TailwindCSS, Lit / Web Components, design systems, accessibility, cross-browser (Safari/iOS)</p>
+      <p><b>Backend:</b> Node.js, Express, REST APIs, PostgreSQL, Knex.js, Redis, worker queues, Ruby on Rails (exposure via Rails-to-React migration)</p>
+      <p><b>Infra / DevOps:</b> AWS (S3, EC2, Lambda), Cloudflare Workers, Docker, GitHub Actions (CI/CD), feature flags (PostHog)</p>
+      <p><b>AI Tooling:</b> Claude Code (custom skills, team plugin, headless runs), large language model (LLM) integration, local LLMs with Ollama</p>
+      <p><b>Testing &amp; Tools:</b> Cypress and Playwright end-to-end (E2E), Node test runner, golden tests, TDD, code review, Postman, Retool</p>
+    </div>
+
+    <h2>Experience</h2>
+
+    <div class="job">
+      <div class="row"><span><span class="role">Software Developer</span> | Showit | Chandler, AZ</span><span class="when">Mar 2024 – Present</span></div>
+      <p class="about">No-code website creator and platform for photographers, designers, and small business owners</p>
+      <ul>
+        <li>Built the Extend Trial experiment, adding $100K+ in revenue in one month: gave self-serve trial users a one-click way to keep their trial going; 120+ clicked it soon after launch, and I later relaunched it behind a feature flag with automated in-app messaging.</li>
+        <li>Delivered native forms end to end: designers used to fake forms out of text boxes and shapes; now they add designable, prebuilt elements that publish as real HTML forms, so the ~250 design partners who build sites for small businesses work faster. Built the widgets, validation and submit logic, and data model, with automated checks protecting existing customer sites.</li>
+        <li>Shipped Lottie animation support: built it in the original site renderer, then carried it into the new rendering engine with identical output for existing customer sites, plus URL validation and tests at every layer.</li>
+        <li>Built drag-and-drop image upload: as a core implementer, benchmarked the UX against Wix, Squarespace, and Webflow (which snap drops into a template or the page center), then built drop-at-cursor placement with automatic media-library saving; shipped after cross-browser QA and fixed user-testing friction within a day.</li>
+        <li>Built my team's AI engineering tooling, solo: wrote and tested 9 Claude Code skills (code review, bug reports, ticketing), shipped them as a plugin all 6 developers on my team use, and built a feedback loop that grades each run to improve the skills.</li>
+        <li>Ongoing production support and CI/CD: fix escalated customer-facing bugs support can't resolve in the editor and renderer (e.g., Safari/iOS rendering, keyboard-focus accessibility); built and maintain the GitHub Actions continuous integration and delivery automation that moves ClickUp tasks through review, QA, and deploy.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="row"><span><span class="role">Software Engineer (Contract)</span> | Mentumm | Remote</span><span class="when">Jan 2023 – Feb 2024</span></div>
+      <ul>
+        <li>Built full stack features for a career-coaching platform in React, Tailwind CSS, Chakra UI, TypeScript, Node.js, Express, and PostgreSQL, aligned with the product owner to user needs and business goals; designed backend authorization.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="row"><span><span class="role">FanPower (formerly Pickup)</span> | Remote</span><span class="when">May 2021 – Feb 2024</span></div>
+      <div class="row sub"><span>Software Engineer II</span><span class="when">Jun 2022 – Feb 2024</span></div>
+      <ul>
+        <li>Led early LLM content generation that turned sports data API feeds into publishable articles: modeled the API data and built the largely manual pipeline on OpenAI, producing 100+ articles.</li>
+        <li>Built the partner-facing FanPower picker, embedded in partner articles (USA Today, NASCAR) to show sports polls matched to the content; led the rebrand and white-label React design system; built a Retool admin portal that doubled admin productivity.</li>
+      </ul>
+      <div class="row sub"><span>Software Engineer I</span><span class="when">May 2021 – Jun 2022</span></div>
+      <ul>
+        <li>Migrated legacy Ruby on Rails views and features to React and an Express REST API, and built full stack features in TypeScript, Node.js, and PostgreSQL serving thousands of users daily.</li>
+        <li>Tripled public API response speed with Redis caching and eliminated timeout errors with a worker queue system.</li>
+        <li>Raised deployment reliability from 70–80% to nearly 100% with Cypress E2E and backend unit tests; wrote partner-facing API documentation in Postman.</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="row"><span><span class="role">Sr. Copywriter &amp; Creative Professional</span> | Corporate, startup, and agency teams | Arizona</span><span class="when">2011 – 2020</span></div>
+      <ul>
+        <li>Wrote marketing copy, articles, and advertising for multimillion-dollar product campaigns; Shorty Award-winning YouTube series.</li>
+      </ul>
+    </div>
+
+    <h2>Education</h2>
+    <div class="row"><span><b>Galvanize</b> | Advanced Software Engineering Immersive</span><span class="when">2021</span></div>
+    <div class="row"><span><b>Murray State University</b> | B.A. English &amp; Journalism</span><span class="when">2003 – 2007</span></div>
+  </body>
+</html>

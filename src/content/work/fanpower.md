@@ -1,15 +1,14 @@
 ---
 company: FanPower (formerly Pickup)
-role: Full Stack Software Engineer
+role: Software Engineer I → II
 start: May 2021
-# TODO(jim): confirm the end date. The current live site (vanilla-portfolio) says "February 2024".
-end: TODO(jim)
-order: 2
+end: February 2024
+order: 3
 link: https://fanpower.io
-summary: My programming career started at this sports data company, where I was a full-stack developer working on React web tools, analytics dashboards, and two Node.js API servers that managed millions of requests, emails, SMS messages, and AI-powered sports content.
+summary: Sports data products that partners like USA Today and NASCAR embedded in their articles.
 ---
 
-- Built React tools to track and analyze fan sentiment.
-- Led design and deployment of an AI-driven sports content platform, generating thousands of articles and polls from live sports data using LLM integration.
-- Engineered scalable architecture that tripled API response speeds with Redis caching and eliminated timeout errors, improving deployment reliability to nearly 100%.
-- Orchestrated a company-wide rebranding with a new design system and reusable React components, plus built an admin portal that doubled productivity.
+- Built the FanPower picker, the sports polls embedded in partner articles, and led the white-label React design system.
+- Led early LLM content generation, turning sports data feeds into 100+ publishable articles.
+- Tripled public API speed with Redis caching, and ended timeouts with a worker queue.
+- Raised deploy reliability from 70–80% to nearly 100% with Cypress E2E and backend tests.

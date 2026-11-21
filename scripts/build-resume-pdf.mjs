@@ -1,35 +1,23 @@
-// Renders /resume from the built site to dist/jim-burch-resume.pdf.
-// Runs after `astro build`: serves dist/ in-process, prints the page with the
-// print stylesheet, then shuts everything down, even on failure.
-import { fileURLToPath } from 'node:url';
-import { preview } from 'astro';
+// Prints Jim's full resume (scripts/resume/full-resume.html) to
+// public/jim-burch-resume.pdf, the resume page's Download PDF. Run it by hand
+// (`pnpm resume:pdf`) after editing the resume and commit the PDF: the site
+// build itself needs no browser, so any static host can build it.
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from '@playwright/test';
 
-const root = fileURLToPath(new URL('..', import.meta.url));
-const PORT = 4399;
-const OUT = fileURLToPath(new URL('../dist/jim-burch-resume.pdf', import.meta.url));
+const SOURCE = fileURLToPath(new URL('./resume/full-resume.html', import.meta.url));
+const OUT = fileURLToPath(new URL('../public/jim-burch-resume.pdf', import.meta.url));
 
 async function main() {
-  const server = await preview({ root, server: { port: PORT } });
-  let browser;
+  const browser = await chromium.launch();
   try {
-    browser = await chromium.launch();
     const page = await browser.newPage();
-    await page.goto(`http://localhost:${PORT}/resume`, { waitUntil: 'networkidle' });
-    await page.emulateMedia({ media: 'print' });
-    await page.pdf({
-      path: OUT,
-      format: 'Letter',
-      printBackground: false,
-      margin: { top: '0.5in', right: '0.5in', bottom: '0.5in', left: '0.5in' },
-    });
+    await page.goto(pathToFileURL(SOURCE).href, { waitUntil: 'load' });
+    // Page size and margins come from the document's own @page rule.
+    await page.pdf({ path: OUT, preferCSSPageSize: true, printBackground: true });
     console.log(`resume pdf: ${OUT}`);
   } finally {
-    try {
-      await browser?.close();
-    } finally {
-      await server.stop();
-    }
+    await browser.close();
   }
 }
 
