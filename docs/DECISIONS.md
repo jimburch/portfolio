@@ -279,3 +279,20 @@ in [`CONTEXT.md`](./CONTEXT.md) or the brainstorm, not here.
   `astro build` and needs no browser, which any static host (Cloudflare Pages)
   can run. No phone number in either; the public email is hello@jimburch.com,
   and the location is Mesa, AZ.
+
+## 2026-11-21 (RESET resets the colors)
+
+- **RESET puts the default colors back** (green board, gold metal) as well
+  as rebooting: the reducer's RESET asks for a `resetTheme` effect. Boards
+  unlocked by a cheat stay unlocked, as dev mode stays on.
+
+## 2026-11-21 (the resting hand covers less of the face)
+
+- **The final grip slides 10 px out over the edge** (key P only; Jim: keep
+  v10's grip and height, just cover less of the badge). The fingertips reach
+  38 units in over the face instead of 48, so the back's text starts at 50
+  instead of 60 (the thumb's margin 24 instead of 28). The index spreads 6°
+  more so it clears the card as the hand slides out from M2, the index and
+  little finger re-rest on the face, and the thumb is re-aimed just inside the
+  other edge. Tried and dropped: tightening the curl alone (too little to
+  see), and sliding the hand lower as well (looked much worse).

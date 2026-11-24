@@ -394,8 +394,11 @@ test.describe('the held close-up on a qualifying desktop', () => {
         const s = getComputedStyle(main);
         return { left: r.left + parseFloat(s.paddingLeft), right: r.right - parseFloat(s.paddingRight) };
       });
-      expect(column.left, `${size.width}`).toBeGreaterThanOrEqual(badge.x + badge.width * 0.21);
-      expect(column.right, `${size.width}`).toBeLessThanOrEqual(badge.x + badge.width * 0.9);
+      // The measured hand (badge units, 231 across): text clears the fingertips and the thumb by at least 10.
+      const unit = badge.width / 231;
+      const { fingersFromLeft, thumbFromRight } = HELD_HAND.reach;
+      expect(column.left, `${size.width}`).toBeGreaterThanOrEqual(badge.x + (fingersFromLeft + 10) * unit);
+      expect(column.right, `${size.width}`).toBeLessThanOrEqual(badge.x + badge.width - (thumbFromRight + 5) * unit);
     }
   });
 

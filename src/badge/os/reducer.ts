@@ -90,7 +90,7 @@ export function reduce(state: OsState, event: OsEvent, apps: readonly AppEntry[]
     case 'RESET':
       return {
         state: { ...state, mode: 'booting', appId: null, selected: 0, glitch: false },
-        effects: [...leaveApp(state), { type: 'startBoot' }],
+        effects: [...leaveApp(state), { type: 'resetTheme' }, { type: 'startBoot' }],
       };
     case 'UNLOCK_DEV':
       return none(clampSelected({ ...state, devMode: true }, apps));

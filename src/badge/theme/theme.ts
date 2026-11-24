@@ -7,6 +7,8 @@ const UNLOCKED_KEY = 'badge-unlocked';
 export interface ThemeController {
   get(): Theme;
   set(t: Theme): void;
+  /** Back to the default colors; boards already unlocked stay unlocked. */
+  reset(): void;
   unlock(id: BoardId): void;
   unlocked(): BoardId[];
 }
@@ -54,6 +56,10 @@ export function createThemeController(root: HTMLElement, storage: SafeStorage): 
       const next = parseTheme(JSON.stringify(t), unlocked());
       storage.set(THEME_KEY, JSON.stringify(next));
       apply(next);
+    },
+    reset() {
+      storage.remove(THEME_KEY);
+      apply(DEFAULT_THEME);
     },
     unlock(id) {
       if (!BOARDS.some((b) => b.id === id && b.hidden)) return;

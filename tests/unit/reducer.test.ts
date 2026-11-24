@@ -47,12 +47,12 @@ test('EXIT_APP closes the app', () => {
   const open = reduce(L, { type: 'INPUT', input: 'a' }, apps).state;
   expect(reduce(open, { type: 'EXIT_APP' }, apps).effects).toEqual([{ type: 'unmountApp', id: 'now' }]);
 });
-test('off ignores input; reset reboots and clears glitch', () => {
+test('off ignores input; reset reboots, clears glitch and resets the colors', () => {
   const off = reduce({ ...L, glitch: true }, { type: 'POWER_OFF' }, apps).state;
   expect(reduce(off, { type: 'INPUT', input: 'a' }, apps).state).toEqual(off);
   const r = reduce(off, { type: 'RESET' }, apps);
   expect(r.state).toMatchObject({ mode: 'booting', glitch: false });
-  expect(r.effects).toEqual([{ type: 'startBoot' }]);
+  expect(r.effects).toEqual([{ type: 'resetTheme' }, { type: 'startBoot' }]);
 });
 test('POWER_OFF inside an app unmounts it', () => {
   const inApp = reduce(L, { type: 'INPUT', input: 'a' }, apps).state;
@@ -60,7 +60,11 @@ test('POWER_OFF inside an app unmounts it', () => {
 });
 test('reset from inside an app unmounts it first', () => {
   const inApp = reduce(L, { type: 'INPUT', input: 'a' }, apps).state;
-  expect(reduce(inApp, { type: 'RESET' }, apps).effects).toEqual([{ type: 'unmountApp', id: 'now' }, { type: 'startBoot' }]);
+  expect(reduce(inApp, { type: 'RESET' }, apps).effects).toEqual([
+    { type: 'unmountApp', id: 'now' },
+    { type: 'resetTheme' },
+    { type: 'startBoot' },
+  ]);
 });
 test('SET_GLITCH sets glitch', () => {
   expect(reduce(L, { type: 'SET_GLITCH', on: true }, apps).state.glitch).toBe(true);

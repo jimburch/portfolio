@@ -19,6 +19,17 @@ test('reskin changes the board, persists, and carries to the back', async ({ pag
   await expect(page.locator('html')).toHaveAttribute('data-board', board!);
 });
 
+test('reset puts the default colors back', async ({ page }) => {
+  await openReskin(page);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('html')).not.toHaveAttribute('data-board', 'green');
+  await page.getByRole('button', { name: 'Reset badge' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-board', 'green');
+  await expect(page.locator('html')).toHaveAttribute('data-metal', 'gold');
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-board', 'green');
+});
+
 test('reskin works when storage is blocked', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));

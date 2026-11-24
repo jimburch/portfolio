@@ -98,18 +98,19 @@ The held close-up (#28) and the hand turn's last frame (#32) both rely on this.
   of radius 0.045 × width (as `.held-view__badge`).
 - **Bottom edge.** Cut through the sleeve at y = 600 (100 units below the
   badge). In the held framing the window ends about 12 units below the badge.
-- **Pose and camera.** v10 at t = 1 exactly: key P, the forearm aimed at
-  `ELBOW_UP` (wrist 10.1° ulnar, 16.6° extension), all five pads resting on
+- **Pose and camera.** The turn at t = 1 exactly: key P (v10's grip slid
+  10 px out over the edge), the forearm aimed at `ELBOW_UP` (wrist 9.1°
+  ulnar, 16.2° extension), all five pads resting on
   the face at curl 0. The badge face-on; the eye 1182 spike px (about 998
   units) in front of the card's mid-plane, centred across it and 6 spike px
   (5.07 units) below its centre (v10's perspective camera, its badge 6 px up).
 - **Line widths.** v10's, scaled with the badge: skin outline 1.93 units,
   inner lines 0.84; sleeve 1.43 and 0.76.
 - **Reach** (`reach` in the JSON, solid pixels over the face): fingertips
-  48.3 units in from the left edge, the thumb 21.5 in from the right, the hand
-  from 267.3 to 463.8 units down; the fingers' shadow fades out by about 60
-  units in. The back's padding tokens (`--held-finger-left` 60,
-  `--held-thumb-right` 28, `--held-hand-bottom` 30 from the bottom) keep text
+  38 units in from the left edge, the thumb 17.3 in from the right, the hand
+  from 284 to 461 units down; the fingers' shadow fades out by about 50
+  units in. The back's padding tokens (`--held-finger-left` 50,
+  `--held-thumb-right` 24, `--held-hand-bottom` 30 from the bottom) keep text
   clear of the hand and its shadow.
 
 ## The hand turn (#32)

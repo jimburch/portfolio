@@ -171,6 +171,8 @@ export function createRuntime(opts: {
         return unmountApp();
       case 'flip':
         return flip(effect.route);
+      case 'resetTheme':
+        return ctxBase.theme.reset();
     }
   }
 

@@ -62,4 +62,6 @@ export type OsEffect =
   | { type: 'flip'; route: string }
   | { type: 'mountApp'; id: string }
   | { type: 'unmountApp'; id: string }
-  | { type: 'startBoot' };
+  | { type: 'startBoot' }
+  /** The badge's colors back to the default (RESET). */
+  | { type: 'resetTheme' };

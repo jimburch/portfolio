@@ -1,4 +1,5 @@
-/* v10's key poses for the hand (docs/reference/hand-turn-spike/), unchanged.
+/* v10's key poses for the hand (docs/reference/hand-turn-spike/), unchanged but for P's place (slid out
+   over the edge, so the fingers cover less of the face) and the digits re-rested to match.
 
    Badge-local px, three.js axes: x right (as seen at rest), y up, z out of
    the FRONT face (the LCD side). The card is ±115.5 × ±250 with faces at
@@ -88,16 +89,20 @@ export const KEYS: Record<KeyName, KeyPose> = {
   },
   // P: presenting. Palm behind the card, all four fingertips curled over the +x long edge (the LEFT edge once
   // turned) onto the visible face, index highest, little finger lowest; the thumb pad on the face just inside the
-  // other edge. Wrist 10° ulnar / 17° extension.
+  // other edge. v10's grip slid 10 px out along +x (2026-11-21), so the fingertips reach 38 units in over the face,
+  // not v10's 48 (the held view keeps its text clear of them; held-hand.json `reach`). The index spreads 6° more
+  // (else it dips into the card while the hand slides out from M2), the index and little finger curl 12.9° and
+  // 0.6° more to rest on the face again, and the thumb is re-aimed to rest just inside the other edge.
+  // Wrist 9° ulnar / 16° extension.
   P: {
-    place: { p: [-80, -265, 141.3], F: [0.6179, 0.7364, -0.2756], N: [-0.1772, -0.2112, -0.9613] },
+    place: { p: [-70, -265, 141.3], F: [0.6179, 0.7364, -0.2756], N: [-0.1772, -0.2112, -0.9613] },
     fingers: {
-      index: [-27, -10, 35, 74, 0, 12.1],
+      index: [-33, -10, 35, 74, 0, 25],
       middle: [-33, -10, 65, 15.5, 0, 53.9],
       ring: [-25, 8, 75, 71.5, 4, 25.9],
-      pinky: [-27.5, -2, 62.5, 89.5, 8, 25],
+      pinky: [-27.5, -2, 62.5, 89.5, 8, 25.6],
     },
-    thumb: { cmc: [36.8, 31.2, 37.5], mcp: 58, ip: 75.4, curl: -3.4 },
+    thumb: { cmc: [48, 24.4, 21.5], mcp: 55.8, ip: 85.2 },
     contacts: { index: -1, middle: -1, ring: -1, pinky: -1, thumb: -1 },
   },
 };

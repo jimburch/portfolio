@@ -62,15 +62,15 @@
         calc(100% - var(--held-badge-top) - var(--held-badge-h)) round calc(var(--held-badge-w) * 0.045)
     );
 
-    /* Where the back keeps its content clear of the resting hand (spike
-       v10's final grip, in units of this badge; scene/hand/held-hand.json
-       `reach` has the measured hand). The four fingertips reach 48.3 units in
-       over the left edge, and their soft shadow on the face fades out by
-       about 60, so text starts at 60. The thumb reaches 21.5 units in over the
-       right edge (its shadow falls away from the text): 28 leaves a margin
-       like the fingers'. The lowest fingertip is at 463.8 of 500. */
-    --held-finger-left: calc(60 * var(--held-u));
-    --held-thumb-right: calc(28 * var(--held-u));
+    /* Where the back keeps its content clear of the resting hand (the final
+       grip, in units of this badge; scene/hand/held-hand.json `reach` has the
+       measured hand). The four fingertips reach 38 units in over the left
+       edge, and their soft shadow on the face fades out about 12 further, so
+       text starts at 50. The thumb reaches 17.3 units in over the right edge
+       (its shadow falls away from the text): 24 leaves a margin like the
+       fingers'. The lowest fingertip is at 461 of 500. */
+    --held-finger-left: calc(50 * var(--held-u));
+    --held-thumb-right: calc(24 * var(--held-u));
     --held-hand-bottom: calc(30 * var(--held-u));
 
     /* Layers over the back content, back to front. */
@@ -148,7 +148,7 @@
 
   /* ---- The resting hand: two static images ------------------------------ */
 
-  /* v10's final grip, pre-rendered (scene/hand/held-hand.ts): the whole hand
+  /* The turn's final grip, pre-rendered (scene/hand/held-hand.ts): the whole hand
      behind the badge, and its near side (the four fingertips over the left
      edge, the thumb on the face) in front of it. Both cover the same box, set
      on the element in badge units from the held badge's top-left corner. The

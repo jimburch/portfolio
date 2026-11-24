@@ -1,4 +1,4 @@
-/* The resting hand on the held badge: two static images of v10's final grip,
+/* The resting hand on the held badge: two static images of the turn's final grip,
    one behind the badge (held-hand-behind.webp) and one in front of it
    (held-hand-front.webp, with the hand's soft shadow on the face). Rendered
    by scripts/hand/render-held-hand.mjs (`pnpm hand:images`), which also

@@ -46,3 +46,16 @@ test('controller applies, persists and unlocks', () => {
   const again = createThemeController(fakeRoot().root, store);
   expect(again.get()).toEqual({ board: 'midnight', metal: 'silver' });
 });
+
+test('reset puts the default colors back and keeps the unlocks', () => {
+  const store = createSafeStorage(() => undefined);
+  const { attrs, root } = fakeRoot();
+  const c = createThemeController(root, store);
+  c.unlock('midnight');
+  c.set({ board: 'midnight', metal: 'silver' });
+  c.reset();
+  expect(c.get()).toEqual(DEFAULT_THEME);
+  expect(attrs).toMatchObject({ board: 'green', metal: 'gold' });
+  expect(c.unlocked()).toEqual(['midnight']);
+  expect(createThemeController(fakeRoot().root, store).get()).toEqual(DEFAULT_THEME);
+});
